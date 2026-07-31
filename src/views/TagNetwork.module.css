@@ -1,0 +1,41 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  margin: var(--space-2) 0;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.controls input[type='search'] {
+  font: inherit;
+  padding: 2px var(--space-2);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.node {
+  cursor: pointer;
+}
+
+.node:focus-visible circle {
+  stroke: var(--enji);
+  stroke-width: 3px;
+}
+
+.nodeLabel {
+  font-size: 12px;
+  fill: var(--sumi);
+  paint-order: stroke;
+  stroke: var(--shironeri);
+  stroke-width: 3px;
+}

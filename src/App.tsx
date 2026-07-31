@@ -8,11 +8,13 @@ import type { Library, ViewId } from './lib/types'
 import { useFilterStore } from './store/filters'
 import { AcquisitionReading } from './views/AcquisitionReading'
 import { KnowledgeMap } from './views/KnowledgeMap'
+import { TagNetwork } from './views/TagNetwork'
 
 /** Views tragen sich hier ein, sobald sie gebaut sind (Tasks 7–14). */
 export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: ComponentType }>> = {
   timeline: { label: 'Erwerb & Lektüre', component: AcquisitionReading },
   knowledge: { label: 'Wissenslandkarte', component: KnowledgeMap },
+  network: { label: 'Tag-Netzwerk', component: TagNetwork },
 }
 
 /** Navigationsreihenfolge; Task 12 stellt 'shelf' nach vorn. */
