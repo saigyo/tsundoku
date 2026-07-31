@@ -7,10 +7,12 @@ import { loadLibrary, LibraryMissingError } from './lib/loadLibrary'
 import type { Library, ViewId } from './lib/types'
 import { useFilterStore } from './store/filters'
 import { AcquisitionReading } from './views/AcquisitionReading'
+import { KnowledgeMap } from './views/KnowledgeMap'
 
 /** Views tragen sich hier ein, sobald sie gebaut sind (Tasks 7–14). */
 export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: ComponentType }>> = {
   timeline: { label: 'Erwerb & Lektüre', component: AcquisitionReading },
+  knowledge: { label: 'Wissenslandkarte', component: KnowledgeMap },
 }
 
 /** Navigationsreihenfolge; Task 12 stellt 'shelf' nach vorn. */
