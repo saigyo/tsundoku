@@ -1,0 +1,48 @@
+import type { Book } from './types'
+
+let seq = 0
+
+export function mkBook(over: Partial<Book> = {}): Book {
+  seq += 1
+  return {
+    id: String(seq),
+    title: `Buch ${seq}`,
+    originalTitle: null,
+    authors: [],
+    primaryAuthor: null,
+    tags: [],
+    tagsNorm: [],
+    collections: [],
+    genres: [],
+    series: [],
+    awards: [],
+    ddc: null,
+    languages: [],
+    originalLanguages: [],
+    editionYear: null,
+    formats: [],
+    mediaType: 'book',
+    pages: null,
+    volumes: null,
+    physical: { heightMm: null, thicknessMm: null, lengthMm: null, weightG: null },
+    rating: null,
+    acquiredDate: null,
+    acquiredYear: null,
+    entryDate: null,
+    entryYear: null,
+    bulkImport: false,
+    startedDate: null,
+    readDate: null,
+    readYear: null,
+    yearTags: [],
+    readYearEffective: null,
+    readYearSource: null,
+    readDays: null,
+    hasRead: false,
+    fromWhere: null,
+    price: null,
+    comment: null,
+    isbn: null,
+    ...over,
+  }
+}
