@@ -1,0 +1,26 @@
+:root {
+  /* Palette: traditionelle japanische Farbnamen (siehe CLAUDE.md) */
+  --sumi: #1c1b19;          /* Tusche — Text, Grund */
+  --shironeri: #eee8dc;     /* ungebleichte Seide — Fläche */
+  --paper: #f4efe6;         /* hellere Kartenfläche */
+  --kon: #223a70;           /* Indigo — Primärakzent */
+  --enji: #9e3d3b;          /* Karmin — Gegenakzent */
+  --rikyu: #7a8b4a;         /* Grau-Grün — tertiär */
+  --ink-70: rgba(28, 27, 25, 0.7);
+  --ink-45: rgba(28, 27, 25, 0.45);
+  --ink-15: rgba(28, 27, 25, 0.15);
+  --ink-08: rgba(28, 27, 25, 0.08);
+
+  --font-display: 'Fraunces', 'Noto Sans JP', serif;
+  --font-body: 'Source Sans 3', 'Noto Sans JP', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Noto Sans JP', monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius: 2px;
+  --focus-ring: 2px solid var(--kon);
+}
