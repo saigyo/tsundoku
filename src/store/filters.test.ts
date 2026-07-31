@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { AWARD_SYNONYMS } from '../lib/awards'
 import { mkBook } from '../lib/fixtures'
 import { filterBooks, filterLabel, sameFilter, useFilterStore } from './filters'
 
@@ -57,6 +58,34 @@ describe('filterBooks', () => {
   })
   it('author matcht über authors[].name oder primaryAuthor (Author-Objekte)', () => {
     expect(filterBooks(all, [{ kind: 'author', value: 'Haruki Murakami' }])).toEqual([roman])
+  })
+  it('mediaType matcht auf b.mediaType', () => {
+    const film = mkBook({ mediaType: 'film' })
+    const book = mkBook({ mediaType: 'book' })
+    expect(filterBooks([film, book], [{ kind: 'mediaType', value: 'film' }])).toEqual([film])
+  })
+  it('collection matcht auf b.collections', () => {
+    const withCollection = mkBook({ collections: ['Bibliothek Ost'] })
+    const withoutCollection = mkBook({ collections: [] })
+    expect(
+      filterBooks([withCollection, withoutCollection], [{ kind: 'collection', value: 'Bibliothek Ost' }]),
+    ).toEqual([withCollection])
+  })
+  it('award matcht via canonicalAward: Identität ohne Synonym-Eintrag', () => {
+    const withAward = mkBook({ awards: ['Hugo Award'] })
+    const withoutAward = mkBook({ awards: [] })
+    expect(filterBooks([withAward, withoutAward], [{ kind: 'award', value: 'Hugo Award' }])).toEqual([withAward])
+  })
+  it('award matcht via canonicalAward: Synonym wird auf den Kanon-Namen aufgelöst', () => {
+    AWARD_SYNONYMS['Hugo Award (Übersetzung)'] = 'Hugo Award'
+    try {
+      const rawSynonym = mkBook({ awards: ['Hugo Award (Übersetzung)'] })
+      const other = mkBook({ awards: ['Nebula Award'] })
+      // Filterwert ist der Kanon-Name; der Buchdatensatz trägt die rohe Synonym-Schreibweise.
+      expect(filterBooks([rawSynonym, other], [{ kind: 'award', value: 'Hugo Award' }])).toEqual([rawSynonym])
+    } finally {
+      delete AWARD_SYNONYMS['Hugo Award (Übersetzung)']
+    }
   })
 })
 
