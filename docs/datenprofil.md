@@ -126,6 +126,18 @@ Ein `Book` trägt u. a.: `id`, `title`, `originalTitle`, `authors[]`,
 
 Fehlende Werte sind konsequent `null`, nie `""`, `0` oder `"unknown"`.
 
+**Abweichungen des Generats von der obigen Kurzbeschreibung** (geprüft in Task 3
+gegen `public/data/library.json`, Typen in `src/lib/types.ts` entsprechend
+angepasst — das Generat gilt):
+- `authors[]` enthält Objekte `{ name, sort, role }` (`role` Freitext oder
+  `null`), nicht nur Namensstrings.
+- `Book.entryYear` (`number | null`) existiert zusätzlich zu `entryDate`.
+- `Book.readYearSource` nimmt den Wert `"tag"` an, nicht `"yeartag"`.
+- `stats` enthält neben den Facetten zusätzlich `generatedAt`, `source`,
+  `total`, `byMediaType`, `read`, `withAcquiredDate`, `withReadDate`,
+  `withReadYearEffective`, `withRating`, `bulkImported`, `pagesTotal` und
+  `readDays` (`{ median, p90, max }`, keine Facette).
+
 ## Kennzahlen zum Gegenprüfen
 
 | Kennzahl                          | Wert                            |
