@@ -1,0 +1,42 @@
+.center {
+  padding: var(--space-6);
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--ink-15);
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 28px;
+  letter-spacing: 0.02em;
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.navItem {
+  border: none;
+  background: none;
+  padding: var(--space-1) var(--space-3);
+  color: var(--ink-70);
+  border-bottom: 2px solid transparent;
+}
+
+.navItem[aria-current='page'] {
+  color: var(--sumi);
+  border-bottom-color: var(--enji);
+}
+
+.main {
+  padding: var(--space-5);
+}

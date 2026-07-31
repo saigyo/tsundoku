@@ -1,0 +1,20 @@
+.grid {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 40px;
+}
+
+.label {
+  color: var(--ink-70);
+}
+
+.hint {
+  flex-basis: 100%;
+  color: var(--ink-70);
+}

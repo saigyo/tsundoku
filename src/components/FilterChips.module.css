@@ -1,0 +1,30 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  border-bottom: 1px solid var(--ink-15);
+  background: var(--paper);
+}
+
+.chip {
+  border: 1px solid var(--kon);
+  background: transparent;
+  color: var(--kon);
+  border-radius: var(--radius);
+  padding: 2px var(--space-2);
+  font-size: 14px;
+}
+
+.chip:hover {
+  background: var(--kon);
+  color: var(--shironeri);
+}
+
+.clear {
+  border: none;
+  background: transparent;
+  color: var(--enji);
+  text-decoration: underline;
+  font-size: 14px;
+}
