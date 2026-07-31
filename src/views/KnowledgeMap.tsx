@@ -91,7 +91,7 @@ export function KnowledgeMap() {
               onPointerLeave={() => setHoverClass(null)}
               onClick={() => toggleFilter({ kind: 'ddcTop', value: s.key })}
             >
-              <title>{`${s.key} ${DDC_LABELS[s.key]}: ${fmtInt(classCounts.get(s.key) ?? 0)} Titel`}</title>
+              <title>{`${s.key} ${DDC_LABELS[s.key]}: ${fmtInt(Math.round(classCounts.get(s.key) ?? 0))} Titel`}</title>
             </path>
           ))}
           <AxisBottom ticks={xTicks} y={H - M.bottom + 2} />
