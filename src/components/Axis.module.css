@@ -1,0 +1,9 @@
+.tick {
+  stroke: var(--ink-45);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-70);
+}
