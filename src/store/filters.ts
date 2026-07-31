@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { canonicalAward } from '../lib/awards'
 import { DDC_SHORT } from '../lib/ddc'
+import { langLabel } from '../lib/languages'
 import { DEFAULT_VIEW, type Book, type Filter, type RangeKind, type ViewId } from '../lib/types'
 
 const MEDIA_LABELS: Record<string, string> = {
@@ -64,9 +65,9 @@ export function filterLabel(f: Filter): string {
     case 'tag':
       return `Tag: ${f.value}`
     case 'language':
-      return `Sprache: ${f.value}`
+      return `Sprache: ${langLabel(f.value)}`
     case 'originalLanguage':
-      return `Original: ${f.value}`
+      return `Original: ${langLabel(f.value)}`
     case 'ddcTop':
       return `Wissensgebiet: ${DDC_SHORT[f.value] ?? f.value}`
     case 'mediaType':

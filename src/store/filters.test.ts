@@ -103,6 +103,7 @@ describe('filterLabel', () => {
     expect(filterLabel({ kind: 'ddcTop', value: 8 })).toBe('Wissensgebiet: Literatur')
     expect(filterLabel({ kind: 'acquiredYear', from: 2010, to: 2015 })).toBe('Erworben: 2010–2015')
     expect(filterLabel({ kind: 'readStatus', value: 'unread' })).toBe('Status: ungelesen')
+    expect(filterLabel({ kind: 'language', value: 'Japanese' })).toBe('Sprache: Japanisch')
   })
 })
 
