@@ -10,6 +10,7 @@ import { AcquisitionReading } from './views/AcquisitionReading'
 import { KnowledgeMap } from './views/KnowledgeMap'
 import { LanguageFlow } from './views/LanguageFlow'
 import { TagNetwork } from './views/TagNetwork'
+import { YearMatrix } from './views/YearMatrix'
 
 /** Views tragen sich hier ein, sobald sie gebaut sind (Tasks 7–14). */
 export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: ComponentType }>> = {
@@ -17,6 +18,7 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: C
   knowledge: { label: 'Wissenslandkarte', component: KnowledgeMap },
   network: { label: 'Tag-Netzwerk', component: TagNetwork },
   languages: { label: 'Sprachfluss', component: LanguageFlow },
+  years: { label: 'Ausgabe × Erwerb', component: YearMatrix },
 }
 
 /** Navigationsreihenfolge; Task 12 stellt 'shelf' nach vorn. */

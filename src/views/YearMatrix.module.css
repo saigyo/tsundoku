@@ -1,0 +1,31 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.underflow {
+  font-size: 14px;
+  color: var(--ink-70);
+  margin: var(--space-1) 0;
+}
+
+.axisTitle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  fill: var(--ink-70);
+}
+
+.rangeForm {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: 14px;
+  margin-top: var(--space-2);
+}
+
+.rangeForm input {
+  width: 5em;
+  font-family: var(--font-mono);
+}
