@@ -138,7 +138,12 @@ export function AcquisitionReading() {
             onPointerMove={(e) => {
               const px = localX(e)
               setDrag((d) => (d ? { ...d, x1: px } : d))
-              setHover({ year: yearAt(px), px: px + M.left, py: e.clientY - e.currentTarget.getBoundingClientRect().top })
+              const wrapRect = wrapRef.current?.getBoundingClientRect()
+              setHover({
+                year: yearAt(px),
+                px: wrapRect ? e.clientX - wrapRect.left : px,
+                py: wrapRect ? e.clientY - wrapRect.top : 0,
+              })
             }}
             onPointerUp={() => {
               if (drag) {
