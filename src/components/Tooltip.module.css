@@ -1,0 +1,13 @@
+.tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background: var(--sumi);
+  color: var(--shironeri);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  font-size: 13px;
+  max-width: 22rem;
+  z-index: 10;
+}

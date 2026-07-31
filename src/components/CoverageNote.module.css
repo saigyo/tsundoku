@@ -1,0 +1,9 @@
+.note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-70);
+}
+
+.numbers {
+  font-family: var(--font-mono);
+}
