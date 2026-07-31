@@ -14,16 +14,9 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
-const inPath = process.argv[2]
-const outPath = process.argv[3] ?? resolve(HERE, '../public/data/library.json')
-
-if (!inPath) {
-  console.error('Usage: node scripts/normalize.mjs <export.json> [out.json]')
-  process.exit(1)
-}
 
 const aliases = JSON.parse(readFileSync(resolve(HERE, 'tag-aliases.json'), 'utf8'))
 delete aliases._comment
@@ -135,135 +128,166 @@ function mediaType(formats, collections) {
 
 // ---------------------------------------------------------------------------
 
-const raw = JSON.parse(readFileSync(inPath, 'utf8'))
-const records = Object.values(raw)
+/**
+ * Reine Transformation: Rohexport { books_id: record } -> { stats, books }.
+ * Kein I/O hier — lesen/schreiben/drucken macht ausschliesslich main().
+ * `source` ist rein informativ fuer stats.source und optional, damit die
+ * Funktion auch ausserhalb des CLI-Kontexts (z. B. in Tests) mit nur einem
+ * Argument aufgerufen werden kann.
+ */
+function normalize(raw, source = null) {
+  const records = Object.values(raw)
 
-// Massenimporte erkennen: Tage mit auffaellig vielen Eintraegen sind
-// Katalogisierungs-Sessions, kein Erwerbsverhalten.
-const perEntryDate = new Map()
-for (const r of records) perEntryDate.set(r.entrydate, (perEntryDate.get(r.entrydate) ?? 0) + 1)
-const BULK_THRESHOLD = 50
-const bulkDates = new Set([...perEntryDate].filter(([, n]) => n >= BULK_THRESHOLD).map(([d]) => d))
+  // Massenimporte erkennen: Tage mit auffaellig vielen Eintraegen sind
+  // Katalogisierungs-Sessions, kein Erwerbsverhalten.
+  const perEntryDate = new Map()
+  for (const r of records) perEntryDate.set(r.entrydate, (perEntryDate.get(r.entrydate) ?? 0) + 1)
+  const BULK_THRESHOLD = 50
+  const bulkDates = new Set([...perEntryDate].filter(([, n]) => n >= BULK_THRESHOLD).map(([d]) => d))
 
-const books = records.map((r) => {
-  const collections = r.collections ?? []
-  const formats = (r.format ?? []).map((f) => (typeof f === 'string' ? f : f.text)).filter(Boolean)
-  const acquired = toDate(r.dateacquired)
-  const entry = toDate(r.entrydate)
-  const started = toDate(r.datestarted)
-  const read = toDate(r.dateread)
-  const ddcCode = r.ddc?.code?.[0] ?? null
-  const tags = (r.tags ?? []).map(String)
-  // Jahres-Tags sind das aelteste Lesetagebuch: 912 von 917 pruefbaren Faellen
-  // stimmen exakt mit dateread ueberein. Sie reichen bis 1988 zurueck.
-  const yearTags = tags.filter((t) => YEAR_TAG.test(t)).map(Number).sort()
+  const books = records.map((r) => {
+    const collections = r.collections ?? []
+    const formats = (r.format ?? []).map((f) => (typeof f === 'string' ? f : f.text)).filter(Boolean)
+    const acquired = toDate(r.dateacquired)
+    const entry = toDate(r.entrydate)
+    const started = toDate(r.datestarted)
+    const read = toDate(r.dateread)
+    const ddcCode = r.ddc?.code?.[0] ?? null
+    const tags = (r.tags ?? []).map(String)
+    // Jahres-Tags sind das aelteste Lesetagebuch: 912 von 917 pruefbaren Faellen
+    // stimmen exakt mit dateread ueberein. Sie reichen bis 1988 zurueck.
+    const yearTags = tags.filter((t) => YEAR_TAG.test(t)).map(Number).sort()
 
-  return {
-    id: r.books_id,
-    title: r.title,
-    originalTitle: r.originaltitle ?? null,
-    primaryAuthor: r.primaryauthor ?? null,
-    authors: (r.authors ?? []).map((a) => ({ name: a.fl, sort: a.lf, role: a.role ?? null })),
-    tags,
-    tagsNorm: [...new Set(tags.map(normTag))],
-    collections,
-    genres: r.genre ?? [],
-    series: r.series ?? [],
-    awards: r.awards ?? [],
-    ddc: ddcCode
-      ? { code: ddcCode, top: Number(String(ddcCode)[0]), topLabel: DDC_TOP[Number(String(ddcCode)[0])] ?? null }
-      : null,
-    languages: r.language ?? [],
-    originalLanguages: r.originallanguage ?? [],
-    // Achtung: r.date ist das Jahr DIESER Ausgabe, nicht der Erstveroeffentlichung.
-    editionYear: toDate(r.date).year,
-    formats,
-    mediaType: mediaType(formats, collections),
-    pages: toPages(r.pages),
-    volumes: r.volumes ? Number(r.volumes) : null,
-    physical: {
-      heightMm: toMm(r.height),
-      thicknessMm: toMm(r.thickness),
-      lengthMm: toMm(r.length),
-      weightG: toGrams(r.weight),
-    },
-    rating: typeof r.rating === 'number' ? r.rating : null,
-    acquiredDate: acquired.date,
-    acquiredYear: acquired.year,
-    entryDate: entry.date,
-    entryYear: entry.year,
-    bulkImport: bulkDates.has(r.entrydate),
-    startedDate: started.date,
-    readDate: read.date,
-    readYear: read.year,
-    yearTags,
-    // Fuer alle Zeitreihen zur Lektuere: bevorzugt dateread, sonst Jahres-Tag.
-    readYearEffective: read.year ?? yearTags[0] ?? null,
-    readYearSource: read.year ? 'dateread' : yearTags.length ? 'tag' : null,
-    readDays: daysBetween(started.date, read.date),
-    hasRead: collections.includes('Have read') || collections.includes('Read but unowned'),
-    fromWhere: r.fromwhere ?? null,
-    price: toPrice(r.price),
-    comment: r.comment ?? null,
-    isbn: r.originalisbn ?? null,
+    return {
+      id: r.books_id,
+      title: r.title,
+      originalTitle: r.originaltitle ?? null,
+      primaryAuthor: r.primaryauthor ?? null,
+      authors: (r.authors ?? []).map((a) => ({ name: a.fl, sort: a.lf, role: a.role ?? null })),
+      tags,
+      tagsNorm: [...new Set(tags.map(normTag))],
+      collections,
+      genres: r.genre ?? [],
+      series: r.series ?? [],
+      awards: r.awards ?? [],
+      ddc: ddcCode
+        ? { code: ddcCode, top: Number(String(ddcCode)[0]), topLabel: DDC_TOP[Number(String(ddcCode)[0])] ?? null }
+        : null,
+      languages: r.language ?? [],
+      originalLanguages: r.originallanguage ?? [],
+      // Achtung: r.date ist das Jahr DIESER Ausgabe, nicht der Erstveroeffentlichung.
+      editionYear: toDate(r.date).year,
+      formats,
+      mediaType: mediaType(formats, collections),
+      pages: toPages(r.pages),
+      volumes: r.volumes ? Number(r.volumes) : null,
+      physical: {
+        heightMm: toMm(r.height),
+        thicknessMm: toMm(r.thickness),
+        lengthMm: toMm(r.length),
+        weightG: toGrams(r.weight),
+      },
+      rating: typeof r.rating === 'number' ? r.rating : null,
+      acquiredDate: acquired.date,
+      acquiredYear: acquired.year,
+      entryDate: entry.date,
+      entryYear: entry.year,
+      bulkImport: bulkDates.has(r.entrydate),
+      startedDate: started.date,
+      readDate: read.date,
+      readYear: read.year,
+      yearTags,
+      // Fuer alle Zeitreihen zur Lektuere: bevorzugt dateread, sonst Jahres-Tag.
+      readYearEffective: read.year ?? yearTags[0] ?? null,
+      readYearSource: read.year ? 'dateread' : yearTags.length ? 'tag' : null,
+      readDays: daysBetween(started.date, read.date),
+      hasRead: collections.includes('Have read') || collections.includes('Read but unowned'),
+      fromWhere: r.fromwhere ?? null,
+      price: toPrice(r.price),
+      comment: r.comment ?? null,
+      isbn: r.originalisbn ?? null,
+    }
+  })
+
+  // --- Facetten & Kennzahlen fuer die Startansicht ---------------------------
+
+  /** Facettenzaehlung als Array von [Wert, Anzahl], absteigend sortiert.
+   *  Bewusst kein Objekt: JS sortiert integer-artige Keys ("2004") nach vorne. */
+  const count = (fn) => {
+    const m = new Map()
+    for (const b of books) for (const v of fn(b) ?? []) if (v != null) m.set(v, (m.get(v) ?? 0) + 1)
+    return [...m].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))
   }
-})
 
-// --- Facetten & Kennzahlen fuer die Startansicht ---------------------------
+  const durations = books.map((b) => b.readDays).filter((d) => d != null && d >= 0).sort((a, b) => a - b)
+  const pct = (arr, p) => (arr.length ? arr[Math.floor(arr.length * p)] : null)
 
-/** Facettenzaehlung als Array von [Wert, Anzahl], absteigend sortiert.
- *  Bewusst kein Objekt: JS sortiert integer-artige Keys ("2004") nach vorne. */
-const count = (fn) => {
-  const m = new Map()
-  for (const b of books) for (const v of fn(b) ?? []) if (v != null) m.set(v, (m.get(v) ?? 0) + 1)
-  return [...m].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))
+  const stats = {
+    generatedAt: new Date().toISOString(),
+    source,
+    total: books.length,
+    byMediaType: count((b) => [b.mediaType]),
+    read: books.filter((b) => b.hasRead).length,
+    withAcquiredDate: books.filter((b) => b.acquiredYear).length,
+    withReadDate: books.filter((b) => b.readYear).length,
+    withReadYearEffective: books.filter((b) => b.readYearEffective).length,
+    withRating: books.filter((b) => b.rating != null).length,
+    bulkImported: books.filter((b) => b.bulkImport).length,
+    pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
+    readDays: { median: pct(durations, 0.5), p90: pct(durations, 0.9), max: durations.at(-1) ?? null },
+    languages: count((b) => b.languages),
+    originalLanguages: count((b) => b.originalLanguages),
+    collections: count((b) => b.collections),
+    genres: count((b) => b.genres),
+    ddcTop: count((b) => (b.ddc ? [b.ddc.topLabel] : [])),
+    formats: count((b) => b.formats),
+    tagsNorm: count((b) => b.tagsNorm),
+    authors: count((b) => (b.primaryAuthor ? [b.primaryAuthor] : [])),
+    series: count((b) => b.series),
+    awards: count((b) => b.awards),
+    fromWhere: count((b) => (b.fromWhere ? [b.fromWhere] : [])),
+    acquiredPerYear: count((b) => (b.acquiredYear ? [b.acquiredYear] : [])),
+    readPerYear: count((b) => (b.readYear ? [b.readYear] : [])),
+    readPerYearEffective: count((b) => (b.readYearEffective ? [b.readYearEffective] : [])),
+  }
+
+  return { stats, books }
 }
 
-const durations = books.map((b) => b.readDays).filter((d) => d != null && d >= 0).sort((a, b) => a - b)
-const pct = (arr, p) => (arr.length ? arr[Math.floor(arr.length * p)] : null)
+// ---------------------------------------------------------------------------
 
-const stats = {
-  generatedAt: new Date().toISOString(),
-  source: inPath,
-  total: books.length,
-  byMediaType: count((b) => [b.mediaType]),
-  read: books.filter((b) => b.hasRead).length,
-  withAcquiredDate: books.filter((b) => b.acquiredYear).length,
-  withReadDate: books.filter((b) => b.readYear).length,
-  withReadYearEffective: books.filter((b) => b.readYearEffective).length,
-  withRating: books.filter((b) => b.rating != null).length,
-  bulkImported: books.filter((b) => b.bulkImport).length,
-  pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
-  readDays: { median: pct(durations, 0.5), p90: pct(durations, 0.9), max: durations.at(-1) ?? null },
-  languages: count((b) => b.languages),
-  originalLanguages: count((b) => b.originalLanguages),
-  collections: count((b) => b.collections),
-  genres: count((b) => b.genres),
-  ddcTop: count((b) => (b.ddc ? [b.ddc.topLabel] : [])),
-  formats: count((b) => b.formats),
-  tagsNorm: count((b) => b.tagsNorm),
-  authors: count((b) => (b.primaryAuthor ? [b.primaryAuthor] : [])),
-  series: count((b) => b.series),
-  awards: count((b) => b.awards),
-  fromWhere: count((b) => (b.fromWhere ? [b.fromWhere] : [])),
-  acquiredPerYear: count((b) => (b.acquiredYear ? [b.acquiredYear] : [])),
-  readPerYear: count((b) => (b.readYear ? [b.readYear] : [])),
-  readPerYearEffective: count((b) => (b.readYearEffective ? [b.readYearEffective] : [])),
+/** I/O-Huelle: Argumente lesen, Datei einlesen, normalize() aufrufen, schreiben, drucken. */
+function main() {
+  const inPath = process.argv[2]
+  const outPath = process.argv[3] ?? resolve(HERE, '../public/data/library.json')
+
+  if (!inPath) {
+    console.error('Usage: node scripts/normalize.mjs <export.json> [out.json]')
+    process.exit(1)
+  }
+
+  const raw = JSON.parse(readFileSync(inPath, 'utf8'))
+  const { stats, books } = normalize(raw, inPath)
+
+  mkdirSync(dirname(outPath), { recursive: true })
+  writeFileSync(outPath, JSON.stringify({ stats, books }))
+
+  console.log(`${books.length} Einträge -> ${outPath}`)
+  console.log(
+    `  Medien: ${JSON.stringify(stats.byMediaType)} | gelesen: ${stats.read} | Massenimport-Flag: ${stats.bulkImported}`,
+  )
+  console.log(
+    `  Seiten gesamt: ${stats.pagesTotal.toLocaleString('de-DE')} | Lesedauer Median/p90/max: ` +
+      `${stats.readDays.median}/${stats.readDays.p90}/${stats.readDays.max} Tage`,
+  )
+  console.log(`  Tags: ${stats.tagsNorm.length} normalisiert (roh: ${new Set(books.flatMap((b) => b.tags)).size})`)
+  console.log(
+    `  Lesejahr bekannt: ${stats.withReadYearEffective} (davon ${stats.withReadDate} per dateread, Rest aus Jahres-Tags), ` +
+      `ab ${Math.min(...stats.readPerYearEffective.map(([y]) => y))}`,
+  )
 }
 
-mkdirSync(dirname(outPath), { recursive: true })
-writeFileSync(outPath, JSON.stringify({ stats, books }))
+export { toPages, toMm, toGrams, toPrice, toDate, daysBetween, normTag, mediaType, normalize }
 
-console.log(`${books.length} Einträge -> ${outPath}`)
-console.log(
-  `  Medien: ${JSON.stringify(stats.byMediaType)} | gelesen: ${stats.read} | Massenimport-Flag: ${stats.bulkImported}`,
-)
-console.log(
-  `  Seiten gesamt: ${stats.pagesTotal.toLocaleString('de-DE')} | Lesedauer Median/p90/max: ` +
-    `${stats.readDays.median}/${stats.readDays.p90}/${stats.readDays.max} Tage`,
-)
-console.log(`  Tags: ${stats.tagsNorm.length} normalisiert (roh: ${new Set(books.flatMap((b) => b.tags)).size})`)
-console.log(
-  `  Lesejahr bekannt: ${stats.withReadYearEffective} (davon ${stats.withReadDate} per dateread, Rest aus Jahres-Tags), ` +
-    `ab ${Math.min(...stats.readPerYearEffective.map(([y]) => y))}`,
-)
+const isCli = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+if (isCli) main()
