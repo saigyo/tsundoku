@@ -148,6 +148,44 @@ function normTag(tag) {
   return aliases[t.toLowerCase()] ?? t
 }
 
+/**
+ * Regel 10 (rohe HTML-Entities): Titel und Autorennamen enthalten teils
+ * unaufgelöste HTML-Entities — numerisch (CJK-Zeichen als `&#23476;`,
+ * kyrillische/griechische Buchstaben) und benannt (`&uuml;`, `&#039;`).
+ * Vermutlich ein Re-Import-Artefakt aus LibraryThings eigener Anzeige.
+ * Namensmenge unten deckt exakt das ab, was im realen Export vorkommt
+ * (per `node -e` gegen den Rohexport geprüft) plus die vier XML-Basisentities
+ * als Sicherheitsnetz — keine vollständige HTML5-Tabelle.
+ */
+const NAMED_ENTITIES = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
+  aacute: 'á', acirc: 'â', agrave: 'à', aring: 'å', atilde: 'ã', auml: 'ä',
+  ccedil: 'ç', eacute: 'é', ecirc: 'ê', egrave: 'è', euml: 'ë',
+  iacute: 'í', icirc: 'î', ntilde: 'ñ', oacute: 'ó', ocirc: 'ô', Ocirc: 'Ô',
+  oslash: 'ø', ouml: 'ö', Ouml: 'Ö', szlig: 'ß', ucirc: 'û', uuml: 'ü', Uuml: 'Ü',
+  ndash: '–', laquo: '«', raquo: '»', lsaquo: '‹', rsaquo: '›',
+  // Griechische Buchstaben (Autoren-/Werktitel in Altgriechisch)
+  alpha: 'α', chi: 'χ', epsilon: 'ε', eta: 'η', iota: 'ι', kappa: 'κ',
+  lambda: 'λ', Lambda: 'Λ', mu: 'μ', nu: 'ν', Nu: 'Ν', omicron: 'ο',
+  pi: 'π', Pi: 'Π', psi: 'ψ', rho: 'ρ', sigma: 'σ', Sigma: 'Σ', sigmaf: 'ς',
+  tau: 'τ', Tau: 'Τ', theta: 'θ', upsilon: 'υ',
+}
+
+const ENTITY_RE = /&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z]+);/g
+
+/** Dekodiert numerische (dezimal/hex) und die oben gelisteten benannten Entities. */
+function decodeEntities(raw) {
+  if (raw == null) return raw
+  const s = String(raw)
+  return s.replace(ENTITY_RE, (match, body) => {
+    if (body[0] === '#') {
+      const code = body[1] === 'x' || body[1] === 'X' ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10)
+      return isFinite(code) ? String.fromCodePoint(code) : match
+    }
+    return NAMED_ENTITIES[body] ?? match
+  })
+}
+
 const YEAR_TAG = /^(19|20)\d{2}$/
 
 /** Medientyp: die Bibliothek enthaelt auch Platten und Filme. */
@@ -182,6 +220,15 @@ function normalize(raw, source = null) {
   let dimsRotated = 0
   let dimsDiscarded = 0
 
+  // Regel 10: HTML-Entities in Freitextfeldern (siehe decodeEntities).
+  let entitiesDecoded = 0
+  const decode = (s) => {
+    if (s == null) return s
+    const out = decodeEntities(s)
+    if (out !== s) entitiesDecoded++
+    return out
+  }
+
   const books = records.map((r) => {
     const collections = r.collections ?? []
     const formats = (r.format ?? []).map((f) => (typeof f === 'string' ? f : f.text)).filter(Boolean)
@@ -197,10 +244,14 @@ function normalize(raw, source = null) {
 
     return {
       id: r.books_id,
-      title: r.title,
-      originalTitle: r.originaltitle ?? null,
-      primaryAuthor: r.primaryauthor ?? null,
-      authors: (r.authors ?? []).map((a) => ({ name: a.fl, sort: a.lf, role: a.role ?? null })),
+      title: decode(r.title),
+      originalTitle: decode(r.originaltitle ?? null),
+      primaryAuthor: decode(r.primaryauthor ?? null),
+      authors: (r.authors ?? []).map((a) => ({
+        name: decode(a.fl),
+        sort: decode(a.lf),
+        role: decode(a.role ?? null),
+      })),
       tags,
       tagsNorm: [...new Set(tags.map(normTag))],
       collections,
@@ -277,6 +328,7 @@ function normalize(raw, source = null) {
     bulkImported: books.filter((b) => b.bulkImport).length,
     dimsRotated,
     dimsDiscarded,
+    entitiesDecoded,
     pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
     readDays: { median: pct(durations, 0.5), p90: pct(durations, 0.9), max: durations.at(-1) ?? null },
     languages: count((b) => b.languages),
@@ -324,6 +376,7 @@ function main() {
     `  Maße permutiert: ${stats.dimsRotated} korrigiert (height/thickness/length rotiert), ` +
       `${stats.dimsDiscarded} verworfen (thickness > height, length nicht als Dicke plausibel)`,
   )
+  console.log(`  HTML-Entities dekodiert: ${stats.entitiesDecoded} Felder (Titel, Autorennamen)`)
   console.log(
     `  Seiten gesamt: ${stats.pagesTotal.toLocaleString('de-DE')} | Lesedauer Median/p90/max: ` +
       `${stats.readDays.median}/${stats.readDays.p90}/${stats.readDays.max} Tage`,
@@ -345,6 +398,7 @@ export {
   normTag,
   mediaType,
   fixPermutedDimensions,
+  decodeEntities,
   normalize,
 }
 

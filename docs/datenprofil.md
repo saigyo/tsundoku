@@ -116,6 +116,27 @@ Implementiert in `scripts/normalize.mjs`.
    zu 594 mm „Dicke" gezeigt und rund 20 % der Fläche als unrealistisch
    breite Blöcke gerendert statt als Buchrücken.
 
+10. **Rohe HTML-Entities in Titeln und Autorennamen.** 143 `originalTitle`
+    (überwiegend japanische/chinesische Titel als numerische Entities, z. B.
+    `&#23476;&#12398;&#12354;&#12392;` → „宴のあと"), 44 `title`
+    (`Tageb&uuml;cher` → „Tagebücher") und Autorenfelder — `authors[].name`/
+    `.sort` 39-mal, `authors[].role` 643-mal (`&Uuml;bersetzer` → „Übersetzer"),
+    `primaryAuthor` 16-mal — sind nicht dekodiert. Vermutlich ein
+    Re-Import-Artefakt aus LibraryThings eigener Web-Anzeige. Regel:
+    `decodeEntities()` löst numerische Entities (dezimal `&#NNNN;` und hex
+    `&#xNNNN;`) über `String.fromCodePoint` auf sowie eine Liste benannter
+    Entities, die exakt dem entspricht, was im Export vorkommt (Umlaute,
+    Akzente, «»/–, griechische Buchstaben) plus die vier XML-Basisentities
+    als Sicherheitsnetz — keine vollständige HTML5-Tabelle. Angewendet auf
+    `title`, `originalTitle`, `primaryAuthor`, `authors[].name/.sort/.role`;
+    `series`, `awards`, `tags`, `fromwhere`, `genre`, `collections` wurden
+    geprüft und enthalten keine Entities, bleiben also unverändert. Insgesamt
+    **924 Feldwerte dekodiert**. Einige entschlüsselte Autorennamen
+    (z. B. „Habermas, Jürgen") fallen dadurch mit bereits korrekt
+    geschriebenen Duplikaten zusammen — das ist die beabsichtigte Bereinigung,
+    keine Regression; `tags`/`awards`/`pages`/Medienzahlen (golden Test) sind
+    davon nicht betroffen, da dort keine Entities vorkamen.
+
 ## Ausgabeformat
 
 `public/data/library.json`:
