@@ -70,6 +70,9 @@ export function TagNetwork() {
   const [search, setSearch] = useState('')
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const svgRef = useRef<SVGSVGElement>(null)
+  // Sichtbare Höhe statt fixer 860px: "Einpassen" soll den ganzen Graphen
+  // auf den Bildschirm bringen, ohne dass die Seite scrollen muss.
+  const [svgH, setSvgH] = useState(H)
   const [zoom, setZoom] = useState(1)
   const [center, setCenter] = useState<{ x: number; y: number } | null>(null)
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null)
@@ -129,8 +132,22 @@ export function TagNetwork() {
   // Zoomfaktor des Nutzers bleibt erhalten.
   useEffect(() => setCenter(null), [graph])
 
+  // Dokumentposition des SVG bestimmt die verfügbare Höhe; neu messen bei
+  // Fenster-Resize und wenn die Kontrollleiste umbricht (Isolations-Knopf).
+  useEffect(() => {
+    const measure = () => {
+      const el = svgRef.current
+      if (!el) return
+      const top = el.getBoundingClientRect().top + window.scrollY
+      setSvgH(Math.max(420, Math.floor(window.innerHeight - top - 32)))
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [isolated, layout])
+
   const view = bbox ? computeView(bbox, zoom, center) : null
-  const pxScale = view ? Math.min(width / view.w, H / view.h) : 1
+  const pxScale = view ? Math.min(width / view.w, svgH / view.h) : 1
 
   // Trackpad-Pinch bzw. Ctrl/Cmd+Scrollrad zoomt auf den Cursor; nativer
   // Listener, weil Reacts onWheel passiv ist und preventDefault ignoriert.
@@ -218,7 +235,7 @@ export function TagNetwork() {
         <svg
           ref={svgRef}
           width={width}
-          height={H}
+          height={svgH}
           viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
           className={zoom > 1 ? styles.pannable : undefined}
           role="img"
