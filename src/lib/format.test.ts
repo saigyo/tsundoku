@@ -1,8 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { fmtInt } from './format'
+import { expect, it } from 'vitest'
+import { fmtYear } from './format'
 
-describe('fmtInt', () => {
-  it('formatiert de-DE mit Punkt', () => {
-    expect(fmtInt(1359074)).toBe('1.359.074')
-  })
+it('formatiert Jahre ohne Tausendertrennung', () => {
+  expect(fmtYear(1998)).toBe('1998')
 })

@@ -4,9 +4,8 @@ import { AxisBottom, AxisLeft } from '../components/Axis'
 import { BookDetail } from '../components/BookDetail'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
-import { de } from '../i18n/de'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { fmtInt } from '../lib/format'
 import { isActivationKey } from '../lib/keyboard'
 import { langLabel } from '../lib/languages'
 import type { Book } from '../lib/types'
@@ -18,6 +17,7 @@ const M = { top: 12, right: 16, bottom: 40, left: 48 }
 const RATES = [10, 50, 100] // Seiten pro Tag
 
 export function ReadingPace() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const [facet, setFacet] = useState(false)
   const [selected, setSelected] = useState<Book | null>(null)
@@ -28,8 +28,7 @@ export function ReadingPace() {
   if (data.points.length === 0) {
     return (
       <CoverageNote covered={data.withDays} total={filtered.length}>
-        im aktuellen Filter haben Start- und Enddatum (davon <Num>{fmtInt(data.points.length)}</Num> auch
-        eine Seitenzahl).
+        {m.views.pace.noData(<Num>{fmtInt(data.points.length)}</Num>)}
       </CoverageNote>
     )
   }
@@ -45,17 +44,15 @@ export function ReadingPace() {
   return (
     <div ref={wrapRef}>
       <header className={styles.head}>
-        <h2>Lesetempo</h2>
+        <h2>{m.views.pace.title}</h2>
         <CoverageNote covered={data.points.length} total={filtered.length}>
-          haben Lesedauer und Seitenzahl — überproportional die bewusst getrackten.{' '}
-          {data.discardedNegative > 0 && (
-            <><Num>{fmtInt(data.discardedNegative)}</Num> negative Dauern verworfen.</>
-          )}
+          {m.views.pace.coverage}{' '}
+          {data.discardedNegative > 0 && m.views.pace.discarded(<Num>{fmtInt(data.discardedNegative)}</Num>)}
         </CoverageNote>
       </header>
       <label className={styles.facetToggle}>
         <input type="checkbox" checked={facet} onChange={(e) => setFacet(e.target.checked)} />{' '}
-        nach Sprache facettieren
+        {m.views.pace.facetToggle}
       </label>
 
       <div className={facet ? styles.grid : undefined}>
@@ -68,14 +65,14 @@ export function ReadingPace() {
             <figure key={panel.lang ?? 'alle'} className={styles.panel}>
               {panel.lang && (
                 <figcaption className={styles.caption}>
-                  {langLabel(panel.lang, de)} · {fmtInt(panel.points.length)}
+                  {langLabel(panel.lang, m)} · {fmtInt(panel.points.length)}
                 </figcaption>
               )}
               <svg
                 width={panelW}
                 height={panelH}
                 role="img"
-                aria-label={`Seiten gegen Lesedauer${panel.lang ? `, ${langLabel(panel.lang, de)}` : ''}`}
+                aria-label={m.views.pace.svgAria(panel.lang ? langLabel(panel.lang, m) : null)}
               >
                 <g transform={`translate(${M.left},${M.top})`}>
                   {RATES.map((rate) => {
@@ -93,7 +90,7 @@ export function ReadingPace() {
                           textAnchor="end"
                           className={styles.rateLabel}
                         >
-                          {rate} S./Tag
+                          {m.views.pace.rateLabel(rate)}
                         </text>
                       </g>
                     )
@@ -107,7 +104,7 @@ export function ReadingPace() {
                       className={p.suspect ? styles.dotSuspect : styles.dot}
                       tabIndex={0}
                       role="button"
-                      aria-label={`${p.book.title}: ${fmtInt(p.pages)} Seiten in ${fmtInt(p.days)} Tagen`}
+                      aria-label={m.views.pace.dotAria(p.book.title, fmtInt(p.pages), fmtInt(p.days))}
                       onClick={() => setSelected(p.book)}
                       onKeyDown={(e) => {
                         if (isActivationKey(e)) {
@@ -116,20 +113,20 @@ export function ReadingPace() {
                         }
                       }}
                     >
-                      <title>{`${p.book.title} — ${fmtInt(p.pages)} S. / ${fmtInt(p.days)} Tage${p.suspect ? ' (über 100 Tage: offen, ob durchgehend gelesen)' : ''}`}</title>
+                      <title>{m.views.pace.dotTitle(p.book.title, fmtInt(p.pages), fmtInt(p.days), p.suspect)}</title>
                     </circle>
                   ))}
                   <AxisBottom y={innerH + 4} ticks={x.ticks(6).map((v) => ({ x: x(v), label: fmtInt(v) }))} />
                   <AxisLeft x={-4} ticks={y.ticks(6).map((v) => ({ y: y(v), label: fmtInt(v) }))} />
                   <text x={innerW / 2} y={innerH + 34} textAnchor="middle" className={styles.axisTitle}>
-                    Seiten
+                    {m.views.pace.axisPages}
                   </text>
                   <text
                     transform={`translate(${-36},${innerH / 2}) rotate(-90)`}
                     textAnchor="middle"
                     className={styles.axisTitle}
                   >
-                    Tage
+                    {m.views.pace.axisDays}
                   </text>
                 </g>
               </svg>
@@ -137,9 +134,7 @@ export function ReadingPace() {
           )
         })}
       </div>
-      <p className={styles.note}>
-        Hohle Punkte: über 100 Tage — offen, ob durchgehend gelesen; nicht als Tempo interpretieren.
-      </p>
+      <p className={styles.note}>{m.views.pace.note}</p>
       <BookDetail book={selected} onClose={() => setSelected(null)} />
     </div>
   )

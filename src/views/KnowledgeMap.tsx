@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AxisBottom } from '../components/Axis'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { DDC_COLORS, DDC_LABELS } from '../lib/ddc'
-import { fmtInt } from '../lib/format'
+import { DDC_COLORS } from '../lib/ddc'
 import { useMeasure } from '../lib/useMeasure'
 import { ddcYearMatrix } from '../lib/viewData/knowledge'
 import { useFilterStore } from '../store/filters'
@@ -16,6 +16,7 @@ const H = 420
 const M = { top: 8, right: 16, bottom: 28, left: 16 }
 
 export function KnowledgeMap() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const setRange = useFilterStore((s) => s.setRange)
@@ -48,7 +49,7 @@ export function KnowledgeMap() {
   if (data.years.length === 0) {
     return (
       <CoverageNote covered={0} total={filtered.length}>
-        im aktuellen Filter haben DDC-Code und Erwerbsjahr.
+        {m.views.knowledge.noData}
       </CoverageNote>
     )
   }
@@ -91,22 +92,21 @@ export function KnowledgeMap() {
   return (
     <div ref={wrapRef}>
       <header className={styles.head}>
-        <h2>Wissenslandkarte</h2>
+        <h2>{m.views.knowledge.title}</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          haben DDC-Code und Erwerbsjahr (<Num>{fmtInt(data.withAcquired - data.covered)}</Num> mit
-          Erwerbsjahr, aber ohne DDC).
+          {m.views.knowledge.coverage(<Num>{fmtInt(data.withAcquired - data.covered)}</Num>)}
         </CoverageNote>
       </header>
 
-      <div className={styles.controls} role="group" aria-label="Darstellung">
+      <div className={styles.controls} role="group" aria-label={m.views.knowledge.controlsAria}>
         <label>
-          <input type="radio" name="mode" checked={mode === 'absolute'} onChange={() => setMode('absolute')} /> absolut
+          <input type="radio" name="mode" checked={mode === 'absolute'} onChange={() => setMode('absolute')} /> {m.views.knowledge.absolute}
         </label>
         <label>
-          <input type="radio" name="mode" checked={mode === 'share'} onChange={() => setMode('share')} /> Anteile
+          <input type="radio" name="mode" checked={mode === 'share'} onChange={() => setMode('share')} /> {m.views.knowledge.share}
         </label>
         <label>
-          <input type="checkbox" checked={smooth} onChange={(e) => setSmooth(e.target.checked)} /> Dreijahresschnitt
+          <input type="checkbox" checked={smooth} onChange={(e) => setSmooth(e.target.checked)} /> {m.views.knowledge.smooth}
         </label>
       </div>
 
@@ -114,7 +114,7 @@ export function KnowledgeMap() {
         width={width}
         height={H}
         role="img"
-        aria-label="DDC-Hauptklassen über Erwerbsjahre"
+        aria-label={m.views.knowledge.svgAria}
         className={styles.brushArea}
         onPointerDown={(e) => {
           if (e.button !== 0) return
@@ -159,7 +159,7 @@ export function KnowledgeMap() {
               onPointerLeave={() => setHoverClass(null)}
               onClick={() => toggleFilter({ kind: 'ddcTop', value: s.key })}
             >
-              <title>{`${s.key} ${DDC_LABELS[s.key]}: ${fmtInt(Math.round(classCounts.get(s.key) ?? 0))} Titel`}</title>
+              <title>{m.views.knowledge.streamTitle(s.key, m.ddc.labels[s.key], fmtInt(Math.round(classCounts.get(s.key) ?? 0)))}</title>
             </path>
           ))}
           {drag && dragMoved.current && (() => {
@@ -180,10 +180,7 @@ export function KnowledgeMap() {
           <AxisBottom ticks={xTicks} y={H - M.bottom + 2} />
         </g>
       </svg>
-      <p className={styles.hint}>
-        Zeitraum wählen: horizontal über das Diagramm ziehen filtert nach Erwerbsjahr, Esc bricht die
-        Auswahl ab; ein Klick auf einen Strom filtert nach dem Wissensgebiet.
-      </p>
+      <p className={styles.hint}>{m.views.knowledge.hint}</p>
 
       <ul className={styles.legend}>
         {data.classes.map((c) => (
@@ -195,7 +192,7 @@ export function KnowledgeMap() {
               onPointerLeave={() => setHoverClass(null)}
             >
               <i style={{ background: DDC_COLORS[c] }} />
-              <span className={styles.legendNum}>{c}00</span> {DDC_LABELS[c]}
+              <span className={styles.legendNum}>{c}00</span> {m.ddc.labels[c]}
               <span className={styles.legendCount}>{fmtInt(Math.round(classCounts.get(c) ?? 0))}</span>
             </button>
           </li>

@@ -12,8 +12,8 @@ import { scaleSqrt } from 'd3-scale'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { fmtInt } from '../lib/format'
 import { isActivationKey } from '../lib/keyboard'
 import { useMeasure } from '../lib/useMeasure'
 import { tagGraph } from '../lib/viewData/tagNetwork'
@@ -62,6 +62,7 @@ interface SimLink extends SimulationLinkDatum<SimNode> {
 }
 
 export function TagNetwork() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -205,47 +206,49 @@ export function TagNetwork() {
   return (
     <div ref={wrapRef}>
       <header className={styles.head}>
-        <h2>Tag-Netzwerk</h2>
-        <CoverageNote covered={graph.nodes.length} total={graph.totalTags} unit="Tags">
-          haben ≥ <Num>{minCount}</Num> Titel und sind im Netz; ausgeblendet:{' '}
-          <Num>{fmtInt(graph.excluded.yearTags)}</Num> Jahres-Tags,{' '}
-          <Num>{fmtInt(graph.excluded.status)}</Num> Statusmarker,{' '}
-          <Num>{fmtInt(graph.excluded.seriesMarkers)}</Num> Reihenkürzel.
+        <h2>{m.views.network.title}</h2>
+        <CoverageNote covered={graph.nodes.length} total={graph.totalTags} unit={m.coverage.unitTags}>
+          {m.views.network.coverage(
+            minCount,
+            <Num>{fmtInt(graph.excluded.yearTags)}</Num>,
+            <Num>{fmtInt(graph.excluded.status)}</Num>,
+            <Num>{fmtInt(graph.excluded.seriesMarkers)}</Num>,
+          )}
         </CoverageNote>
       </header>
 
       <div className={styles.controls}>
         <label>
-          Mindestanzahl Titel: <span className={`${styles.mono} ${styles.sliderValue}`}>{minCount}</span>
+          {m.views.network.minCountLabel} <span className={`${styles.mono} ${styles.sliderValue}`}>{minCount}</span>
           <input type="range" min={3} max={50} value={minCount} onChange={(e) => setMinCount(Number(e.target.value))} />
         </label>
         <input
           type="search"
           list="tag-list"
-          placeholder="Tag suchen …"
+          placeholder={m.views.network.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          aria-label="Tag suchen"
+          aria-label={m.views.network.searchAria}
         />
         <datalist id="tag-list">
           {graph.nodes.map((n) => <option key={n.id} value={n.id} />)}
         </datalist>
         <label>
-          Zoom: <span className={`${styles.mono} ${styles.sliderValue}`}>{Math.round(zoom * 100)}</span> %
+          {m.views.network.zoomLabel} <span className={`${styles.mono} ${styles.sliderValue}`}>{Math.round(zoom * 100)}</span> %
           <input
             type="range"
             min={ZOOM_MIN * 100}
             max={ZOOM_MAX * 100}
             value={Math.round(zoom * 100)}
             onChange={(e) => setZoom(Number(e.target.value) / 100)}
-            aria-label="Zoomfaktor"
+            aria-label={m.views.network.zoomAria}
           />
         </label>
         <button onClick={() => { setZoom(1); setCenter(null) }} disabled={zoom === 1 && center === null}>
-          Einpassen
+          {m.views.network.fit}
         </button>
         {isolated && (
-          <button onClick={() => setIsolated(null)}>Isolation aufheben ({isolated})</button>
+          <button onClick={() => setIsolated(null)}>{m.views.network.unisolate(isolated)}</button>
         )}
       </div>
 
@@ -257,7 +260,7 @@ export function TagNetwork() {
           viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
           className={zoom > 1 ? styles.pannable : undefined}
           role="img"
-          aria-label="Netzwerk gemeinsam vergebener Tags"
+          aria-label={m.views.network.svgAria}
           onPointerDown={(e) => {
             if (zoom <= 1 || e.button !== 0) return
             drag.current = { x: e.clientX, y: e.clientY, moved: false }
@@ -311,7 +314,7 @@ export function TagNetwork() {
               role="button"
               tabIndex={0}
               aria-pressed={activeTags.has(n.id)}
-              aria-label={`Tag ${n.id}, ${fmtInt(n.count)} Titel`}
+              aria-label={m.views.network.nodeAria(n.id, fmtInt(n.count))}
               onClick={(e) => {
                 // Isolation per Shift-Klick statt Doppelklick: der erste Klick
                 // eines Doppelklicks filtert und zeichnet den Graphen neu, der
@@ -341,7 +344,7 @@ export function TagNetwork() {
                   {n.id}
                 </text>
               )}
-              <title>{`${n.id}: ${fmtInt(n.count)} Titel (Klick = filtern, Shift-Klick = Nachbarschaft isolieren)`}</title>
+              <title>{m.views.network.nodeTitle(n.id, fmtInt(n.count))}</title>
             </g>
           ))}
         </svg>

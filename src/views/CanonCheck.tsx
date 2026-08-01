@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { fmtInt } from '../lib/format'
 import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
 
 export function CanonCheck() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -19,7 +20,7 @@ export function CanonCheck() {
   if (data.rows.length === 0) {
     return (
       <CoverageNote covered={0} total={filtered.length}>
-        im aktuellen Filter stehen auf einer Auszeichnungs- oder Kanonliste.
+        {m.views.canon.noData}
       </CoverageNote>
     )
   }
@@ -31,16 +32,15 @@ export function CanonCheck() {
   return (
     <div>
       <header className={styles.head}>
-        <h2>Kanonabgleich</h2>
+        <h2>{m.views.canon.title}</h2>
         <CoverageNote covered={data.withAwards} total={filtered.length}>
-          stehen auf mindestens einer Liste. Angaben sind „im Bestand", nicht „von der
-          Liste erledigt" — der Listenumfang ist aus dem Export nicht bekannt.
+          {m.views.canon.coverage}
         </CoverageNote>
       </header>
 
       <div className={styles.controls}>
         <label>
-          Listen anzeigen:{' '}
+          {m.views.canon.showLists}{' '}
           <select value={topN} onChange={(e) => setTopN(Number(e.target.value))}>
             {[10, 20, 40].map((n) => (
               <option key={n} value={n}>
@@ -54,7 +54,7 @@ export function CanonCheck() {
             className={styles.action}
             onClick={() => addFilter({ kind: 'readStatus', value: 'unread' })}
           >
-            Nur Ungelesene → Leseliste
+            {m.views.canon.onlyUnread}
           </button>
         )}
       </div>
@@ -78,7 +78,7 @@ export function CanonCheck() {
                 </span>
               </span>
               <span className={styles.counts}>
-                {fmtInt(r.owned)} im Bestand · {fmtInt(r.read)} gelesen
+                {m.views.canon.counts(fmtInt(r.owned), fmtInt(r.read))}
               </span>
             </button>
           </li>

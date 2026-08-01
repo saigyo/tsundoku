@@ -4,8 +4,8 @@ import { AxisBottom, AxisLeft } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { fmtInt } from '../lib/format'
 import { useMeasure } from '../lib/useMeasure'
 import { yearMatrix } from '../lib/viewData/yearMatrix'
 import { useFilterStore } from '../store/filters'
@@ -15,6 +15,7 @@ const H = 520
 const M = { top: 48, right: 64, bottom: 40, left: 56 }
 
 export function YearMatrix() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const setRange = useFilterStore((s) => s.setRange)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
@@ -63,7 +64,7 @@ export function YearMatrix() {
   if (!data.edExtent || !data.acqExtent) {
     return (
       <CoverageNote covered={0} total={filtered.length}>
-        im aktuellen Filter haben Ausgabe- und Erwerbsjahr (ab 1900).
+        {m.views.years.noData}
       </CoverageNote>
     )
   }
@@ -92,17 +93,16 @@ export function YearMatrix() {
   return (
     <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.head}>
-        <h2>Ausgabejahr gegen Erwerbsjahr</h2>
+        <h2>{m.views.years.title}</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          haben beide Jahre. Achtung: das ist das Jahr <em>dieser Ausgabe</em>, nicht des
-          Werks — eine Reclam-Sophokles-Ausgabe zählt als 1998.
+          {m.views.years.coverage}
         </CoverageNote>
       </header>
       {data.underflow > 0 && (
-        <p className={styles.underflow}>{fmtInt(data.underflow)} Ausgaben vor 1900 nicht dargestellt.</p>
+        <p className={styles.underflow}>{m.views.years.underflow(fmtInt(data.underflow))}</p>
       )}
 
-      <svg width={width} height={H} className={styles.chart} role="img" aria-label="Heatmap Ausgabejahr × Erwerbsjahr">
+      <svg width={width} height={H} className={styles.chart} role="img" aria-label={m.views.years.svgAria}>
         <g transform={`translate(${M.left},${M.top})`}>
           {[...data.edMarginal].map(([yr, n]) => (
             <rect
@@ -161,10 +161,10 @@ export function YearMatrix() {
             ticks={y.ticks(8).map((v) => ({ y: y(v), label: String(v) }))}
           />
           <text x={innerW / 2} y={innerH + 36} textAnchor="middle" className={styles.axisTitle}>
-            Jahr dieser Ausgabe →
+            {m.views.years.axisEdition}
           </text>
           <text transform={`translate(${-40},${innerH / 2}) rotate(-90)`} textAnchor="middle" className={styles.axisTitle}>
-            Erwerbsjahr →
+            {m.views.years.axisAcquired}
           </text>
           <rect
             width={innerW}
@@ -217,38 +217,38 @@ export function YearMatrix() {
           if (formAcq[0] >= 1900 && formAcq[1] >= formAcq[0]) setRange('acquiredYear', formAcq[0], formAcq[1])
         }}
       >
-        <span>Ausgabe</span>
+        <span>{m.views.years.edition}</span>
         <input
           type="number"
           value={formEd[0]}
           onChange={(e) => setFormEd([Number(e.target.value), formEd[1]])}
-          aria-label="Ausgabejahr von"
+          aria-label={m.views.years.edFromAria}
         />
         <input
           type="number"
           value={formEd[1]}
           onChange={(e) => setFormEd([formEd[0], Number(e.target.value)])}
-          aria-label="Ausgabejahr bis"
+          aria-label={m.views.years.edToAria}
         />
-        <span>Erwerb</span>
+        <span>{m.views.years.acquired}</span>
         <input
           type="number"
           value={formAcq[0]}
           onChange={(e) => setFormAcq([Number(e.target.value), formAcq[1]])}
-          aria-label="Erwerbsjahr von"
+          aria-label={m.views.years.acqFromAria}
         />
         <input
           type="number"
           value={formAcq[1]}
           onChange={(e) => setFormAcq([formAcq[0], Number(e.target.value)])}
-          aria-label="Erwerbsjahr bis"
+          aria-label={m.views.years.acqToAria}
         />
-        <button type="submit">Bereich filtern</button>
+        <button type="submit">{m.views.years.submit}</button>
       </form>
 
       {hover && !drag && (
         <Tooltip x={hover.px} y={hover.py}>
-          Ausgabe {hover.ed}, erworben {hover.acq}: {fmtInt(hover.count)} Titel
+          {m.views.years.tooltip(hover.ed, hover.acq, fmtInt(hover.count))}
         </Tooltip>
       )}
     </div>
