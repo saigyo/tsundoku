@@ -23,6 +23,7 @@ type RangeDim = 'acquiredYear' | 'readYear'
 export function LanguageFlow() {
   const { filtered } = useLibraryData()
   const addFilter = useFilterStore((s) => s.addFilter)
+  const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const setRange = useFilterStore((s) => s.setRange)
   const filters = useFilterStore((s) => s.filters)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
@@ -157,26 +158,62 @@ export function LanguageFlow() {
             </path>
           )
         })}
-        {layout.nodes.map((n) => (
-          <g key={n.id}>
-            <rect
-              x={n.x0}
-              y={n.y0}
-              width={(n.x1 ?? 0) - (n.x0 ?? 0)}
-              height={(n.y1 ?? 0) - (n.y0 ?? 0)}
-              fill={LANG_COLORS[n.lang] ?? 'var(--ink-45)'}
-            />
-            <text
-              x={n.side === 'orig' ? (n.x0 ?? 0) - 6 : (n.x1 ?? 0) + 6}
-              y={((n.y0 ?? 0) + (n.y1 ?? 0)) / 2}
-              dy="0.32em"
-              textAnchor={n.side === 'orig' ? 'end' : 'start'}
-              className={styles.nodeLabel}
+        {layout.nodes.map((n) => {
+          // Klick auf den Sprachbalken filtert nur die jeweilige Seite —
+          // der Strom in der Mitte setzt weiterhin beide Sprachen zugleich.
+          const nodeFilter =
+            n.side === 'orig'
+              ? ({ kind: 'originalLanguage', value: n.lang } as const)
+              : ({ kind: 'language', value: n.lang } as const)
+          const clickable = filterable(n.lang)
+          const active = filters.some(
+            (f) => f.kind === nodeFilter.kind && 'value' in f && f.value === n.lang,
+          )
+          const sideLabel = n.side === 'orig' ? 'Originalsprache' : 'Ausgabesprache'
+          return (
+            <g
+              key={n.id}
+              className={clickable ? styles.node : undefined}
+              role={clickable ? 'button' : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              aria-pressed={clickable ? active : undefined}
+              aria-label={clickable ? `${sideLabel} ${langLabel(n.lang)}, ${fmtInt(n.total)} Titel` : undefined}
+              onClick={clickable ? () => toggleFilter(nodeFilter) : undefined}
+              onKeyDown={
+                clickable
+                  ? (e) => {
+                      if (isActivationKey(e)) {
+                        e.preventDefault()
+                        toggleFilter(nodeFilter)
+                      }
+                    }
+                  : undefined
+              }
             >
-              {langLabel(n.lang)} · {fmtInt(n.total)}
-            </text>
-          </g>
-        ))}
+              <rect
+                x={n.x0}
+                y={n.y0}
+                width={(n.x1 ?? 0) - (n.x0 ?? 0)}
+                height={(n.y1 ?? 0) - (n.y0 ?? 0)}
+                fill={LANG_COLORS[n.lang] ?? 'var(--ink-45)'}
+                stroke={active ? 'var(--enji)' : 'none'}
+                strokeWidth={active ? 2 : 0}
+              />
+              <text
+                x={n.side === 'orig' ? (n.x0 ?? 0) - 6 : (n.x1 ?? 0) + 6}
+                y={((n.y0 ?? 0) + (n.y1 ?? 0)) / 2}
+                dy="0.32em"
+                textAnchor={n.side === 'orig' ? 'end' : 'start'}
+                className={styles.nodeLabel}
+              >
+                {langLabel(n.lang)} · {fmtInt(n.total)}
+              </text>
+              {clickable && (
+                <title>{`${sideLabel} ${langLabel(n.lang)}: ${fmtInt(n.total)} Titel (Klick filtert nur diese Sprache)`}</title>
+              )}
+            </g>
+          )
+        })}
         <text x={M.left} y={H - 4} className={styles.sideLabel} textAnchor="start">
           Originalsprache
         </text>

@@ -29,6 +29,18 @@
   stroke-opacity: 0.8;
 }
 
+.node {
+  cursor: pointer;
+  /* Chromium zeichnet nach Klick seine Default-Outline (blaue Box);
+     der Tastaturfokus hat unten einen eigenen Indikator. */
+  outline: none;
+}
+
+.node:focus-visible rect {
+  stroke: var(--enji);
+  stroke-width: 2px;
+}
+
 .nodeLabel {
   font-size: 13px;
   fill: var(--sumi);

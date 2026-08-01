@@ -106,6 +106,8 @@ Deutsch → Deutsch.
 
 **Interaktion:** Zeitraumfilter wahlweise über Erwerbs- oder Lesejahre
 (Dimensionswahl im Formular, eine Dimension zur Zeit), Sankey animiert mit.
+Klick auf einen Strom filtert Original- und Ausgabesprache zugleich; Klick
+auf einen Sprachbalken toggelt nur die jeweilige Seite.
 Klick auf einen Strom filtert auf diese Sprachkombination.
 
 **Fallstricke:** Sprachen mit weniger als ~10 Titeln zu „andere" bündeln, sonst
