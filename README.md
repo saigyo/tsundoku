@@ -114,5 +114,25 @@ mit `npm run build`. Datengrundlage einmalig per
 
 ## Lizenz
 
-[MIT](LICENSE) — der Code ist frei verwendbar. Die Bibliotheksdaten selbst
-(der LibraryThing-Export) sind nicht Teil des Repositories.
+Tsundoku selbst steht unter der [MIT-Lizenz](LICENSE) — der Code ist frei
+verwendbar. Die Bibliotheksdaten (der LibraryThing-Export) sind nicht Teil
+des Repositories.
+
+Die veröffentlichte App bündelt Komponenten Dritter unter eigenen Lizenzen:
+
+| Komponente | Zweck | Lizenz |
+|---|---|---|
+| [React](https://react.dev/) © Meta Platforms | UI-Rendering | [MIT](https://github.com/facebook/react/blob/main/LICENSE) |
+| [Zustand](https://github.com/pmndrs/zustand) © Paul Henschel | Filter-Store | [MIT](https://github.com/pmndrs/zustand/blob/main/LICENSE) |
+| [D3-Module](https://d3js.org/) © Mike Bostock (d3-array, ‑force, ‑hierarchy, ‑scale, ‑shape) | Skalen, Layouts, Pfade | [ISC](https://github.com/d3/d3/blob/main/LICENSE) |
+| [d3-sankey](https://github.com/d3/d3-sankey) © Mike Bostock | Sankey-Layout (Sprachfluss) | [BSD-3-Clause](https://github.com/d3/d3-sankey/blob/master/LICENSE) |
+| [Fraunces](https://github.com/undercasetype/Fraunces) © Undercase Type | Display-Serife | [OFL-1.1](https://github.com/undercasetype/Fraunces/blob/master/OFL.txt) |
+| [Source Sans 3](https://github.com/adobe-fonts/source-sans) © Adobe | Body-Schrift | [OFL-1.1](https://github.com/adobe-fonts/source-sans/blob/release/LICENSE.md) |
+| [IBM Plex Mono](https://github.com/IBM/plex) © IBM | Zahlen & Achsenbeschriftung | [OFL-1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt) |
+| [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP) © Google | CJK-Fallback | [OFL-1.1](https://openfontlicense.org/) |
+| [Fontsource](https://fontsource.org/) | Font-Paketierung fürs Self-Hosting | [MIT](https://github.com/fontsource/fontsource/blob/main/LICENSE) |
+
+Die Schriften sind als WOFF-Dateien in die veröffentlichte App eingebettet
+(Self-Hosting, kein CDN zur Laufzeit); die SIL Open Font License erlaubt das
+mit Namensnennung, die diese Tabelle leistet. Die Fußzeile der App verweist
+hierher.

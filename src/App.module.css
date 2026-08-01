@@ -1,3 +1,11 @@
+/* Ganzseitiges Spaltenlayout, damit die Fußzeile auch auf kurzen Seiten
+   (Upload-Dialog) am unteren Rand sitzt. */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .center {
   padding: var(--space-6);
   max-width: 40rem;
