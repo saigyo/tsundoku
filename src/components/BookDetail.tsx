@@ -64,8 +64,8 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
 
   return (
     <dialog ref={ref} className={styles.dialog} onClose={onClose} aria-label={book.title}>
-      <div className={styles.head}>
-        <div className={styles.headText}>
+      <div className={styles.body}>
+        <div className={styles.bodyText}>
           <h3 className={styles.title}>{book.title}</h3>
           <p className={styles.authors}>
             {book.authors.map((a) => {
@@ -83,38 +83,38 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
               )
             })}
           </p>
+          <dl className={styles.rows}>
+            {rows
+              .filter(([, v]) => v !== null)
+              .map(([k, v]) => (
+                <div key={k} className={styles.row}>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+          </dl>
+          {(book.workCode !== null || olUrl !== null) && (
+            <p className={styles.ltLink}>
+              {book.workCode !== null && (
+                <a
+                  href={`https://www.librarything.com/work/${book.workCode}/book/${book.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {m.detail.viewOnLt}
+                </a>
+              )}
+              {book.workCode !== null && olUrl !== null && <span aria-hidden="true"> · </span>}
+              {olUrl !== null && (
+                <a href={olUrl} target="_blank" rel="noopener noreferrer">
+                  {m.detail.viewOnOl}
+                </a>
+              )}
+            </p>
+          )}
         </div>
         {isbn !== null && <Cover key={book.id} isbn={isbn} title={book.title} />}
       </div>
-      <dl className={styles.rows}>
-        {rows
-          .filter(([, v]) => v !== null)
-          .map(([k, v]) => (
-            <div key={k} className={styles.row}>
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </div>
-          ))}
-      </dl>
-      {(book.workCode !== null || olUrl !== null) && (
-        <p className={styles.ltLink}>
-          {book.workCode !== null && (
-            <a
-              href={`https://www.librarything.com/work/${book.workCode}/book/${book.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {m.detail.viewOnLt}
-            </a>
-          )}
-          {book.workCode !== null && olUrl !== null && <span aria-hidden="true"> · </span>}
-          {olUrl !== null && (
-            <a href={olUrl} target="_blank" rel="noopener noreferrer">
-              {m.detail.viewOnOl}
-            </a>
-          )}
-        </p>
-      )}
       <button className={styles.close} onClick={onClose}>
         {m.detail.close}
       </button>
