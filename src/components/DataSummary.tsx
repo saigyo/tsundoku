@@ -3,14 +3,14 @@ import { useLibraryData } from '../lib/DataContext'
 import styles from './DataSummary.module.css'
 
 export function DataSummary() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { books, filtered } = useLibraryData()
   const read = filtered.filter((b) => b.hasRead).length
   const pages = filtered.reduce((s, b) => s + (b.pages ?? 0), 0)
   const cells: [string, string][] = [
-    [m.summary.titles, fmtInt(filtered.length)],
-    [m.summary.read, fmtInt(read)],
-    [m.summary.pages, fmtInt(pages)],
+    [m.summary.titles, fmtNum(filtered.length)],
+    [m.summary.read, fmtNum(read)],
+    [m.summary.pages, fmtNum(pages)],
   ]
   return (
     <div className={styles.grid}>
@@ -21,7 +21,7 @@ export function DataSummary() {
         </div>
       ))}
       {filtered.length < books.length && (
-        <p className={styles.hint}>{m.summary.filteredFrom(fmtInt(books.length))}</p>
+        <p className={styles.hint}>{m.summary.filteredFrom(fmtNum(books.length))}</p>
       )}
     </div>
   )

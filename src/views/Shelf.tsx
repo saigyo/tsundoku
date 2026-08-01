@@ -20,7 +20,7 @@ type ColorMode = 'ddc' | 'language' | 'readStatus' | 'acquiredYear'
 const NEUTRAL = '#b9b2a5'
 
 export function Shelf() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const [sort, setSort] = useState<ShelfSort>('acquired')
   const [color, setColor] = useState<ColorMode>('ddc')
@@ -80,9 +80,9 @@ export function Shelf() {
         <h2>{m.views.shelf.title}</h2>
         <CoverageNote covered={layout.placed.length} total={filtered.length}>
           {m.views.shelf.coverage(
-            <Num>{fmtInt(estimatedCount)}</Num>,
-            <Num>{fmtInt(layout.unmeasured.length)}</Num>,
-            <Num>{fmtInt(layout.nonBooks)}</Num>,
+            <Num>{fmtNum(estimatedCount)}</Num>,
+            <Num>{fmtNum(layout.unmeasured.length)}</Num>,
+            <Num>{fmtNum(layout.nonBooks)}</Num>,
           )}
         </CoverageNote>
       </header>
@@ -102,7 +102,7 @@ export function Shelf() {
         </label>
       </div>
 
-      <svg width={width} height={layout.totalHeight + 4} role="img" aria-label={m.views.shelf.svgAria(fmtInt(layout.placed.length))}>
+      <svg width={width} height={layout.totalHeight + 4} role="img" aria-label={m.views.shelf.svgAria(fmtNum(layout.placed.length))}>
         {layout.placed.map((p) => (
           <g key={p.book.id} className={styles.spine} style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
             <rect
@@ -137,7 +137,7 @@ export function Shelf() {
         return (
           <section aria-label={m.views.shelf.unmeasuredAria}>
             <h3 className={styles.unmeasuredTitle}>
-              {m.views.shelf.unmeasuredTitle(fmtInt(layout.unmeasured.length))}
+              {m.views.shelf.unmeasuredTitle(fmtNum(layout.unmeasured.length))}
             </h3>
             <svg width={width} height={rowCount * pitchY + 4}>
               {layout.unmeasured.map((b, i) => (
@@ -169,7 +169,7 @@ export function Shelf() {
         {legend.map((l) => (
           <li key={l.label}>
             <i style={{ background: l.color, borderColor: 'var(--ink-45)' }} /> {l.label}{' '}
-            <span className={styles.legendCount}>{fmtInt(l.count)}</span>
+            <span className={styles.legendCount}>{fmtNum(l.count)}</span>
           </li>
         ))}
       </ul>

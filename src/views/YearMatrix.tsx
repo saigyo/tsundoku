@@ -15,7 +15,7 @@ const H = 520
 const M = { top: 48, right: 64, bottom: 40, left: 56 }
 
 export function YearMatrix() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const setRange = useFilterStore((s) => s.setRange)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
@@ -99,7 +99,7 @@ export function YearMatrix() {
         </CoverageNote>
       </header>
       {data.underflow > 0 && (
-        <p className={styles.underflow}>{m.views.years.underflow(fmtInt(data.underflow))}</p>
+        <p className={styles.underflow}>{m.views.years.underflow(fmtNum(data.underflow))}</p>
       )}
 
       <svg width={width} height={H} className={styles.chart} role="img" aria-label={m.views.years.svgAria}>
@@ -248,7 +248,7 @@ export function YearMatrix() {
 
       {hover && !drag && (
         <Tooltip x={hover.px} y={hover.py}>
-          {m.views.years.tooltip(hover.ed, hover.acq, fmtInt(hover.count))}
+          {m.views.years.tooltip(hover.ed, hover.acq, fmtNum(hover.count))}
         </Tooltip>
       )}
     </div>

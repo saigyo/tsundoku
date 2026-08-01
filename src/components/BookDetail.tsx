@@ -6,7 +6,7 @@ import { filterLabel, sameFilter, useFilterStore } from '../store/filters'
 import styles from './BookDetail.module.css'
 
 export function BookDetail({ book, onClose }: { book: Book | null; onClose: () => void }) {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const ref = useRef<HTMLDialogElement>(null)
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -45,11 +45,11 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
       m.detail.originalLanguage,
       chips(book.originalLanguages.map((l) => chip({ kind: 'originalLanguage', value: l }, langLabel(l, m)))),
     ],
-    [m.detail.pages, book.pages === null ? null : fmtInt(book.pages)],
+    [m.detail.pages, book.pages === null ? null : fmtNum(book.pages)],
     [m.detail.ddc, book.ddc ? chip({ kind: 'ddcTop', value: book.ddc.top }, m.ddc.labels[book.ddc.top]) : null],
     [m.detail.acquired, book.acquiredDate ?? (book.acquiredYear !== null ? String(book.acquiredYear) : null)],
     [m.detail.read, book.readDate ?? (book.readYearEffective !== null ? m.detail.readTagged(book.readYearEffective) : null)],
-    [m.detail.rating, book.rating !== null ? `★ ${fmtInt(book.rating)}` : null],
+    [m.detail.rating, book.rating !== null ? `★ ${fmtNum(book.rating)}` : null],
     [m.detail.boughtAt, book.fromWhere],
     [m.detail.series, book.series.join(', ') || null],
     [m.detail.isbn, book.isbn],

@@ -1,5 +1,5 @@
 import { useI18n } from '../i18n/LocaleContext'
-import { filterLabel, useFilterStore } from '../store/filters'
+import { filterKey, filterLabel, useFilterStore } from '../store/filters'
 import styles from './FilterChips.module.css'
 
 export function FilterChips() {
@@ -14,7 +14,7 @@ export function FilterChips() {
         const label = filterLabel(f, m)
         return (
           <button
-            key={label}
+            key={filterKey(f)}
             className={styles.chip}
             onClick={() => removeFilter(f)}
             aria-label={m.chips.removeAria(label)}

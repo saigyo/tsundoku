@@ -9,7 +9,7 @@ interface I18n {
   locale: Locale
   m: Messages
   /** Locale-gebundenes Zahlenformat; formatiert auch Dezimalzahlen (Rating). */
-  fmtInt: (n: number) => string
+  fmtNum: (n: number) => string
   setLocale: (l: Locale) => void
 }
 
@@ -38,7 +38,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     return {
       locale,
       m: BUNDLES[locale],
-      fmtInt: (n) => nf.format(n),
+      fmtNum: (n) => nf.format(n),
       setLocale: (l) => {
         // Nur die explizite Wahl wird gespeichert; Auto-Detect bleibt flüchtig.
         try {

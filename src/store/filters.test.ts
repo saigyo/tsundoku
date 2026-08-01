@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { de } from '../i18n/de'
 import { AWARD_SYNONYMS } from '../lib/awards'
 import { mkBook } from '../lib/fixtures'
-import { filterBooks, filterLabel, sameFilter, useFilterStore } from './filters'
+import { filterBooks, filterKey, filterLabel, sameFilter, useFilterStore } from './filters'
 
 const japan = mkBook({ tagsNorm: ['Japan'], languages: ['ja'], hasRead: true, readYearEffective: 2014 })
 const philo = mkBook({
@@ -119,6 +119,14 @@ describe('filterLabel', () => {
     expect(filterLabel({ kind: 'acquiredYear', from: 2010, to: 2015 }, de)).toBe('Erworben: 2010–2015')
     expect(filterLabel({ kind: 'readStatus', value: 'unread' }, de)).toBe('Status: ungelesen')
     expect(filterLabel({ kind: 'language', value: 'Japanese' }, de)).toBe('Sprache: Japanisch')
+  })
+})
+
+describe('filterKey', () => {
+  it('ist stabil und locale-unabhängig', () => {
+    expect(filterKey({ kind: 'tag', value: 'Japan' })).toBe('tag:Japan')
+    expect(filterKey({ kind: 'acquiredYear', from: 2010, to: 2015 })).toBe('acquiredYear:2010-2015')
+    expect(filterKey({ kind: 'language', value: 'Japanese' })).toBe('language:Japanese')
   })
 })
 
