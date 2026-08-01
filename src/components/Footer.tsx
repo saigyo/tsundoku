@@ -22,7 +22,7 @@ export function Footer() {
         {m.footer.license}
       </a>
       <span className={styles.sep} aria-hidden="true">·</span>
-      <a href={`${REPO}#lizenz`} target="_blank" rel="noopener noreferrer">
+      <a href={`${REPO}#license`} target="_blank" rel="noopener noreferrer">
         {m.footer.embedded}
       </a>
       <span className={styles.sep} aria-hidden="true">·</span>
