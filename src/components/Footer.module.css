@@ -25,3 +25,13 @@
 .sep {
   color: var(--ink-45);
 }
+
+.lang {
+  font: inherit;
+  font-size: 13px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--ink-15);
+  border-radius: var(--radius);
+  padding: 2px 4px;
+}

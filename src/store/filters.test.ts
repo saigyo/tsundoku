@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { de } from '../i18n/de'
 import { AWARD_SYNONYMS } from '../lib/awards'
 import { mkBook } from '../lib/fixtures'
 import { filterBooks, filterLabel, sameFilter, useFilterStore } from './filters'
@@ -112,12 +113,12 @@ describe('sameFilter', () => {
 })
 
 describe('filterLabel', () => {
-  it('deutsche Chip-Beschriftungen', () => {
-    expect(filterLabel({ kind: 'tag', value: 'Japan' })).toBe('Tag: Japan')
-    expect(filterLabel({ kind: 'ddcTop', value: 8 })).toBe('Wissensgebiet: Literatur')
-    expect(filterLabel({ kind: 'acquiredYear', from: 2010, to: 2015 })).toBe('Erworben: 2010–2015')
-    expect(filterLabel({ kind: 'readStatus', value: 'unread' })).toBe('Status: ungelesen')
-    expect(filterLabel({ kind: 'language', value: 'Japanese' })).toBe('Sprache: Japanisch')
+  it('baut deutsche Labels', () => {
+    expect(filterLabel({ kind: 'tag', value: 'Japan' }, de)).toBe('Tag: Japan')
+    expect(filterLabel({ kind: 'ddcTop', value: 8 }, de)).toBe('Wissensgebiet: Literatur')
+    expect(filterLabel({ kind: 'acquiredYear', from: 2010, to: 2015 }, de)).toBe('Erworben: 2010–2015')
+    expect(filterLabel({ kind: 'readStatus', value: 'unread' }, de)).toBe('Status: ungelesen')
+    expect(filterLabel({ kind: 'language', value: 'Japanese' }, de)).toBe('Sprache: Japanisch')
   })
 })
 
