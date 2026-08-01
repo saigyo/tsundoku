@@ -109,7 +109,7 @@ export function DataUpload({
           ))}
         </dl>
         <button className={styles.primary} onClick={() => accept(up.library, up.sourceName)}>
-          Zur Anwendung
+          Zur Bibliothek
         </button>
         <button className={styles.secondary} onClick={() => setUp({ state: 'idle' })}>
           Andere Datei wählen
