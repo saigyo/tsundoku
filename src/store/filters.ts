@@ -40,7 +40,10 @@ function matches(b: Book, f: Filter): boolean {
   }
 }
 
-/** UND über Dimensionen (kind), ODER innerhalb einer Dimension. */
+/** UND über Dimensionen (kind), ODER innerhalb einer Dimension.
+ *  Ausnahme Tags: UND auch innerhalb der Dimension — ein Buch trägt viele
+ *  Tags, mehrere gewählte sollen die Menge verengen, nicht erweitern.
+ *  Bei einwertigen Dimensionen (Sprache, Medium …) wäre UND fast immer leer. */
 export function filterBooks(books: Book[], filters: Filter[]): Book[] {
   if (filters.length === 0) return books
   const groups = new Map<Filter['kind'], Filter[]>()
@@ -49,8 +52,12 @@ export function filterBooks(books: Book[], filters: Filter[]): Book[] {
     if (g) g.push(f)
     else groups.set(f.kind, [f])
   }
-  const groupList = [...groups.values()]
-  return books.filter((b) => groupList.every((g) => g.some((f) => matches(b, f))))
+  const groupList = [...groups.entries()]
+  return books.filter((b) =>
+    groupList.every(([kind, g]) =>
+      kind === 'tag' ? g.every((f) => matches(b, f)) : g.some((f) => matches(b, f)),
+    ),
+  )
 }
 
 export function sameFilter(a: Filter, b: Filter): boolean {
