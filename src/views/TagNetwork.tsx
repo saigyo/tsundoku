@@ -178,6 +178,17 @@ export function TagNetwork() {
     return () => el.removeEventListener('wheel', onWheel)
   }, [bbox, zoom, center])
 
+  // Suchtreffer im gezoomten Zustand in den sichtbaren Bereich holen: die
+  // Sicht zentriert auf den Knoten, der Zoomfaktor des Nutzers bleibt.
+  // Bewusst nur an `search` gekoppelt — späteres Zoomen/Pannen des Nutzers
+  // soll nicht immer wieder zum Treffer zurückspringen.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!layout) return
+    const hit = layout.nodes.find((d) => d.id.toLowerCase() === search.toLowerCase())
+    if (hit && zoom > 1) setCenter({ x: hit.x ?? 0, y: hit.y ?? 0 })
+  }, [search])
+
   if (filtered.length === 0) return <EmptyState />
 
   const neighborhood = isolated === null
@@ -189,6 +200,7 @@ export function TagNetwork() {
   const visible = (id: string) => neighborhood === null || neighborhood.has(id)
   const activeTags = new Set(filters.filter((f) => f.kind === 'tag').map((f) => (f as { value: string }).value))
   const searchHit = graph.nodes.find((n) => n.id.toLowerCase() === search.toLowerCase())?.id ?? null
+  const dimmedBySearch = (id: string) => searchHit !== null && id !== searchHit
 
   return (
     <div ref={wrapRef}>
@@ -282,14 +294,17 @@ export function TagNetwork() {
               key={`${l.source.id}-${l.target.id}`}
               x1={l.source.x} y1={l.source.y} x2={l.target.x} y2={l.target.y}
               stroke="var(--sumi)"
-              strokeOpacity={visible(l.source.id) && visible(l.target.id) ? 0.1 + 0.5 * l.jaccard : 0.02}
+              strokeOpacity={
+                (visible(l.source.id) && visible(l.target.id) ? 0.1 + 0.5 * l.jaccard : 0.02) *
+                (searchHit !== null ? 0.35 : 1)
+              }
             />
           ))}
           {layout.nodes.map((n) => (
             <g
               key={n.id}
               transform={`translate(${n.x},${n.y})`}
-              opacity={visible(n.id) ? 1 : 0.12}
+              opacity={!visible(n.id) ? 0.12 : dimmedBySearch(n.id) ? 0.35 : 1}
               className={styles.node}
               role="button"
               tabIndex={0}
@@ -305,6 +320,9 @@ export function TagNetwork() {
                 if (e.key === 'i') setIsolated((cur) => (cur === n.id ? null : n.id))
               }}
             >
+              {searchHit === n.id && (
+                <circle r={r(n.count) + 7} fill="none" stroke="var(--enji)" strokeWidth={3} />
+              )}
               <circle
                 r={r(n.count)}
                 fill={activeTags.has(n.id) ? 'var(--enji)' : 'var(--kon)'}
