@@ -23,7 +23,7 @@ export function AcquisitionReading() {
   const data = useMemo(() => timelineData(filtered), [filtered])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const [hover, setHover] = useState<{ year: number; px: number; py: number } | null>(null)
-  const [drag, setDrag] = useState<{ x0: number; x1: number } | null>(null)
+  const [drag, setDrag] = useState<{ x0: number; x1: number; dim: 'acquiredYear' | 'readYear' } | null>(null)
 
   if (filtered.length === 0) return <EmptyState />
   if (data.points.length === 0) {
@@ -109,16 +109,29 @@ export function AcquisitionReading() {
               </text>
             </g>
           )}
-          {drag && (
-            <rect
-              x={Math.min(drag.x0, drag.x1)}
-              y={M.top}
-              width={Math.abs(drag.x1 - drag.x0)}
-              height={H - M.top - M.bottom}
-              fill="var(--kon)"
-              opacity={0.15}
-            />
-          )}
+          {drag && (() => {
+            const left = Math.min(drag.x0, drag.x1)
+            const right = Math.max(drag.x0, drag.x1)
+            const a = yearAt(left)
+            const b = yearAt(right)
+            const color = drag.dim === 'acquiredYear' ? 'var(--kon)' : 'var(--enji)'
+            return (
+              <g>
+                <rect x={left} y={M.top} width={right - left} height={H - M.top - M.bottom} fill={color} opacity={0.15} />
+                <text x={left - 4} y={M.top + 14} textAnchor="end" className={styles.annotation}>
+                  {a}
+                </text>
+                {b !== a && (
+                  <text x={right + 4} y={M.top + 14} textAnchor="start" className={styles.annotation}>
+                    {b}
+                  </text>
+                )}
+                <text x={(left + right) / 2} y={M.top + 14} textAnchor="middle" className={styles.annotation}>
+                  {drag.dim === 'acquiredYear' ? 'Erwerb' : 'Lektüre'}
+                </text>
+              </g>
+            )
+          })()}
           <AxisBottom ticks={xTicks} y={H - M.bottom + 2} />
           <AxisLeft
             x={0}
@@ -130,9 +143,13 @@ export function AcquisitionReading() {
             width={innerW}
             height={H - M.top - M.bottom}
             fill="transparent"
+            className={styles.brushArea}
             onPointerDown={(e) => {
               const px = localX(e)
-              setDrag({ x0: px, x1: px })
+              // Halbebene bestimmt die Dimension: über der Nulllinie Erwerb,
+              // darunter Lektüre (Overlay beginnt bei M.top).
+              const svgY = e.clientY - e.currentTarget.getBoundingClientRect().top + M.top
+              setDrag({ x0: px, x1: px, dim: svgY < y(0) ? 'acquiredYear' : 'readYear' })
               e.currentTarget.setPointerCapture(e.pointerId)
             }}
             onPointerMove={(e) => {
@@ -149,7 +166,7 @@ export function AcquisitionReading() {
               if (drag) {
                 const a = yearAt(Math.min(drag.x0, drag.x1))
                 const b = yearAt(Math.max(drag.x0, drag.x1))
-                setRange('acquiredYear', a, b)
+                setRange(drag.dim, a, b)
               }
               setDrag(null)
             }}
@@ -176,6 +193,10 @@ export function AcquisitionReading() {
           Ungelesene filtern
         </button>
       </div>
+      <p className={styles.hint}>
+        Zeitraum wählen: im Diagramm horizontal ziehen — über der Nulllinie filtert nach Erwerbsjahr,
+        darunter nach Lesejahr; ein Klick wählt ein einzelnes Jahr.
+      </p>
 
       <form
         className={styles.rangeForm}
@@ -196,7 +217,7 @@ export function AcquisitionReading() {
         <button type="submit">Zeitraum filtern</button>
       </form>
 
-      {hover && hoverTitles.length > 0 && (
+      {hover && !drag && hoverTitles.length > 0 && (
         <Tooltip x={hover.px} y={hover.py}>
           <strong>{hover.year}</strong>: {fmtInt(hoverTitles.length)} erworben
           <ul className={styles.tipList}>

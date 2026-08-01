@@ -27,7 +27,9 @@ und Lektüre gegenläufig (Erwerb nach oben, Lektüre nach unten) — die Fläch
 dazwischen ist der Stapel. Darunter eine kumulative Kurve „ungelesener Bestand".
 
 **Interaktion:** Bürstenauswahl über die Jahresachse setzt einen
-Zeitraumfilter. Hover zeigt die Titel des Jahres.
+Zeitraumfilter — oberhalb der Nulllinie nach Erwerbsjahr, unterhalb nach
+Lesejahr; die Auswahl zeigt Jahresgrenzen und Dimension live an. Klick ohne
+Ziehen filtert ein einzelnes Jahr. Hover zeigt die Titel des Jahres.
 
 **Fallstricke:** `entrydate` nicht verwenden (Massenimporte 2006). Lektüre vor
 2007 stammt überwiegend aus Jahres-Tags — Herkunft (`readYearSource`) in der
@@ -49,7 +51,9 @@ ungelesenen Bestand überrepräsentiert sind.
 Umschaltbar auf absolute Zahlen und Anteile — der Anteilsmodus zeigt die
 Verschiebung, der absolute das Wachstum.
 
-**Interaktion:** Klick auf ein Band filtert auf das Wissensgebiet. Alternativ
+**Interaktion:** Klick auf ein Band filtert auf das Wissensgebiet;
+horizontales Ziehen über die Fläche setzt einen Erwerbsjahr-Bereich (erst ab
+Bewegungsschwelle, damit der Band-Klick erhalten bleibt). Alternativ
 eine Treemap als Momentaufnahme für den gefilterten Zeitraum.
 
 **Fallstricke:** Bei 10 Klassen und ~35 Jahren sind einzelne Jahre dünn besetzt;
