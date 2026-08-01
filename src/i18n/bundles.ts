@@ -1,11 +1,12 @@
 import { de } from './de'
+import { en } from './en'
 import type { Locale, Messages } from './messages'
 
-/** EN/FR/ES/JA zeigen bis zu ihren Übersetzungs-Tasks auf die deutsche
+/** FR/ES/JA zeigen bis zu ihren Übersetzungs-Tasks auf die deutsche
  *  Referenz, damit die App in jeder Phase vollständig läuft. */
 export const BUNDLES: Record<Locale, Messages> = {
   de,
-  en: de,
+  en,
   fr: de,
   es: de,
   ja: de,
