@@ -2,7 +2,7 @@ import { scaleLinear, scalePoint } from 'd3-scale'
 import { area, curveMonotoneX, stack, stackOffsetExpand, stackOffsetWiggle, stackOrderInsideOut, type Series } from 'd3-shape'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AxisBottom } from '../components/Axis'
-import { CoverageNote } from '../components/CoverageNote'
+import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { DDC_COLORS, DDC_LABELS } from '../lib/ddc'
@@ -93,7 +93,7 @@ export function KnowledgeMap() {
       <header className={styles.head}>
         <h2>Wissenslandkarte</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          haben DDC-Code und Erwerbsjahr ({fmtInt(data.withAcquired - data.covered)} mit
+          haben DDC-Code und Erwerbsjahr (<Num>{fmtInt(data.withAcquired - data.covered)}</Num> mit
           Erwerbsjahr, aber ohne DDC).
         </CoverageNote>
       </header>

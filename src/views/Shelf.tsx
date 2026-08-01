@@ -1,7 +1,7 @@
 import { scaleLinear } from 'd3-scale'
 import { useMemo, useState } from 'react'
 import { BookDetail } from '../components/BookDetail'
-import { CoverageNote } from '../components/CoverageNote'
+import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
 import { useLibraryData } from '../lib/DataContext'
@@ -84,9 +84,9 @@ export function Shelf() {
       <header className={styles.head}>
         <h2>Das Regal</h2>
         <CoverageNote covered={layout.placed.length} total={filtered.length}>
-          stehen im Regal — davon {fmtInt(estimatedCount)} mit aus der Seitenzahl geschätzten
-          Maßen (halbtransparent, gestrichelte Kontur). {fmtInt(layout.unmeasured.length)} ohne
-          Maße und Seitenzahl unten, {fmtInt(layout.nonBooks)} Nicht-Bücher nicht dargestellt.
+          stehen im Regal — davon <Num>{fmtInt(estimatedCount)}</Num> mit aus der Seitenzahl geschätzten
+          Maßen (halbtransparent, gestrichelte Kontur). <Num>{fmtInt(layout.unmeasured.length)}</Num> ohne
+          Maße und Seitenzahl unten, <Num>{fmtInt(layout.nonBooks)}</Num> Nicht-Bücher nicht dargestellt.
         </CoverageNote>
       </header>
 

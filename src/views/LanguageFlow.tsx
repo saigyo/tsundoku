@@ -1,6 +1,6 @@
 import { sankey, sankeyLinkHorizontal, type SankeyLink, type SankeyNode } from 'd3-sankey'
 import { useEffect, useMemo, useState } from 'react'
-import { CoverageNote } from '../components/CoverageNote'
+import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
@@ -87,7 +87,7 @@ export function LanguageFlow() {
       <header className={styles.head}>
         <h2>Sprachfluss</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          haben eine Ausgabesprache; bei {fmtInt(inferredCount)} davon gilt sie mangels
+          haben eine Ausgabesprache; bei <Num>{fmtInt(inferredCount)}</Num> davon gilt sie mangels
           erfasster Originalsprache zugleich als Original (Erfassungskonvention).
         </CoverageNote>
       </header>

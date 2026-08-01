@@ -2,7 +2,7 @@ import { scaleSqrt } from 'd3-scale'
 import { useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
 import { BookDetail } from '../components/BookDetail'
-import { CoverageNote } from '../components/CoverageNote'
+import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
@@ -27,7 +27,7 @@ export function ReadingPace() {
   if (data.points.length === 0) {
     return (
       <CoverageNote covered={data.withDays} total={filtered.length}>
-        im aktuellen Filter haben Start- und Enddatum (davon {fmtInt(data.points.length)} auch
+        im aktuellen Filter haben Start- und Enddatum (davon <Num>{fmtInt(data.points.length)}</Num> auch
         eine Seitenzahl).
       </CoverageNote>
     )
@@ -48,7 +48,7 @@ export function ReadingPace() {
         <CoverageNote covered={data.points.length} total={filtered.length}>
           haben Lesedauer und Seitenzahl — überproportional die bewusst getrackten.{' '}
           {data.discardedNegative > 0 && (
-            <>{fmtInt(data.discardedNegative)} negative Dauern verworfen.</>
+            <><Num>{fmtInt(data.discardedNegative)}</Num> negative Dauern verworfen.</>
           )}
         </CoverageNote>
       </header>
