@@ -217,6 +217,17 @@ describe('mediaType (Regel 5)', () => {
   })
 })
 
+describe('workCode (LibraryThing-Werkschlüssel)', () => {
+  it('übernimmt workcode aus dem Rohdatensatz', () => {
+    const raw = { 42: { books_id: '42', title: 'T', workcode: '199744' } }
+    expect(normalize(raw).books[0].workCode).toBe('199744')
+  })
+  it('null, wenn workcode fehlt', () => {
+    const raw = { 42: { books_id: '42', title: 'T' } }
+    expect(normalize(raw).books[0].workCode).toBe(null)
+  })
+})
+
 // Hinweis: bewusst kein `new URL(..., import.meta.url)` — Vite/Vitest behandelt
 // dieses Muster als Asset-URL-Sonderfall und loest es gegen den Dev-Server auf
 // (http://localhost:.../@fs/...) statt gegen das Dateisystem, was existsSync/
@@ -256,5 +267,8 @@ describe.skipIf(!existsSync(EXPORT_PATH))('Goldene Kennzahlen am realen Export',
   })
   it('935 mit dateread, Rest aus Jahres-Tags', () => {
     expect(books.filter((b) => b.readYearSource === 'dateread').length).toBe(935)
+  })
+  it('alle Einträge haben einen workCode', () => {
+    expect(books.filter((b) => b.workCode !== null).length).toBe(4865)
   })
 })

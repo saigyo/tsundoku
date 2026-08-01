@@ -306,6 +306,7 @@ function normalize(raw, source = null) {
 
     return {
       id: r.books_id,
+      workCode: r.workcode ?? null,
       title: decode(r.title),
       originalTitle: decode(r.originaltitle ?? null),
       primaryAuthor: decode(r.primaryauthor ?? null),

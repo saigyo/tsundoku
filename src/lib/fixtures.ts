@@ -6,6 +6,7 @@ export function mkBook(over: Partial<Book> = {}): Book {
   seq += 1
   return {
     id: String(seq),
+    workCode: null,
     title: `Buch ${seq}`,
     originalTitle: null,
     authors: [],

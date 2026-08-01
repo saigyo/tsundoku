@@ -16,6 +16,8 @@ export interface Author {
 
 export interface Book {
   id: string
+  /** LibraryThing-Werkschlüssel: librarything.com/work/{workCode}/book/{id} */
+  workCode: string | null
   title: string
   originalTitle: string | null
   authors: Author[]

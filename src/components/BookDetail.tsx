@@ -61,6 +61,17 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
             </div>
           ))}
       </dl>
+      {book.workCode !== null && (
+        <p className={styles.ltLink}>
+          <a
+            href={`https://www.librarything.com/work/${book.workCode}/book/${book.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Auf LibraryThing ansehen ↗
+          </a>
+        </p>
+      )}
       <button className={styles.close} onClick={onClose}>
         Schließen
       </button>

@@ -177,7 +177,9 @@ Implementiert in `scripts/normalize.mjs`.
 über 4.865 Objekte aggregieren muss. Alle gefilterten Aggregate berechnet die
 App zur Laufzeit selbst.
 
-Ein `Book` trägt u. a.: `id`, `title`, `originalTitle`, `authors[]`,
+Ein `Book` trägt u. a.: `id`, `workCode` (LibraryThing-Werkschlüssel, in allen
+4.865 Einträgen vorhanden; Detail-URL: `librarything.com/work/{workCode}/book/{id}`),
+`title`, `originalTitle`, `authors[]`,
 `primaryAuthor`, `tags[]`, `tagsNorm[]`, `collections[]`, `genres[]`,
 `series[]`, `awards[]`, `ddc {code, top, topLabel}`, `languages[]`,
 `originalLanguages[]`, `originalLanguagesInferred`, `editionYear`, `formats[]`, `mediaType`, `pages`,
