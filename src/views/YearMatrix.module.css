@@ -9,6 +9,16 @@
   flex-wrap: wrap;
 }
 
+.brushArea {
+  cursor: crosshair;
+}
+
+/* WebKit/Chromium markieren beim Ziehen sonst das SVG als Textselektion. */
+.chart {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .underflow {
   font-size: 14px;
   color: var(--ink-70);

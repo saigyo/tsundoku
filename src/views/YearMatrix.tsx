@@ -1,5 +1,5 @@
 import { scaleLinear, scaleSqrt } from 'd3-scale'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
@@ -22,12 +22,42 @@ export function YearMatrix() {
   const [hover, setHover] = useState<{ ed: number; acq: number; count: number; px: number; py: number } | null>(
     null,
   )
+  const filters = useFilterStore((s) => s.filters)
   const data = useMemo(() => yearMatrix(filtered), [filtered])
   const cellByKey = useMemo(() => {
     const m = new Map<string, number>()
     for (const c of data.cells) m.set(`${c.ed}:${c.acq}`, c.count)
     return m
   }, [data.cells])
+
+  // Das Formular spiegelt den aktiven Filterzustand (auch nach einem Brush);
+  // ohne Filter zeigt es die Spannweite der Daten.
+  const [formEd, setFormEd] = useState<[number, number]>([0, 0])
+  const [formAcq, setFormAcq] = useState<[number, number]>([0, 0])
+  useEffect(() => {
+    const ed = filters.find((f) => f.kind === 'editionYear')
+    const acq = filters.find((f) => f.kind === 'acquiredYear')
+    if (ed && 'from' in ed) setFormEd([ed.from, ed.to])
+    else if (data.edExtent) setFormEd(data.edExtent)
+    if (acq && 'from' in acq) setFormAcq([acq.from, acq.to])
+    else if (data.acqExtent) setFormAcq(data.acqExtent)
+  }, [filters, data])
+
+  // Während des Brushs: Textselektion global aus (die Maus verlässt das SVG,
+  // sonst markiert der Browser die Seite) und Escape bricht ohne Filter ab.
+  const dragging = drag !== null
+  useEffect(() => {
+    if (!dragging) return
+    document.body.style.userSelect = 'none'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrag(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.userSelect = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [dragging])
 
   if (filtered.length === 0) return <EmptyState />
   if (!data.edExtent || !data.acqExtent) {
@@ -72,7 +102,7 @@ export function YearMatrix() {
         <p className={styles.underflow}>{fmtInt(data.underflow)} Ausgaben vor 1900 nicht dargestellt.</p>
       )}
 
-      <svg width={width} height={H} role="img" aria-label="Heatmap Ausgabejahr × Erwerbsjahr">
+      <svg width={width} height={H} className={styles.chart} role="img" aria-label="Heatmap Ausgabejahr × Erwerbsjahr">
         <g transform={`translate(${M.left},${M.top})`}>
           {[...data.edMarginal].map(([yr, n]) => (
             <rect
@@ -140,7 +170,9 @@ export function YearMatrix() {
             width={innerW}
             height={innerH}
             fill="transparent"
+            className={styles.brushArea}
             onPointerDown={(e) => {
+              e.preventDefault()
               const { px, py } = local(e)
               setDrag({ x0: px, y0: py, x1: px, y1: py })
               e.currentTarget.setPointerCapture(e.pointerId)
@@ -181,23 +213,40 @@ export function YearMatrix() {
         className={styles.rangeForm}
         onSubmit={(e) => {
           e.preventDefault()
-          const fd = new FormData(e.currentTarget)
-          const ef = Number(fd.get('ef')); const et = Number(fd.get('et'))
-          const af = Number(fd.get('af')); const at = Number(fd.get('at'))
-          if (ef >= 1900 && et >= ef) setRange('editionYear', ef, et)
-          if (af >= 1900 && at >= af) setRange('acquiredYear', af, at)
+          if (formEd[0] >= 1900 && formEd[1] >= formEd[0]) setRange('editionYear', formEd[0], formEd[1])
+          if (formAcq[0] >= 1900 && formAcq[1] >= formAcq[0]) setRange('acquiredYear', formAcq[0], formAcq[1])
         }}
       >
         <span>Ausgabe</span>
-        <input name="ef" type="number" defaultValue={data.edExtent[0]} aria-label="Ausgabejahr von" />
-        <input name="et" type="number" defaultValue={data.edExtent[1]} aria-label="Ausgabejahr bis" />
+        <input
+          type="number"
+          value={formEd[0]}
+          onChange={(e) => setFormEd([Number(e.target.value), formEd[1]])}
+          aria-label="Ausgabejahr von"
+        />
+        <input
+          type="number"
+          value={formEd[1]}
+          onChange={(e) => setFormEd([formEd[0], Number(e.target.value)])}
+          aria-label="Ausgabejahr bis"
+        />
         <span>Erwerb</span>
-        <input name="af" type="number" defaultValue={data.acqExtent[0]} aria-label="Erwerbsjahr von" />
-        <input name="at" type="number" defaultValue={data.acqExtent[1]} aria-label="Erwerbsjahr bis" />
+        <input
+          type="number"
+          value={formAcq[0]}
+          onChange={(e) => setFormAcq([Number(e.target.value), formAcq[1]])}
+          aria-label="Erwerbsjahr von"
+        />
+        <input
+          type="number"
+          value={formAcq[1]}
+          onChange={(e) => setFormAcq([formAcq[0], Number(e.target.value)])}
+          aria-label="Erwerbsjahr bis"
+        />
         <button type="submit">Bereich filtern</button>
       </form>
 
-      {hover && (
+      {hover && !drag && (
         <Tooltip x={hover.px} y={hover.py}>
           Ausgabe {hover.ed}, erworben {hover.acq}: {fmtInt(hover.count)} Titel
         </Tooltip>
