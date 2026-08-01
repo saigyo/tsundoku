@@ -51,36 +51,38 @@ function toMm(raw) {
 }
 
 /**
- * Regel 9 (permutierte Maße): Bei ~20 % der vermessenen Titel steht die
- * längste der drei Kanten in `thickness` statt in `height` — LibraryThing
- * hat height/thickness/length beim Import um eine Position rotiert.
- * Erkennbar an `thicknessMm > heightMm` (ein Buch ist nie dicker als hoch).
+ * Regel 9 (permutierte Maße): Bei ~830 vermessenen Titeln hält `thickness`
+ * nicht die kleinste der drei Kanten — LibraryThing hat die Felder beim
+ * Import vertauscht (mal voll rotiert, mal nur thickness/length getauscht;
+ * die `dimensions`-Zeichenkette zeigt jeweils die echte Reihenfolge).
  *
- * Verifiziert an mehreren realen Fällen (`node -e` gegen den Rohexport):
- * bei den betroffenen Datensaetzen liegt `heightMm` im Wertebereich der
- * echten Buchbreite (Median 138 mm ≈ `length` unauffälliger Datensätze,
- * Median 137 mm), `thicknessMm` im Wertebereich der echten Höhe (Median
- * 213 mm ≈ `height` unauffälliger Datensätze, Median 210 mm) und `length`
- * im Wertebereich der echten Dicke (Median 25 mm ≈ `thickness`
- * unauffälliger Datensätze, Median 22 mm). Die drei Felder sind also um
- * eine Position rotiert: `height` <- `thickness`, `length` <- `height`,
- * `thickness` <- `length`.
+ * Invariante: die Dicke eines Buchs ist stets die kleinste seiner drei
+ * Kanten. Wird sie verletzt, wird das Tripel sortiert und in kanonischer
+ * Reihenfolge neu zugewiesen — Höhe = größter, Länge (Breite) = mittlerer,
+ * Dicke = kleinster Wert; fehlende Felder werden dabei nie befüllt.
+ * Datensätze, die die Invariante erfüllen, bleiben unangetastet — das
+ * schützt legitime dicke Schuber (max. 94 mm im Korpus) und Querformate.
  *
- * Das gilt nur, wenn `length` selbst eine plausible Dicke ist (> 0 und
- * < 80 mm — die dickste unauffällige Dicke im Korpus liegt bei 79 mm).
- * Ist `length` fehlend oder selbst zu groß für eine Dicke, ist das Tripel
- * auf eine Weise verdreht, die sich nicht sicher auflösen lässt; hier wird
- * nur `thicknessMm` verworfen (Buch landet im unvermessenen Regal-Segment),
- * `height`/`length` bleiben unangetastet statt eine zweite Heuristik zu raten.
+ * Ist auch der kleinste Wert keine plausible Dicke (>= 80 mm — die dickste
+ * unauffällige Dicke im Korpus liegt bei 79 mm), lässt sich das Tripel
+ * nicht sicher auflösen; dann wird nur `thicknessMm` verworfen (Buch landet
+ * im unvermessenen Regal-Segment), `height`/`length` bleiben unangetastet.
  */
 function fixPermutedDimensions(heightMm, thicknessMm, lengthMm) {
-  if (heightMm == null || thicknessMm == null || thicknessMm <= heightMm) {
-    return { heightMm, thicknessMm, lengthMm, correction: null }
+  const untouched = { heightMm, thicknessMm, lengthMm, correction: null }
+  if (thicknessMm == null) return untouched
+  const others = [heightMm, lengthMm].filter((v) => v != null)
+  if (others.length === 0 || thicknessMm <= Math.min(...others)) return untouched
+  const vals = [heightMm, lengthMm, thicknessMm].filter((v) => v != null)
+  if (Math.min(...vals) >= 80) {
+    return { heightMm, thicknessMm: null, lengthMm, correction: 'discarded' }
   }
-  if (lengthMm != null && lengthMm > 0 && lengthMm < 80) {
-    return { heightMm: thicknessMm, thicknessMm: lengthMm, lengthMm: heightMm, correction: 'rotated' }
+  vals.sort((a, b) => b - a)
+  const out = { heightMm, thicknessMm, lengthMm, correction: 'sorted' }
+  for (const field of ['heightMm', 'lengthMm', 'thicknessMm']) {
+    if (out[field] != null) out[field] = vals.shift()
   }
-  return { heightMm, thicknessMm: null, lengthMm, correction: 'discarded' }
+  return out
 }
 
 /** "1.1 pounds" | "0.5 kg" -> Gramm */
@@ -217,7 +219,7 @@ function normalize(raw, source = null) {
   const bulkDates = new Set([...perEntryDate].filter(([, n]) => n >= BULK_THRESHOLD).map(([d]) => d))
 
   // Regel 9: permutierte height/thickness/length (siehe fixPermutedDimensions).
-  let dimsRotated = 0
+  let dimsSorted = 0
   let dimsDiscarded = 0
 
   // Regel 10: HTML-Entities in Freitextfeldern (siehe decodeEntities).
@@ -271,7 +273,7 @@ function normalize(raw, source = null) {
       volumes: r.volumes ? Number(r.volumes) : null,
       physical: (() => {
         const dims = fixPermutedDimensions(toMm(r.height), toMm(r.thickness), toMm(r.length))
-        if (dims.correction === 'rotated') dimsRotated++
+        if (dims.correction === 'sorted') dimsSorted++
         else if (dims.correction === 'discarded') dimsDiscarded++
         return {
           heightMm: dims.heightMm,
@@ -326,7 +328,7 @@ function normalize(raw, source = null) {
     withReadYearEffective: books.filter((b) => b.readYearEffective).length,
     withRating: books.filter((b) => b.rating != null).length,
     bulkImported: books.filter((b) => b.bulkImport).length,
-    dimsRotated,
+    dimsSorted,
     dimsDiscarded,
     entitiesDecoded,
     pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
@@ -373,8 +375,8 @@ function main() {
     `  Medien: ${JSON.stringify(stats.byMediaType)} | gelesen: ${stats.read} | Massenimport-Flag: ${stats.bulkImported}`,
   )
   console.log(
-    `  Maße permutiert: ${stats.dimsRotated} korrigiert (height/thickness/length rotiert), ` +
-      `${stats.dimsDiscarded} verworfen (thickness > height, length nicht als Dicke plausibel)`,
+    `  Maße permutiert: ${stats.dimsSorted} korrigiert (Tripel sortiert, Dicke = kleinster Wert), ` +
+      `${stats.dimsDiscarded} verworfen (kleinster Wert keine plausible Dicke)`,
   )
   console.log(`  HTML-Entities dekodiert: ${stats.entitiesDecoded} Felder (Titel, Autorennamen)`)
   console.log(

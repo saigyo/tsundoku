@@ -96,25 +96,25 @@ Implementiert in `scripts/normalize.mjs`.
    *wenn* sie gefallen haben. Als Verteilung irreführend, als Filter („nur
    Favoriten") brauchbar.
 
-9. **`height`/`thickness`/`length` sind bei ~20 % der vermessenen Titel um
-   eine Position rotiert.** Erkennbar an `thicknessMm > heightMm` (ein Buch
-   ist nie dicker als hoch) — betrifft 794 von 3.838 Datensätzen mit Maßen.
-   An mehreren realen Fällen geprüft (`node -e` gegen den Rohexport): bei den
-   betroffenen Datensätzen liegt das rohe `height` im Wertebereich der echten
-   Buchbreite (Median 138 mm ≈ `length` unauffälliger Datensätze, 137 mm),
-   das rohe `thickness` im Wertebereich der echten Höhe (Median 213 mm ≈
-   `height` unauffälliger Datensätze, 210 mm) und das rohe `length` im
-   Wertebereich der echten Dicke (Median 25 mm ≈ `thickness` unauffälliger
-   Datensätze, 22 mm). Regel: ist `length` selbst eine plausible Dicke
-   (> 0 und < 80 mm), wird rotiert — `height` ← `thickness`, `length` ←
-   `height`, `thickness` ← `length` (**695 Fälle korrigiert**). Ist `length`
-   fehlend oder selbst zu groß für eine Dicke, lässt sich das Tripel nicht
-   sicher auflösen; hier wird nur `thicknessMm` verworfen, das Buch landet im
-   unvermessenen Regal-Segment (**99 Fälle verworfen**). Implementiert als
-   `fixPermutedDimensions()` in `scripts/normalize.mjs`, mit Unit-Tests für
-   beide Zweige. Ohne diese Regel hätte das Regal (View 6) 762 Bücher mit bis
-   zu 594 mm „Dicke" gezeigt und rund 20 % der Fläche als unrealistisch
-   breite Blöcke gerendert statt als Buchrücken.
+9. **`height`/`thickness`/`length` sind bei ~830 vermessenen Titeln
+   vertauscht.** LibraryThing hält die Dicke mal im `thickness`-, mal im
+   `length`-Feld, teils voll rotiert; die `dimensions`-Zeichenkette zeigt
+   jeweils die echte Reihenfolge (geprüft an realen Fällen, z. B. Fotoband
+   `11.77 × 1.38 × 10 inches` mit `thickness` = 10 Zoll). Regel über die
+   Invariante „die Dicke ist stets die kleinste der drei Kanten": verletzt
+   ein Datensatz sie, wird das Tripel sortiert und kanonisch neu zugewiesen —
+   Höhe = größter, Länge (Breite) = mittlerer, Dicke = kleinster Wert;
+   fehlende Felder werden nie befüllt (**822 Fälle korrigiert**). Datensätze,
+   die die Invariante erfüllen, bleiben unangetastet — das schützt legitime
+   dicke Schuber (max. 94 mm) und Querformate; Gleichstände (Dicke = Breite,
+   eine Handvoll Fälle) sind nicht auflösbar und bleiben stehen. Ist auch der
+   kleinste Wert keine plausible Dicke (≥ 80 mm — die dickste unauffällige
+   Dicke im Korpus liegt bei 79 mm), wird nur `thicknessMm` verworfen, das
+   Buch landet im unvermessenen Regal-Segment (**9 Fälle verworfen**).
+   Implementiert als `fixPermutedDimensions()` in `scripts/normalize.mjs`,
+   mit Unit-Tests für alle Zweige. Ohne diese Regel hätte das Regal (View 6)
+   762 Bücher mit bis zu 594 mm „Dicke" als unrealistisch breite Blöcke
+   gerendert statt als Buchrücken.
 
 10. **Rohe HTML-Entities in Titeln und Autorennamen.** 143 `originalTitle`
     (überwiegend japanische/chinesische Titel als numerische Entities, z. B.

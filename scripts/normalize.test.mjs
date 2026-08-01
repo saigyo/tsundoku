@@ -63,28 +63,51 @@ describe('fixPermutedDimensions (Regel 9: permutierte height/thickness/length)',
       correction: null,
     })
   })
-  it('rotiert height/thickness/length, wenn length als Dicke plausibel ist', () => {
-    // realer Fall aus dem Export: height 231, thickness 325, length 12
+  it('sortiert das Tripel, wenn die Dicke nicht der kleinste Wert ist (volle Rotation)', () => {
+    // realer Fall aus dem Export: height 231, thickness 325, length 12 (Comic-Album 325 mm hoch)
     expect(fixPermutedDimensions(231, 325, 12)).toEqual({
       heightMm: 325,
       thicknessMm: 12,
       lengthMm: 231,
-      correction: 'rotated',
+      correction: 'sorted',
     })
   })
-  it('verwirft thickness, wenn length selbst nicht als Dicke plausibel ist', () => {
+  it('sortiert auch, wenn thickness < height, aber die echte Dicke in length steht', () => {
+    // realer Fall 135981392: Fotoband 11.77 × 1.38 × 10 Zoll, Export hält thickness=254, length=35
+    expect(fixPermutedDimensions(299, 254, 35)).toEqual({
+      heightMm: 299,
+      thicknessMm: 35,
+      lengthMm: 254,
+      correction: 'sorted',
+    })
+  })
+  it('sortiert dreifach verdrehte Tripel (kleinster Wert im height-Feld)', () => {
     expect(fixPermutedDimensions(17, 207, 152)).toEqual({
-      heightMm: 17,
-      thicknessMm: null,
+      heightMm: 207,
+      thicknessMm: 17,
       lengthMm: 152,
-      correction: 'discarded',
+      correction: 'sorted',
     })
   })
-  it('verwirft thickness, wenn length fehlt', () => {
+  it('füllt nie ein leeres Feld: ohne height wird nur thickness/length geordnet', () => {
+    expect(fixPermutedDimensions(null, 207, 20)).toEqual({
+      heightMm: null,
+      thicknessMm: 20,
+      lengthMm: 207,
+      correction: 'sorted',
+    })
+  })
+  it('verwirft thickness, wenn auch der kleinste Wert keine plausible Dicke ist', () => {
     expect(fixPermutedDimensions(138, 213, null)).toEqual({
       heightMm: 138,
       thicknessMm: null,
       lengthMm: null,
+      correction: 'discarded',
+    })
+    expect(fixPermutedDimensions(300, 250, 200)).toEqual({
+      heightMm: 300,
+      thicknessMm: null,
+      lengthMm: 200,
       correction: 'discarded',
     })
   })
