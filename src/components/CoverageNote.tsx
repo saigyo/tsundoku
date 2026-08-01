@@ -2,6 +2,11 @@ import type { ReactNode } from 'react'
 import { fmtInt } from '../lib/format'
 import styles from './CoverageNote.module.css'
 
+/** Zahlen-Akzent der Abdeckungszeile — für Anzahlen im Fließtext der Views. */
+export function Num({ children }: { children: ReactNode }) {
+  return <span className={styles.num}>{children}</span>
+}
+
 /** „935 von 4.865 Titeln haben …" — jede View weist ihre Datengrundlage aus. */
 export function CoverageNote({ covered, total, unit = 'Titeln', children }: {
   covered: number

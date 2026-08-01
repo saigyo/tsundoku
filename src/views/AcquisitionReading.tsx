@@ -2,7 +2,7 @@ import { area, curveMonotoneX } from 'd3-shape'
 import { scaleBand, scaleLinear } from 'd3-scale'
 import { useEffect, useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
-import { CoverageNote } from '../components/CoverageNote'
+import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
 import { useLibraryData } from '../lib/DataContext'
@@ -112,8 +112,8 @@ export function AcquisitionReading() {
       <header className={styles.head}>
         <h2>Erwerb und Lektüre</h2>
         <CoverageNote covered={data.acquiredKnown} total={filtered.length}>
-          haben ein Erwerbsjahr; {fmtInt(data.readKnown)} ein Lesejahr, davon{' '}
-          {fmtInt(data.readTaggedOnly)} nur über Jahres-Tags.
+          haben ein Erwerbsjahr; <Num>{fmtInt(data.readKnown)}</Num> ein Lesejahr, davon{' '}
+          <Num>{fmtInt(data.readTaggedOnly)}</Num> nur über Jahres-Tags.
         </CoverageNote>
       </header>
 

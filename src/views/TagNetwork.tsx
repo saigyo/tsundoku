@@ -10,7 +10,7 @@ import {
 } from 'd3-force'
 import { scaleSqrt } from 'd3-scale'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CoverageNote } from '../components/CoverageNote'
+import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
@@ -207,8 +207,10 @@ export function TagNetwork() {
       <header className={styles.head}>
         <h2>Tag-Netzwerk</h2>
         <CoverageNote covered={graph.nodes.length} total={graph.totalTags} unit="Tags">
-          haben ≥ {minCount} Titel und sind im Netz; ausgeblendet: {fmtInt(graph.excluded.yearTags)} Jahres-Tags,{' '}
-          {fmtInt(graph.excluded.status)} Statusmarker, {fmtInt(graph.excluded.seriesMarkers)} Reihenkürzel.
+          haben ≥ <Num>{minCount}</Num> Titel und sind im Netz; ausgeblendet:{' '}
+          <Num>{fmtInt(graph.excluded.yearTags)}</Num> Jahres-Tags,{' '}
+          <Num>{fmtInt(graph.excluded.status)}</Num> Statusmarker,{' '}
+          <Num>{fmtInt(graph.excluded.seriesMarkers)}</Num> Reihenkürzel.
         </CoverageNote>
       </header>
 
