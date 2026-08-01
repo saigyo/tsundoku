@@ -15,6 +15,9 @@
 
 .brushArea {
   cursor: crosshair;
+  /* WebKit/Chromium markieren beim Ziehen sonst das SVG als Textselektion. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .brushArea path {
