@@ -86,7 +86,7 @@ um einen Neu-Upload. Obergrenze sind 10.000 Einträge, denn die Ansichten
 halten alles im Speicher; größere Bibliotheken lassen sich bei LibraryThing
 gefiltert exportieren.
 
-**Lokal:** Als Datengrundlage dient ein Export der eigenen
+**Lokal** (Node ≥ 20.10): Als Datengrundlage dient ein Export der eigenen
 LibraryThing-Bibliothek: auf <https://www.librarything.com/export.php> das
 Format **JSON** wählen, die erzeugte Datei herunterladen und dem Normalizer
 übergeben:

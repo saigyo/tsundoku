@@ -217,6 +217,39 @@ describe('mediaType (Regel 5)', () => {
   })
 })
 
+describe('feindliche Eingaben (öffentlicher Upload-Pfad)', () => {
+  it('normTag greift nicht in die Prototype-Kette', () => {
+    expect(normTag('constructor')).toBe('constructor')
+    expect(normTag('__proto__')).toBe('__proto__')
+    expect(normTag('toString')).toBe('toString')
+  })
+  it('degenerierte Records (null, Strings, Arrays, ohne books_id) werden übersprungen', () => {
+    const raw = { a: null, b: 'quatsch', c: 42, d: [1, 2], e: {}, f: { books_id: '9', title: 'Echt' } }
+    const { books } = normalize(raw)
+    expect(books).toHaveLength(1)
+    expect(books[0].id).toBe('9')
+  })
+  it('hasRead: ohne Have-read-Sammlungen zählen dateread und Jahres-Tags', () => {
+    const raw = {
+      1: { books_id: '1', title: 'A', dateread: '2020-01-05' },
+      2: { books_id: '2', title: 'B', tags: ['2019'] },
+      3: { books_id: '3', title: 'C' },
+    }
+    const { books, stats } = normalize(raw)
+    expect(books.map((b) => b.hasRead)).toEqual([true, true, false])
+    expect(stats.read).toBe(2)
+  })
+  it('hasRead: mit Have-read-Sammlungen bleibt die Sammlung maßgeblich', () => {
+    const raw = {
+      1: { books_id: '1', title: 'A', collections: ['Have read'] },
+      // Lesedatum, aber bewusst nicht in Have read -> gilt nicht als gelesen
+      2: { books_id: '2', title: 'B', dateread: '2020-01-05' },
+    }
+    const { books } = normalize(raw)
+    expect(books.map((b) => b.hasRead)).toEqual([true, false])
+  })
+})
+
 describe('normalize-core bleibt browserfähig', () => {
   it('keine node:-Imports im Kern (läuft auch im Browser)', () => {
     const src = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'normalize-core.mjs'), 'utf8')

@@ -34,6 +34,7 @@ export function DataUpload({
   const [dragOver, setDragOver] = useState(false)
 
   const handleFile = (file: File) => {
+    if (up.state === 'working') return // kein zweiter Drop während der Verarbeitung
     if (file.size > MAX_RAW_BYTES) {
       setUp({
         state: 'error',
@@ -49,13 +50,19 @@ export function DataUpload({
         if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
           throw new Error('kein LibraryThing-Export (erwartet: JSON-Objekt mit Buch-IDs als Schlüsseln)')
         }
-        const library = normalize(raw as Record<string, unknown>, file.name)
-        if (library.books.length === 0) throw new Error('der Export enthält keine Einträge')
-        if (library.books.length > MAX_BOOKS) {
+        // Obergrenze VOR normalize() prüfen: Millionen Mini-Records unter 50 MB
+        // würden sonst erst vollständig materialisiert (OOM/Freeze), bevor die
+        // Fehlermeldung je erscheinen könnte.
+        const recordCount = Object.keys(raw).length
+        if (recordCount > MAX_BOOKS) {
           throw new Error(
-            `der Export enthält ${fmtInt(library.books.length)} Einträge — mehr als die Obergrenze von ${fmtInt(MAX_BOOKS)}. ` +
+            `der Export enthält ${fmtInt(recordCount)} Einträge — mehr als die Obergrenze von ${fmtInt(MAX_BOOKS)}. ` +
               'Die Ansichten halten alles im Speicher; bitte einen gefilterten Export wählen (LibraryThing kann z. B. nach Sammlung exportieren).',
           )
+        }
+        const library = normalize(raw as Record<string, unknown>, file.name)
+        if (library.books.length === 0) {
+          throw new Error('kein LibraryThing-Export — die Datei enthält keine Buch-Einträge')
         }
         setUp({ state: 'report', library, sourceName: file.name })
       })
@@ -84,7 +91,9 @@ export function DataUpload({
       ['Medien', stats.byMediaType.map(([m, n]) => `${m} ${fmtInt(n)}`).join(', ')],
       ['Gelesen', `${fmtInt(stats.read)} (Lesejahr bekannt: ${fmtInt(stats.withReadYearEffective)}, davon ${fmtInt(stats.withReadDate)} tagesgenau${readYears.length ? `, ab ${Math.min(...readYears)}` : ''})`],
       ['Seiten gesamt', fmtInt(stats.pagesTotal)],
-      ['Lesedauer', `meist ${stats.readDays.median} Tage, selten über ${stats.readDays.p90}, längste ${stats.readDays.max}`],
+      ...(stats.readDays.median !== null
+        ? ([['Lesedauer', `meist ${stats.readDays.median} Tage, selten über ${stats.readDays.p90}, längste ${stats.readDays.max}`]] as [string, string][])
+        : []),
       ['Tags', `${fmtInt(stats.tagsNorm.length)} vereinheitlicht (im Export: ${fmtInt(rawTagCount)})`],
       ['Vertauschte Buchmaße', `${fmtInt(stats.dimsSorted)} korrigiert, ${fmtInt(stats.dimsDiscarded)} verworfen`],
       ['Geschätzte Buchmaße', `${fmtInt(stats.dimsEstimated)} Bücher (aus der Seitenzahl)`],

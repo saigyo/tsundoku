@@ -54,9 +54,10 @@ function main() {
       `${stats.readDays.median}/${stats.readDays.p90}/${stats.readDays.max} Tage`,
   )
   console.log(`  Tags: ${stats.tagsNorm.length} normalisiert (roh: ${new Set(books.flatMap((b) => b.tags)).size})`)
+  const readYears = stats.readPerYearEffective.map(([y]) => y)
   console.log(
-    `  Lesejahr bekannt: ${stats.withReadYearEffective} (davon ${stats.withReadDate} per dateread, Rest aus Jahres-Tags), ` +
-      `ab ${Math.min(...stats.readPerYearEffective.map(([y]) => y))}`,
+    `  Lesejahr bekannt: ${stats.withReadYearEffective} (davon ${stats.withReadDate} per dateread, Rest aus Jahres-Tags)` +
+      (readYears.length ? `, ab ${Math.min(...readYears)}` : ''),
   )
 }
 

@@ -200,7 +200,11 @@ function daysBetween(a, b) {
 
 function normTag(tag) {
   const t = String(tag).trim()
-  return aliases[t.toLowerCase()] ?? t
+  // Object.hasOwn statt direktem Lookup: Tags wie "constructor" oder
+  // "__proto__" träfen sonst die Prototype-Kette und lieferten Funktionen
+  // statt Strings (Upload-Pfad: fremde, potenziell feindliche Exporte).
+  const key = t.toLowerCase()
+  return Object.hasOwn(aliases, key) ? aliases[key] : t
 }
 
 /**
@@ -262,7 +266,20 @@ function mediaType(formats, collections) {
  * Argument aufgerufen werden kann.
  */
 function normalize(raw, source = null) {
-  const records = Object.values(raw)
+  // Nur plausible Buch-Records: der öffentliche Upload-Pfad liefert auch
+  // beliebigen Fremd-JSON-Inhalt (null, Strings, Objekte ohne books_id) —
+  // daraus dürfen keine Geister-Bücher mit id undefined entstehen.
+  const records = Object.values(raw).filter(
+    (r) => r !== null && typeof r === 'object' && !Array.isArray(r) && r.books_id,
+  )
+
+  // "Have read"/"Read but unowned" sind Konventionen DIESER Bibliothek (dort
+  // maßgeblich: es gibt Bücher mit Lesedatum, die bewusst nicht als gelesen
+  // gelten). Fremde Exporte ohne diese Sammlungen fallen auf dateread bzw.
+  // Jahres-Tags zurück, damit "gelesen" nicht überall 0 ist.
+  const usesReadCollections = records.some(
+    (r) => (r.collections ?? []).includes('Have read') || (r.collections ?? []).includes('Read but unowned'),
+  )
 
   // Massenimporte erkennen: Tage mit auffaellig vielen Eintraegen sind
   // Katalogisierungs-Sessions, kein Erwerbsverhalten.
@@ -360,7 +377,9 @@ function normalize(raw, source = null) {
       readYearEffective: read.year ?? yearTags[0] ?? null,
       readYearSource: read.year ? 'dateread' : yearTags.length ? 'tag' : null,
       readDays: daysBetween(started.date, read.date),
-      hasRead: collections.includes('Have read') || collections.includes('Read but unowned'),
+      hasRead: usesReadCollections
+        ? collections.includes('Have read') || collections.includes('Read but unowned')
+        : read.year !== null || yearTags.length > 0,
       fromWhere: r.fromwhere ?? null,
       price: toPrice(r.price),
       comment: r.comment ?? null,
