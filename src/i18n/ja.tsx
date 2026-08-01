@@ -85,7 +85,7 @@ export const ja: Messages = {
     bulkImport: '一括インポートを検出',
     bulkImportValue: (nFmt) => `${nFmt} 件`,
     toLibrary: '蔵書を開く',
-    otherFile: '別のファイルを選ぶ',
+    otherFile: '別のファイルを選択',
   },
   media: {
     book: '書籍',
@@ -157,7 +157,7 @@ export const ja: Messages = {
   coverage: {
     frame: (covered, total, unit) => (
       <>
-        {total} {unit}のうち {covered} {unit}が
+        {total} {unit}のうち {covered} {unit}は
       </>
     ),
     unitTitles: '点',
@@ -272,7 +272,7 @@ export const ja: Messages = {
       fit: '全体表示',
       unisolate: (tag) => `分離を解除（${tag}）`,
       svgAria: '同時に付けられたタグのネットワーク',
-      nodeAria: (tag, countFmt) => `タグ ${tag}、${countFmt} 点`,
+      nodeAria: (tag, countFmt) => `タグ「${tag}」、${countFmt} 点`,
       nodeTitle: (tag, countFmt) =>
         `${tag}：${countFmt} 点（クリックで絞り込み、Shift+クリックで周辺を分離表示）`,
     },
@@ -289,8 +289,8 @@ export const ja: Messages = {
       linkAriaFilter: (label) => `${label}。Enter でこの組み合わせに絞り込みます。`,
       origSide: '原語',
       edSide: '出版言語',
-      nodeAria: (side, lang, countFmt) => `${side} ${lang}、${countFmt} 点`,
-      nodeTitle: (side, lang, countFmt) => `${side} ${lang}：${countFmt} 点（クリックでこの言語のみに絞り込み）`,
+      nodeAria: (side, lang, countFmt) => `${side}「${lang}」、${countFmt} 点`,
+      nodeTitle: (side, lang, countFmt) => `${side}「${lang}」：${countFmt} 点（クリックでこの言語のみに絞り込み）`,
     },
     years: {
       title: '出版年×入手年',
@@ -328,7 +328,7 @@ export const ja: Messages = {
         `${title} — ${pagesFmt} ページ / ${daysFmt} 日${suspect ? '（100日超：通読したかは不明）' : ''}`,
       axisPages: 'ページ',
       axisDays: '日数',
-      note: '白抜きの点は 100日超 — 通読したかどうかわからないため、ペースとして読まないでください。',
+      note: '白抜きの点は 100日超 — 通読したかどうかわからないため、ペースの目安にはしないでください。',
     },
     canon: {
       title: '正典リストとの照合',
