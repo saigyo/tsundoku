@@ -6,7 +6,6 @@ import styles from './BookDetail.module.css'
 
 export function BookDetail({ book, onClose }: { book: Book | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
-  const addFilter = useFilterStore((s) => s.addFilter)
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
 
@@ -38,19 +37,20 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
     <dialog ref={ref} className={styles.dialog} onClose={onClose} aria-label={book.title}>
       <h3 className={styles.title}>{book.title}</h3>
       <p className={styles.authors}>
-        {book.authors.map((a) => (
-          <button
-            key={a.name}
-            className={styles.author}
-            onClick={() => {
-              addFilter({ kind: 'author', value: a.name })
-              onClose()
-            }}
-            aria-label={`Nach ${a.name} filtern`}
-          >
-            {a.name}
-          </button>
-        ))}
+        {book.authors.map((a) => {
+          const active = filters.some((f) => f.kind === 'author' && f.value === a.name)
+          return (
+            <button
+              key={a.name}
+              className={active ? styles.authorActive : styles.author}
+              onClick={() => toggleFilter({ kind: 'author', value: a.name })}
+              aria-pressed={active}
+              aria-label={`Nach ${a.name} filtern`}
+            >
+              {a.name}
+            </button>
+          )
+        })}
       </p>
       <dl className={styles.rows}>
         {rows
