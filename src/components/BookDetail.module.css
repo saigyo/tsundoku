@@ -112,11 +112,15 @@
 }
 
 /* Reservierte Coverfläche 2:3 — kein Layoutsprung durch nachladende Bilder.
-   Dient zugleich als Opt-in-Platzhalter und als „Kein Cover"-Fläche. */
+   Dient zugleich als Opt-in-Platzhalter und als „Kein Cover"-Fläche.
+   min-height statt festem aspect-ratio-Zwang: der Opt-in-Platzhalter mit
+   Einwilligungstext braucht in FR/ES mehr als 180px, das Bild/„Kein Cover"
+   bleibt bei den üblichen 120×180. overflow sichtbar statt hidden, damit ein
+   zu langer Text die Box wachsen lässt statt abgeschnitten zu werden. */
 .cover {
   flex-shrink: 0;
   width: 120px;
-  aspect-ratio: 2 / 3;
+  min-height: 180px;
   background: var(--shironeri);
   border: 1px solid var(--ink-15);
   border-radius: var(--radius);
@@ -127,12 +131,11 @@
   gap: var(--space-2);
   padding: var(--space-2);
   text-align: center;
-  overflow: hidden;
 }
 
 .coverImg {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 2 / 3;
   object-fit: contain;
 }
 
@@ -151,6 +154,7 @@
   font-size: 11px;
   line-height: 1.4;
   color: var(--ink-70);
+  overflow-wrap: anywhere;
 }
 
 .coverNone {
