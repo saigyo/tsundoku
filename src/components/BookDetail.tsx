@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { de } from '../i18n/de'
 import { fmtInt } from '../lib/format'
 import { langLabel } from '../lib/languages'
 import type { Book, Filter } from '../lib/types'
@@ -39,10 +40,10 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
   const rows: [string, ReactNode][] = [
     ['Original', book.originalTitle],
     ['Jahr dieser Ausgabe', book.editionYear === null ? null : String(book.editionYear)],
-    ['Sprache', chips(book.languages.map((l) => chip({ kind: 'language', value: l }, langLabel(l))))],
+    ['Sprache', chips(book.languages.map((l) => chip({ kind: 'language', value: l }, langLabel(l, de))))],
     [
       'Originalsprache',
-      chips(book.originalLanguages.map((l) => chip({ kind: 'originalLanguage', value: l }, langLabel(l)))),
+      chips(book.originalLanguages.map((l) => chip({ kind: 'originalLanguage', value: l }, langLabel(l, de)))),
     ],
     ['Seiten', book.pages === null ? null : fmtInt(book.pages)],
     ['Wissensgebiet', book.ddc ? chip({ kind: 'ddcTop', value: book.ddc.top }, book.ddc.topLabel) : null],
