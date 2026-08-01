@@ -1,6 +1,6 @@
 import { area, curveMonotoneX } from 'd3-shape'
 import { scaleBand, scaleLinear } from 'd3-scale'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
@@ -16,14 +16,33 @@ const H = 340
 const H2 = 130
 const M = { top: 12, right: 16, bottom: 28, left: 48 }
 
+type RangeDim = 'acquiredYear' | 'readYear'
+
 export function AcquisitionReading() {
   const { filtered } = useLibraryData()
   const setRange = useFilterStore((s) => s.setRange)
   const addFilter = useFilterStore((s) => s.addFilter)
+  const filters = useFilterStore((s) => s.filters)
   const data = useMemo(() => timelineData(filtered), [filtered])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const [hover, setHover] = useState<{ year: number; px: number; py: number } | null>(null)
-  const [drag, setDrag] = useState<{ x0: number; x1: number; dim: 'acquiredYear' | 'readYear' } | null>(null)
+  const [drag, setDrag] = useState<{ x0: number; x1: number; dim: RangeDim } | null>(null)
+
+  // Das von/bis-Formular ist der Tastatur-Zwilling des Brushs: gleiche
+  // Dimensionen, gleicher Filter, und es spiegelt den aktiven Zustand.
+  const [formDim, setFormDim] = useState<RangeDim>('acquiredYear')
+  const [formFrom, setFormFrom] = useState(0)
+  const [formTo, setFormTo] = useState(0)
+  useEffect(() => {
+    const r = filters.find((f) => f.kind === formDim)
+    if (r && 'from' in r) {
+      setFormFrom(r.from)
+      setFormTo(r.to)
+    } else if (data.points.length > 0) {
+      setFormFrom(data.points[0].year)
+      setFormTo(data.points[data.points.length - 1].year)
+    }
+  }, [formDim, filters, data])
 
   if (filtered.length === 0) return <EmptyState />
   if (data.points.length === 0) {
@@ -167,6 +186,7 @@ export function AcquisitionReading() {
                 const a = yearAt(Math.min(drag.x0, drag.x1))
                 const b = yearAt(Math.max(drag.x0, drag.x1))
                 setRange(drag.dim, a, b)
+                setFormDim(drag.dim)
               }
               setDrag(null)
             }}
@@ -202,17 +222,36 @@ export function AcquisitionReading() {
         className={styles.rangeForm}
         onSubmit={(e) => {
           e.preventDefault()
-          const fd = new FormData(e.currentTarget)
-          const from = Number(fd.get('from'))
-          const to = Number(fd.get('to'))
-          if (from >= 1900 && to >= from) setRange('acquiredYear', from, to)
+          if (formFrom >= 1900 && formTo >= formFrom) setRange(formDim, formFrom, formTo)
         }}
       >
+        <select
+          value={formDim}
+          onChange={(e) => setFormDim(e.target.value as RangeDim)}
+          aria-label="Dimension des Zeitraumfilters"
+        >
+          <option value="acquiredYear">Erwerb</option>
+          <option value="readYear">Lektüre</option>
+        </select>
         <label>
-          von <input name="from" type="number" defaultValue={years[0]} min={1900} max={2100} />
+          von{' '}
+          <input
+            type="number"
+            value={formFrom}
+            onChange={(e) => setFormFrom(Number(e.target.value))}
+            min={1900}
+            max={2100}
+          />
         </label>
         <label>
-          bis <input name="to" type="number" defaultValue={years[years.length - 1]} min={1900} max={2100} />
+          bis{' '}
+          <input
+            type="number"
+            value={formTo}
+            onChange={(e) => setFormTo(Number(e.target.value))}
+            min={1900}
+            max={2100}
+          />
         </label>
         <button type="submit">Zeitraum filtern</button>
       </form>
