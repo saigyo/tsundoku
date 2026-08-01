@@ -64,7 +64,11 @@ schätzt oder verwirft, ist als Regel dokumentiert und gezählt
 Beim Start nimmt sie einen LibraryThing-Export entgegen, normalisiert ihn
 direkt im Browser (derselbe Code wie das CLI-Skript), zeigt die Kennzahlen
 der Normalisierung und lädt dann die Ansichten. Die Datei verlässt den
-Browser dabei nicht.
+Browser dabei nicht; die normalisierten Daten bleiben lokal im Browser
+(IndexedDB) und überstehen einen Reload — „Bibliothek wechseln" lädt
+jederzeit einen anderen Export. Obergrenze sind 10.000 Einträge, denn die
+Ansichten halten alles im Speicher; größere Bibliotheken lassen sich bei
+LibraryThing gefiltert exportieren.
 
 **Lokal:** Als Datengrundlage dient ein Export der eigenen
 LibraryThing-Bibliothek: auf <https://www.librarything.com/export.php> das

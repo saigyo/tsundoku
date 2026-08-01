@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { normalize } from '../../scripts/normalize-core.mjs'
 import { fmtInt } from '../lib/format'
+import { MAX_BOOKS, MAX_RAW_BYTES, saveLibrary } from '../lib/libraryStore'
 import type { Library } from '../lib/types'
 import styles from './DataUpload.module.css'
 
@@ -8,20 +9,38 @@ type UploadState =
   | { state: 'idle' }
   | { state: 'working' }
   | { state: 'error'; message: string }
-  | { state: 'report'; library: Library }
+  | { state: 'report'; library: Library; sourceName: string }
 
 /**
  * Einstiegsseite ohne library.json: nimmt einen LibraryThing-Export entgegen,
  * normalisiert ihn im Browser (gleicher Code wie die CLI) und zeigt die
- * Kennzahlen der Normalisierung, bevor die Daten in die App gehen.
- * Die Datei verlässt den Browser nicht.
+ * Kennzahlen der Normalisierung, bevor die Daten in die App gehen. Die Datei
+ * verlässt den Browser nicht; die normalisierten Daten bleiben in IndexedDB,
+ * damit ein Reload nicht erneut nach der Datei fragt.
  */
-export function DataUpload({ onLoaded }: { onLoaded: (library: Library) => void }) {
+export function DataUpload({
+  onLoaded,
+  onCancel,
+  notice,
+}: {
+  onLoaded: (library: Library) => void
+  /** Gesetzt, wenn bereits eine Bibliothek geladen ist (Wechsel-Dialog). */
+  onCancel?: () => void
+  /** z. B. Hinweis, dass gespeicherte Daten einer alten Version verworfen wurden. */
+  notice?: string
+}) {
   const [up, setUp] = useState<UploadState>({ state: 'idle' })
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
 
   const handleFile = (file: File) => {
+    if (file.size > MAX_RAW_BYTES) {
+      setUp({
+        state: 'error',
+        message: `Datei ist ${fmtInt(Math.round(file.size / 1e6))} MB groß — Obergrenze ${fmtInt(MAX_RAW_BYTES / 1e6)} MB. LibraryThing erlaubt gefilterte Exporte (z. B. eine Sammlung).`,
+      })
+      return
+    }
     setUp({ state: 'working' })
     file
       .text()
@@ -32,7 +51,13 @@ export function DataUpload({ onLoaded }: { onLoaded: (library: Library) => void 
         }
         const library = normalize(raw as Record<string, unknown>, file.name)
         if (library.books.length === 0) throw new Error('der Export enthält keine Einträge')
-        setUp({ state: 'report', library })
+        if (library.books.length > MAX_BOOKS) {
+          throw new Error(
+            `der Export enthält ${fmtInt(library.books.length)} Einträge — mehr als die Obergrenze von ${fmtInt(MAX_BOOKS)}. ` +
+              'Die Ansichten halten alles im Speicher; bitte einen gefilterten Export wählen (LibraryThing kann z. B. nach Sammlung exportieren).',
+          )
+        }
+        setUp({ state: 'report', library, sourceName: file.name })
       })
       .catch((e: unknown) =>
         setUp({
@@ -40,6 +65,14 @@ export function DataUpload({ onLoaded }: { onLoaded: (library: Library) => void 
           message: e instanceof SyntaxError ? 'Datei ist kein gültiges JSON.' : e instanceof Error ? e.message : String(e),
         }),
       )
+  }
+
+  const accept = (library: Library, sourceName: string) => {
+    // Persistenz ist Komfort, keine Voraussetzung: schlägt das Speichern fehl
+    // (Quota, Private Mode), läuft die Sitzung mit den Daten im Speicher weiter.
+    saveLibrary(library, sourceName)
+      .catch((e: unknown) => console.warn('Bibliothek konnte nicht gespeichert werden:', e))
+      .finally(() => onLoaded(library))
   }
 
   if (up.state === 'report') {
@@ -74,7 +107,7 @@ export function DataUpload({ onLoaded }: { onLoaded: (library: Library) => void 
             </div>
           ))}
         </dl>
-        <button className={styles.primary} onClick={() => onLoaded(up.library)}>
+        <button className={styles.primary} onClick={() => accept(up.library, up.sourceName)}>
           Zur Anwendung
         </button>
         <button className={styles.secondary} onClick={() => setUp({ state: 'idle' })}>
@@ -87,6 +120,7 @@ export function DataUpload({ onLoaded }: { onLoaded: (library: Library) => void 
   return (
     <div className={styles.box}>
       <h2>Bibliothek laden</h2>
+      {notice && <p className={styles.notice}>{notice}</p>}
       <p>
         Exportiere deine LibraryThing-Bibliothek auf{' '}
         <a href="https://www.librarything.com/export.php" target="_blank" rel="noopener noreferrer">
@@ -130,6 +164,11 @@ export function DataUpload({ onLoaded }: { onLoaded: (library: Library) => void 
         )}
       </div>
       {up.state === 'error' && <p className={styles.error}>Fehler: {up.message}</p>}
+      {onCancel && (
+        <button className={styles.secondary} onClick={onCancel}>
+          Zurück zur geladenen Bibliothek
+        </button>
+      )}
       <p className={styles.note}>
         Für den lokalen Entwicklungsbetrieb geht es auch ohne Upload:{' '}
         <code>node scripts/normalize.mjs &lt;export.json&gt;</code> erzeugt{' '}

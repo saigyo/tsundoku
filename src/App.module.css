@@ -24,6 +24,16 @@
   flex-wrap: wrap;
 }
 
+.replaceLibrary {
+  margin-left: auto;
+  border: 1px solid var(--ink-45);
+  background: none;
+  color: var(--ink-70);
+  border-radius: var(--radius);
+  padding: 2px var(--space-2);
+  font-size: 13px;
+}
+
 .navItem {
   border: none;
   background: none;

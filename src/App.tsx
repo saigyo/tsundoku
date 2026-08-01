@@ -4,6 +4,7 @@ import { DataSummary } from './components/DataSummary'
 import { DataUpload } from './components/DataUpload'
 import { FilterChips } from './components/FilterChips'
 import { DataProvider } from './lib/DataContext'
+import { clearStoredLibrary, loadStoredLibrary } from './lib/libraryStore'
 import { loadLibrary, LibraryMissingError } from './lib/loadLibrary'
 import type { Library, ViewId } from './lib/types'
 import { useFilterStore } from './store/filters'
@@ -35,33 +36,56 @@ export const VIEW_ORDER: ViewId[] = [
 
 type LoadState =
   | { state: 'loading' }
-  | { state: 'missing' }
+  | { state: 'missing'; notice?: string }
   | { state: 'error'; message: string }
-  | { state: 'ready'; library: Library }
+  // source: 'server' = library.json vom Host, 'browser' = Upload/IndexedDB —
+  // nur Letzteres bekommt den Bibliothek-wechseln-Knopf.
+  | { state: 'ready'; library: Library; source: 'server' | 'browser' }
 
 export default function App() {
   const [load, setLoad] = useState<LoadState>({ state: 'loading' })
+  const [replacing, setReplacing] = useState(false)
 
   useEffect(() => {
     loadLibrary()
-      .then((library) => setLoad({ state: 'ready', library }))
-      .catch((e: unknown) =>
-        setLoad(
-          e instanceof LibraryMissingError
-            ? { state: 'missing' }
-            : { state: 'error', message: e instanceof Error ? e.message : String(e) },
-        ),
-      )
+      .then((library) => setLoad({ state: 'ready', library, source: 'server' }))
+      .catch(async (e: unknown) => {
+        if (!(e instanceof LibraryMissingError)) {
+          setLoad({ state: 'error', message: e instanceof Error ? e.message : String(e) })
+          return
+        }
+        // Keine library.json (z. B. auf der veröffentlichten GitHub-Page):
+        // zuvor hochgeladene Bibliothek aus IndexedDB, sonst Upload-Dialog.
+        const stored = await loadStoredLibrary()
+        if (stored.state === 'ok') {
+          setLoad({ state: 'ready', library: stored.record.library, source: 'browser' })
+        } else if (stored.state === 'incompatible') {
+          clearStoredLibrary().catch(() => undefined)
+          setLoad({
+            state: 'missing',
+            notice:
+              'Die im Browser gespeicherte Bibliothek stammt aus einer älteren Version der Anwendung ' +
+              'und kann nicht mehr gelesen werden — bitte den Export einmal neu hochladen.',
+          })
+        } else {
+          setLoad({ state: 'missing' })
+        }
+      })
   }, [])
 
   if (load.state === 'loading') return <p className={styles.center}>Bibliothek wird geladen …</p>
-  if (load.state === 'missing') {
-    // Keine library.json (z. B. auf der veröffentlichten GitHub-Page):
-    // Export im Browser hochladen und dort normalisieren.
+  if (load.state === 'missing' || (load.state === 'ready' && replacing)) {
     return (
       <div>
         <h1 className={styles.center}>Tsundoku 積ん読</h1>
-        <DataUpload onLoaded={(library) => setLoad({ state: 'ready', library })} />
+        <DataUpload
+          notice={load.state === 'missing' ? load.notice : undefined}
+          onCancel={load.state === 'ready' ? () => setReplacing(false) : undefined}
+          onLoaded={(library) => {
+            setLoad({ state: 'ready', library, source: 'browser' })
+            setReplacing(false)
+          }}
+        />
       </div>
     )
   }
@@ -76,12 +100,12 @@ export default function App() {
 
   return (
     <DataProvider library={load.library}>
-      <Shell />
+      <Shell onReplaceLibrary={load.source === 'browser' ? () => setReplacing(true) : undefined} />
     </DataProvider>
   )
 }
 
-function Shell() {
+function Shell({ onReplaceLibrary }: { onReplaceLibrary?: () => void }) {
   const view = useFilterStore((s) => s.view)
   const setView = useFilterStore((s) => s.setView)
   const entry = VIEW_REGISTRY[view]
@@ -104,6 +128,11 @@ function Shell() {
             </button>
           ))}
         </nav>
+        {onReplaceLibrary && (
+          <button className={styles.replaceLibrary} onClick={onReplaceLibrary}>
+            Bibliothek wechseln
+          </button>
+        )}
       </header>
       <FilterChips />
       <main className={styles.main}>
