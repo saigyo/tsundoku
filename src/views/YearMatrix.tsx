@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
+import { Tooltip } from '../components/Tooltip'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
 import { useMeasure } from '../lib/useMeasure'
@@ -18,7 +19,15 @@ export function YearMatrix() {
   const setRange = useFilterStore((s) => s.setRange)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const [drag, setDrag] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)
+  const [hover, setHover] = useState<{ ed: number; acq: number; count: number; px: number; py: number } | null>(
+    null,
+  )
   const data = useMemo(() => yearMatrix(filtered), [filtered])
+  const cellByKey = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const c of data.cells) m.set(`${c.ed}:${c.acq}`, c.count)
+    return m
+  }, [data.cells])
 
   if (filtered.length === 0) return <EmptyState />
   if (!data.edExtent || !data.acqExtent) {
@@ -51,7 +60,7 @@ export function YearMatrix() {
   const dMax = Math.min(data.edExtent[1], data.acqExtent[1])
 
   return (
-    <div ref={wrapRef}>
+    <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.head}>
         <h2>Ausgabejahr gegen Erwerbsjahr</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
@@ -94,9 +103,7 @@ export function YearMatrix() {
               height={ch}
               fill="var(--kon)"
               fillOpacity={opacity(c.count)}
-            >
-              <title>{`Ausgabe ${c.ed}, erworben ${c.acq}: ${fmtInt(c.count)} Titel`}</title>
-            </rect>
+            />
           ))}
           {dMax >= dMin && (
             <line
@@ -139,10 +146,26 @@ export function YearMatrix() {
               e.currentTarget.setPointerCapture(e.pointerId)
             }}
             onPointerMove={(e) => {
-              if (!drag) return
               const { px, py } = local(e)
-              setDrag({ ...drag, x1: px, y1: py })
+              if (drag) setDrag({ ...drag, x1: px, y1: py })
+
+              const ed = yearAtX(px)
+              const acq = yearAtY(py)
+              const count = cellByKey.get(`${ed}:${acq}`)
+              if (count === undefined) {
+                setHover(null)
+                return
+              }
+              const wrapRect = wrapRef.current?.getBoundingClientRect()
+              setHover({
+                ed,
+                acq,
+                count,
+                px: wrapRect ? e.clientX - wrapRect.left : px,
+                py: wrapRect ? e.clientY - wrapRect.top : py,
+              })
             }}
+            onPointerLeave={() => setHover(null)}
             onPointerUp={() => {
               if (drag) {
                 setRange('editionYear', yearAtX(Math.min(drag.x0, drag.x1)), yearAtX(Math.max(drag.x0, drag.x1)))
@@ -173,6 +196,12 @@ export function YearMatrix() {
         <input name="at" type="number" defaultValue={data.acqExtent[1]} aria-label="Erwerbsjahr bis" />
         <button type="submit">Bereich filtern</button>
       </form>
+
+      {hover && (
+        <Tooltip x={hover.px} y={hover.py}>
+          Ausgabe {hover.ed}, erworben {hover.acq}: {fmtInt(hover.count)} Titel
+        </Tooltip>
+      )}
     </div>
   )
 }
