@@ -1,5 +1,6 @@
 import { useI18n } from '../i18n/LocaleContext'
 import { LOCALE_NAMES, SUPPORTED_LOCALES, type Locale } from '../i18n/messages'
+import { useCoversStore } from '../store/covers'
 import styles from './Footer.module.css'
 
 const REPO = 'https://github.com/saigyo/tsundoku'
@@ -8,6 +9,8 @@ const REPO = 'https://github.com/saigyo/tsundoku'
  *  Lizenzübersicht der eingebetteten Schriften und Bibliotheken, Sprachumschalter. */
 export function Footer() {
   const { locale, m, setLocale } = useI18n()
+  const coversEnabled = useCoversStore((s) => s.enabled)
+  const setCoversEnabled = useCoversStore((s) => s.setEnabled)
   return (
     <footer className={styles.footer}>
       <a href={REPO} target="_blank" rel="noopener noreferrer" className={styles.repo}>
@@ -25,6 +28,15 @@ export function Footer() {
       <a href={`${REPO}#license`} target="_blank" rel="noopener noreferrer">
         {m.footer.embedded}
       </a>
+      <span className={styles.sep} aria-hidden="true">·</span>
+      <label className={styles.covers}>
+        <input
+          type="checkbox"
+          checked={coversEnabled}
+          onChange={(e) => setCoversEnabled(e.target.checked)}
+        />
+        {m.footer.covers}
+      </label>
       <span className={styles.sep} aria-hidden="true">·</span>
       <select
         className={styles.lang}
