@@ -133,6 +133,11 @@ export interface Messages {
     toggleFilterAria: (label: string) => string
     filterByAuthorAria: (name: string) => string
     viewOnLt: string
+    coverAlt: (title: string) => string
+    coverLoad: string
+    coverNote: string
+    coverNone: string
+    viewOnOl: string
     close: string
   }
   rangeForm: {
@@ -263,6 +268,7 @@ export interface Messages {
   footer: {
     license: string
     embedded: string
+    covers: string
     languageAria: string
   }
 }
