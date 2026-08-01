@@ -14,12 +14,12 @@ export function CoverageNote({ covered, total, unit, children }: {
   unit?: string
   children: ReactNode
 }) {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   return (
     <p className={styles.note}>
       {m.coverage.frame(
-        <span className={styles.num}>{fmtInt(covered)}</span>,
-        <span className={styles.num}>{fmtInt(total)}</span>,
+        <span className={styles.num}>{fmtNum(covered)}</span>,
+        <span className={styles.num}>{fmtNum(total)}</span>,
         unit ?? m.coverage.unitTitles,
       )}{' '}
       {children}

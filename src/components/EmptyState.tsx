@@ -1,5 +1,5 @@
 import { useI18n } from '../i18n/LocaleContext'
-import { filterLabel, useFilterStore } from '../store/filters'
+import { filterKey, filterLabel, useFilterStore } from '../store/filters'
 import styles from './EmptyState.module.css'
 
 /** Leere Treffermenge: nennt die greifenden Filter und bietet an, sie zu lösen. */
@@ -16,7 +16,7 @@ export function EmptyState() {
         {filters.map((f) => {
           const label = filterLabel(f, m)
           return (
-            <li key={label}>
+            <li key={filterKey(f)}>
               {label}{' '}
               <button className={styles.release} onClick={() => removeFilter(f)}>
                 {m.empty.release}

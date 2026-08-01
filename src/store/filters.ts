@@ -60,6 +60,12 @@ export function sameFilter(a: Filter, b: Filter): boolean {
   return false
 }
 
+/** Stabiler, locale-unabhängiger Schlüssel für React-Listen — das übersetzte
+ *  Label würde beim Sprachwechsel alle Einträge unnötig neu mounten. */
+export function filterKey(f: Filter): string {
+  return 'value' in f ? `${f.kind}:${f.value}` : `${f.kind}:${f.from}-${f.to}`
+}
+
 export function filterLabel(f: Filter, m: Messages): string {
   switch (f.kind) {
     case 'tag':

@@ -8,7 +8,7 @@ import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
 
 export function CanonCheck() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -78,7 +78,7 @@ export function CanonCheck() {
                 </span>
               </span>
               <span className={styles.counts}>
-                {m.views.canon.counts(fmtInt(r.owned), fmtInt(r.read))}
+                {m.views.canon.counts(fmtNum(r.owned), fmtNum(r.read))}
               </span>
             </button>
           </li>

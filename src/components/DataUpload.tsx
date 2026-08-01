@@ -32,7 +32,7 @@ export function DataUpload({
   /** z. B. Hinweis, dass gespeicherte Daten einer alten Version verworfen wurden. */
   notice?: string
 }) {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const [up, setUp] = useState<UploadState>({ state: 'idle' })
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
@@ -42,7 +42,7 @@ export function DataUpload({
     if (file.size > MAX_RAW_BYTES) {
       setUp({
         state: 'error',
-        message: m.upload.errTooLarge(fmtInt(Math.round(file.size / 1e6)), fmtInt(MAX_RAW_BYTES / 1e6)),
+        message: m.upload.errTooLarge(fmtNum(Math.round(file.size / 1e6)), fmtNum(MAX_RAW_BYTES / 1e6)),
       })
       return
     }
@@ -63,7 +63,7 @@ export function DataUpload({
           if (++recordCount > MAX_BOOKS) break
         }
         if (recordCount > MAX_BOOKS) {
-          throw new Error(m.upload.errTooMany(fmtInt(MAX_BOOKS)))
+          throw new Error(m.upload.errTooMany(fmtNum(MAX_BOOKS)))
         }
         const library = normalize(raw as Record<string, unknown>, file.name)
         if (library.books.length === 0) {
@@ -92,24 +92,24 @@ export function DataUpload({
     const rawTagCount = new Set(books.flatMap((b) => b.tags)).size
     const readYears = stats.readPerYearEffective.map(([y]) => Number(y))
     const rows: [string, string][] = [
-      [m.report.entries, fmtInt(stats.total)],
-      [m.report.media, stats.byMediaType.map(([t, n]) => `${m.media[t as MediaType]} ${fmtInt(n)}`).join(', ')],
+      [m.report.entries, fmtNum(stats.total)],
+      [m.report.media, stats.byMediaType.map(([t, n]) => `${m.media[t as MediaType]} ${fmtNum(n)}`).join(', ')],
       [m.report.read, m.report.readValue(
-        fmtInt(stats.read),
-        fmtInt(stats.withReadYearEffective),
-        fmtInt(stats.withReadDate),
+        fmtNum(stats.read),
+        fmtNum(stats.withReadYearEffective),
+        fmtNum(stats.withReadDate),
         readYears.length ? Math.min(...readYears) : null,
       )],
-      [m.report.pagesTotal, fmtInt(stats.pagesTotal)],
+      [m.report.pagesTotal, fmtNum(stats.pagesTotal)],
       ...(stats.readDays.median !== null
         ? ([[m.report.readDays, m.report.readDaysValue(stats.readDays.median, stats.readDays.p90!, stats.readDays.max!)]] as [string, string][])
         : []),
-      [m.report.tags, m.report.tagsValue(fmtInt(stats.tagsNorm.length), fmtInt(rawTagCount))],
-      [m.report.dimsSwapped, m.report.dimsSwappedValue(fmtInt(stats.dimsSorted), fmtInt(stats.dimsDiscarded))],
-      [m.report.dimsEstimated, m.report.dimsEstimatedValue(fmtInt(stats.dimsEstimated))],
-      [m.report.origLangInferred, m.report.origLangInferredValue(fmtInt(stats.origLangInferred))],
-      [m.report.entitiesDecoded, m.report.entitiesDecodedValue(fmtInt(stats.entitiesDecoded))],
-      [m.report.bulkImport, m.report.bulkImportValue(fmtInt(stats.bulkImported))],
+      [m.report.tags, m.report.tagsValue(fmtNum(stats.tagsNorm.length), fmtNum(rawTagCount))],
+      [m.report.dimsSwapped, m.report.dimsSwappedValue(fmtNum(stats.dimsSorted), fmtNum(stats.dimsDiscarded))],
+      [m.report.dimsEstimated, m.report.dimsEstimatedValue(fmtNum(stats.dimsEstimated))],
+      [m.report.origLangInferred, m.report.origLangInferredValue(fmtNum(stats.origLangInferred))],
+      [m.report.entitiesDecoded, m.report.entitiesDecodedValue(fmtNum(stats.entitiesDecoded))],
+      [m.report.bulkImport, m.report.bulkImportValue(fmtNum(stats.bulkImported))],
     ]
     return (
       <div className={styles.box}>

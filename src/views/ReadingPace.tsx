@@ -17,7 +17,7 @@ const M = { top: 12, right: 16, bottom: 40, left: 48 }
 const RATES = [10, 50, 100] // Seiten pro Tag
 
 export function ReadingPace() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const [facet, setFacet] = useState(false)
   const [selected, setSelected] = useState<Book | null>(null)
@@ -28,7 +28,7 @@ export function ReadingPace() {
   if (data.points.length === 0) {
     return (
       <CoverageNote covered={data.withDays} total={filtered.length}>
-        {m.views.pace.noData(<Num>{fmtInt(data.points.length)}</Num>)}
+        {m.views.pace.noData(<Num>{fmtNum(data.points.length)}</Num>)}
       </CoverageNote>
     )
   }
@@ -47,7 +47,7 @@ export function ReadingPace() {
         <h2>{m.views.pace.title}</h2>
         <CoverageNote covered={data.points.length} total={filtered.length}>
           {m.views.pace.coverage}{' '}
-          {data.discardedNegative > 0 && m.views.pace.discarded(<Num>{fmtInt(data.discardedNegative)}</Num>)}
+          {data.discardedNegative > 0 && m.views.pace.discarded(<Num>{fmtNum(data.discardedNegative)}</Num>)}
         </CoverageNote>
       </header>
       <label className={styles.facetToggle}>
@@ -65,7 +65,7 @@ export function ReadingPace() {
             <figure key={panel.lang ?? 'alle'} className={styles.panel}>
               {panel.lang && (
                 <figcaption className={styles.caption}>
-                  {langLabel(panel.lang, m)} · {fmtInt(panel.points.length)}
+                  {langLabel(panel.lang, m)} · {fmtNum(panel.points.length)}
                 </figcaption>
               )}
               <svg
@@ -104,7 +104,7 @@ export function ReadingPace() {
                       className={p.suspect ? styles.dotSuspect : styles.dot}
                       tabIndex={0}
                       role="button"
-                      aria-label={m.views.pace.dotAria(p.book.title, fmtInt(p.pages), fmtInt(p.days))}
+                      aria-label={m.views.pace.dotAria(p.book.title, fmtNum(p.pages), fmtNum(p.days))}
                       onClick={() => setSelected(p.book)}
                       onKeyDown={(e) => {
                         if (isActivationKey(e)) {
@@ -113,11 +113,11 @@ export function ReadingPace() {
                         }
                       }}
                     >
-                      <title>{m.views.pace.dotTitle(p.book.title, fmtInt(p.pages), fmtInt(p.days), p.suspect)}</title>
+                      <title>{m.views.pace.dotTitle(p.book.title, fmtNum(p.pages), fmtNum(p.days), p.suspect)}</title>
                     </circle>
                   ))}
-                  <AxisBottom y={innerH + 4} ticks={x.ticks(6).map((v) => ({ x: x(v), label: fmtInt(v) }))} />
-                  <AxisLeft x={-4} ticks={y.ticks(6).map((v) => ({ y: y(v), label: fmtInt(v) }))} />
+                  <AxisBottom y={innerH + 4} ticks={x.ticks(6).map((v) => ({ x: x(v), label: fmtNum(v) }))} />
+                  <AxisLeft x={-4} ticks={y.ticks(6).map((v) => ({ y: y(v), label: fmtNum(v) }))} />
                   <text x={innerW / 2} y={innerH + 34} textAnchor="middle" className={styles.axisTitle}>
                     {m.views.pace.axisPages}
                   </text>

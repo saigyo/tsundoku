@@ -21,7 +21,7 @@ type SLink = SankeyLink<FlowNode, FlowLink>
 type RangeDim = 'acquiredYear' | 'readYear'
 
 export function LanguageFlow() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const addFilter = useFilterStore((s) => s.addFilter)
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
@@ -88,7 +88,7 @@ export function LanguageFlow() {
       <header className={styles.head}>
         <h2>{m.views.languages.title}</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          {m.views.languages.coverage(<Num>{fmtInt(inferredCount)}</Num>)}
+          {m.views.languages.coverage(<Num>{fmtNum(inferredCount)}</Num>)}
         </CoverageNote>
       </header>
 
@@ -134,7 +134,7 @@ export function LanguageFlow() {
         {layout.links.map((l) => {
           const s = l.source as SNode
           const t = l.target as SNode
-          const label = m.views.languages.linkLabel(langLabel(s.lang, m), langLabel(t.lang, m), fmtInt(l.value))
+          const label = m.views.languages.linkLabel(langLabel(s.lang, m), langLabel(t.lang, m), fmtNum(l.value))
           const activatable = filterable(s.lang) || filterable(t.lang)
           return (
             <path
@@ -177,7 +177,7 @@ export function LanguageFlow() {
               role={clickable ? 'button' : undefined}
               tabIndex={clickable ? 0 : undefined}
               aria-pressed={clickable ? active : undefined}
-              aria-label={clickable ? m.views.languages.nodeAria(sideLabel, langLabel(n.lang, m), fmtInt(n.total)) : undefined}
+              aria-label={clickable ? m.views.languages.nodeAria(sideLabel, langLabel(n.lang, m), fmtNum(n.total)) : undefined}
               onClick={clickable ? () => toggleFilter(nodeFilter) : undefined}
               onKeyDown={
                 clickable
@@ -206,10 +206,10 @@ export function LanguageFlow() {
                 textAnchor={n.side === 'orig' ? 'end' : 'start'}
                 className={styles.nodeLabel}
               >
-                {langLabel(n.lang, m)} · {fmtInt(n.total)}
+                {langLabel(n.lang, m)} · {fmtNum(n.total)}
               </text>
               {clickable && (
-                <title>{m.views.languages.nodeTitle(sideLabel, langLabel(n.lang, m), fmtInt(n.total))}</title>
+                <title>{m.views.languages.nodeTitle(sideLabel, langLabel(n.lang, m), fmtNum(n.total))}</title>
               )}
             </g>
           )

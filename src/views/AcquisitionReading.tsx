@@ -19,7 +19,7 @@ const M = { top: 12, right: 16, bottom: 28, left: 48 }
 type RangeDim = 'acquiredYear' | 'readYear'
 
 export function AcquisitionReading() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const setRange = useFilterStore((s) => s.setRange)
   const addFilter = useFilterStore((s) => s.addFilter)
@@ -113,7 +113,7 @@ export function AcquisitionReading() {
       <header className={styles.head}>
         <h2>{m.views.timeline.title}</h2>
         <CoverageNote covered={data.acquiredKnown} total={filtered.length}>
-          {m.views.timeline.coverage(<Num>{fmtInt(data.readKnown)}</Num>, <Num>{fmtInt(data.readTaggedOnly)}</Num>)}
+          {m.views.timeline.coverage(<Num>{fmtNum(data.readKnown)}</Num>, <Num>{fmtNum(data.readTaggedOnly)}</Num>)}
         </CoverageNote>
       </header>
 
@@ -171,7 +171,7 @@ export function AcquisitionReading() {
           <AxisBottom ticks={xTicks} y={H - M.bottom + 2} />
           <AxisLeft
             x={0}
-            ticks={y.ticks(6).map((v) => ({ y: y(v), label: fmtInt(Math.abs(v)) }))}
+            ticks={y.ticks(6).map((v) => ({ y: y(v), label: fmtNum(Math.abs(v)) }))}
           />
           <rect
             x={0}
@@ -216,7 +216,7 @@ export function AcquisitionReading() {
       <svg width={width} height={H2} className={styles.chart} role="img" aria-label={m.views.timeline.unreadSvgAria}>
         <g transform={`translate(${M.left},0)`}>
           <path d={unreadArea(data.unread) ?? ''} fill="var(--ink-08)" stroke="var(--sumi)" strokeWidth={1.5} />
-          <AxisLeft x={0} ticks={y2.ticks(3).map((v) => ({ y: y2(v), label: fmtInt(v) }))} />
+          <AxisLeft x={0} ticks={y2.ticks(3).map((v) => ({ y: y2(v), label: fmtNum(v) }))} />
           <text x={4} y={16} className={styles.panelLabel}>
             {m.views.timeline.unreadPanelLabel}
           </text>
@@ -298,18 +298,18 @@ export function AcquisitionReading() {
 
       {hover && !drag && hoverTitles.length > 0 && (
         <Tooltip x={hover.px} y={hover.py}>
-          <strong>{hover.year}</strong>: {m.views.timeline.tooltipAcquired(fmtInt(hoverTitles.length))}
+          <strong>{hover.year}</strong>: {m.views.timeline.tooltipAcquired(fmtNum(hoverTitles.length))}
           <ul className={styles.tipList}>
             {hoverTitles.slice(0, 10).map((t) => (
               <li key={t}>{t}</li>
             ))}
-            {hoverTitles.length > 10 && <li>{m.views.timeline.andMore(fmtInt(hoverTitles.length - 10))}</li>}
+            {hoverTitles.length > 10 && <li>{m.views.timeline.andMore(fmtNum(hoverTitles.length - 10))}</li>}
           </ul>
         </Tooltip>
       )}
       {unreadHover && (
         <Tooltip x={unreadHover.px} y={unreadHover.py}>
-          <strong>{unreadHover.year}</strong>: {m.views.timeline.tooltipUnread(fmtInt(unreadHover.count))}
+          <strong>{unreadHover.year}</strong>: {m.views.timeline.tooltipUnread(fmtNum(unreadHover.count))}
         </Tooltip>
       )}
     </div>

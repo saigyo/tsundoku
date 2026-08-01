@@ -62,7 +62,7 @@ interface SimLink extends SimulationLinkDatum<SimNode> {
 }
 
 export function TagNetwork() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -210,9 +210,9 @@ export function TagNetwork() {
         <CoverageNote covered={graph.nodes.length} total={graph.totalTags} unit={m.coverage.unitTags}>
           {m.views.network.coverage(
             minCount,
-            <Num>{fmtInt(graph.excluded.yearTags)}</Num>,
-            <Num>{fmtInt(graph.excluded.status)}</Num>,
-            <Num>{fmtInt(graph.excluded.seriesMarkers)}</Num>,
+            <Num>{fmtNum(graph.excluded.yearTags)}</Num>,
+            <Num>{fmtNum(graph.excluded.status)}</Num>,
+            <Num>{fmtNum(graph.excluded.seriesMarkers)}</Num>,
           )}
         </CoverageNote>
       </header>
@@ -314,7 +314,7 @@ export function TagNetwork() {
               role="button"
               tabIndex={0}
               aria-pressed={activeTags.has(n.id)}
-              aria-label={m.views.network.nodeAria(n.id, fmtInt(n.count))}
+              aria-label={m.views.network.nodeAria(n.id, fmtNum(n.count))}
               onClick={(e) => {
                 // Isolation per Shift-Klick statt Doppelklick: der erste Klick
                 // eines Doppelklicks filtert und zeichnet den Graphen neu, der
@@ -344,7 +344,7 @@ export function TagNetwork() {
                   {n.id}
                 </text>
               )}
-              <title>{m.views.network.nodeTitle(n.id, fmtInt(n.count))}</title>
+              <title>{m.views.network.nodeTitle(n.id, fmtNum(n.count))}</title>
             </g>
           ))}
         </svg>

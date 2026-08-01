@@ -16,7 +16,7 @@ const H = 420
 const M = { top: 8, right: 16, bottom: 28, left: 16 }
 
 export function KnowledgeMap() {
-  const { m, fmtInt } = useI18n()
+  const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const setRange = useFilterStore((s) => s.setRange)
@@ -94,7 +94,7 @@ export function KnowledgeMap() {
       <header className={styles.head}>
         <h2>{m.views.knowledge.title}</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          {m.views.knowledge.coverage(<Num>{fmtInt(data.withAcquired - data.covered)}</Num>)}
+          {m.views.knowledge.coverage(<Num>{fmtNum(data.withAcquired - data.covered)}</Num>)}
         </CoverageNote>
       </header>
 
@@ -159,7 +159,7 @@ export function KnowledgeMap() {
               onPointerLeave={() => setHoverClass(null)}
               onClick={() => toggleFilter({ kind: 'ddcTop', value: s.key })}
             >
-              <title>{m.views.knowledge.streamTitle(s.key, m.ddc.labels[s.key], fmtInt(Math.round(classCounts.get(s.key) ?? 0)))}</title>
+              <title>{m.views.knowledge.streamTitle(s.key, m.ddc.labels[s.key], fmtNum(Math.round(classCounts.get(s.key) ?? 0)))}</title>
             </path>
           ))}
           {drag && dragMoved.current && (() => {
@@ -193,7 +193,7 @@ export function KnowledgeMap() {
             >
               <i style={{ background: DDC_COLORS[c] }} />
               <span className={styles.legendNum}>{c}00</span> {m.ddc.labels[c]}
-              <span className={styles.legendCount}>{fmtInt(Math.round(classCounts.get(c) ?? 0))}</span>
+              <span className={styles.legendCount}>{fmtNum(Math.round(classCounts.get(c) ?? 0))}</span>
             </button>
           </li>
         ))}
