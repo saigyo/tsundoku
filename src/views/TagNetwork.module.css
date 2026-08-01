@@ -47,6 +47,9 @@
 
 .node {
   cursor: pointer;
+  /* Chromium zeichnet nach Klick seine Default-Outline um das fokussierte g
+     (blaue Box); der Tastaturfokus hat unten einen eigenen Indikator. */
+  outline: none;
 }
 
 .node:focus-visible circle {
