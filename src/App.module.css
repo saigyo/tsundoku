@@ -19,11 +19,18 @@
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--ink-15);
   flex-wrap: wrap;
+  /* Kompakte Chrome-Zeile: der erhöhte JA-Durchschuss (--line-height 1.85)
+     gilt dem Fließtext, nicht einzeiligen UI-Elementen — Kopfzeilenhöhe
+     bleibt damit in allen Sprachen gleich. */
+  line-height: 1.5;
 }
 
 .brand {
   font-size: 28px;
   letter-spacing: 0.02em;
+  /* Der Schriftzug ist in allen Sprachen identisch: das schwerere
+     JA-Display-Gewicht (600) gilt Überschriften in Mincho, nicht der Marke. */
+  font-weight: 500;
 }
 
 .nav {
@@ -42,9 +49,10 @@
   font-size: 13px;
   text-align: center;
   line-height: 1.3;
-  /* Letzte Textzeile des Buttons sitzt auf der Baseline der View-Labels —
-     einzeilig identisch zu vorher, zweizeilig wächst der Button nach oben. */
-  align-self: last baseline;
+  /* Unterkante des Buttons deterministisch auf der Tab-Unterkante — in jeder
+     Sprache, ein- wie zweizeilig, unabhängig von Baseline-Gruppen-Details
+     der Browser. Zweizeilig wächst der Button nach oben. */
+  align-self: flex-end;
 }
 
 /* FR/ES-Labels sind zu breit für die Kopfzeile: im Button zweizeilig umbrechen
@@ -74,6 +82,9 @@
   padding: var(--space-1) var(--space-3);
   color: var(--ink-70);
   border-bottom: 2px solid transparent;
+  /* Fest wie .brand (28px) und .replaceLibrary (13px): die JA-Grundgröße
+     (93,75 %) soll die Tab-Höhe nicht verändern. */
+  font-size: 16px;
 }
 
 .navItem[aria-current='page'] {
