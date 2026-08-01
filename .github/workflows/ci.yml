@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Golden-Tests gegen den Roh-Export überspringen sich selbst (skipIf),
+      # wenn der Export fehlt — in CI laufen alle übrigen Suites.
+      - run: npm run test
+      # build = tsc --noEmit + vite build; braucht kein public/data/library.json.
+      - run: npm run build
