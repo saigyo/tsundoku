@@ -9,13 +9,13 @@ body {
   background: var(--shironeri);
   color: var(--sumi);
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 1rem;          /* statt 16px — folgt der :lang(ja)-Root-Größe */
+  line-height: var(--line-height);
 }
 
 h1, h2, h3 {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: var(--weight-display);
   margin: 0;
 }
 
