@@ -1,13 +1,16 @@
 import { useRef, useState } from 'react'
 import { normalize } from '../../scripts/normalize-core.mjs'
-import { fmtInt } from '../lib/format'
+import { useI18n } from '../i18n/LocaleContext'
 import { MAX_BOOKS, MAX_RAW_BYTES, saveLibrary } from '../lib/libraryStore'
-import type { Library } from '../lib/types'
+import type { Library, MediaType } from '../lib/types'
 import styles from './DataUpload.module.css'
 
 type UploadState =
   | { state: 'idle' }
   | { state: 'working' }
+  // message wird beim Wurf in der aktuell aktiven Sprache erzeugt und danach
+  // nicht neu übersetzt — ein Sprachwechsel während einer Fehleranzeige
+  // ändert diesen Text erst beim nächsten Upload-Versuch.
   | { state: 'error'; message: string }
   | { state: 'report'; library: Library; sourceName: string }
 
@@ -29,6 +32,7 @@ export function DataUpload({
   /** z. B. Hinweis, dass gespeicherte Daten einer alten Version verworfen wurden. */
   notice?: string
 }) {
+  const { m, fmtInt } = useI18n()
   const [up, setUp] = useState<UploadState>({ state: 'idle' })
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
@@ -38,7 +42,7 @@ export function DataUpload({
     if (file.size > MAX_RAW_BYTES) {
       setUp({
         state: 'error',
-        message: `Datei ist ${fmtInt(Math.round(file.size / 1e6))} MB groß — Obergrenze ${fmtInt(MAX_RAW_BYTES / 1e6)} MB. LibraryThing erlaubt gefilterte Exporte (z. B. eine Sammlung).`,
+        message: m.upload.errTooLarge(fmtInt(Math.round(file.size / 1e6)), fmtInt(MAX_RAW_BYTES / 1e6)),
       })
       return
     }
@@ -48,7 +52,7 @@ export function DataUpload({
       .then((text) => {
         const raw: unknown = JSON.parse(text)
         if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-          throw new Error('kein LibraryThing-Export (erwartet: JSON-Objekt mit Buch-IDs als Schlüsseln)')
+          throw new Error(m.upload.errNotAnExport)
         }
         // Obergrenze VOR normalize() prüfen: Millionen Mini-Records unter 50 MB
         // würden sonst erst vollständig materialisiert (OOM/Freeze), bevor die
@@ -59,21 +63,18 @@ export function DataUpload({
           if (++recordCount > MAX_BOOKS) break
         }
         if (recordCount > MAX_BOOKS) {
-          throw new Error(
-            `der Export enthält mehr als ${fmtInt(MAX_BOOKS)} Einträge. ` +
-              'Die Ansichten halten alles im Speicher; bitte einen gefilterten Export wählen (LibraryThing kann z. B. nach Sammlung exportieren).',
-          )
+          throw new Error(m.upload.errTooMany(fmtInt(MAX_BOOKS)))
         }
         const library = normalize(raw as Record<string, unknown>, file.name)
         if (library.books.length === 0) {
-          throw new Error('kein LibraryThing-Export — die Datei enthält keine Buch-Einträge')
+          throw new Error(m.upload.errNoBooks)
         }
         setUp({ state: 'report', library, sourceName: file.name })
       })
       .catch((e: unknown) =>
         setUp({
           state: 'error',
-          message: e instanceof SyntaxError ? 'Datei ist kein gültiges JSON.' : e instanceof Error ? e.message : String(e),
+          message: e instanceof SyntaxError ? m.upload.errInvalidJson : e instanceof Error ? e.message : String(e),
         }),
       )
   }
@@ -91,28 +92,29 @@ export function DataUpload({
     const rawTagCount = new Set(books.flatMap((b) => b.tags)).size
     const readYears = stats.readPerYearEffective.map(([y]) => Number(y))
     const rows: [string, string][] = [
-      ['Einträge', fmtInt(stats.total)],
-      ['Medien', stats.byMediaType.map(([m, n]) => `${m} ${fmtInt(n)}`).join(', ')],
-      ['Gelesen', `${fmtInt(stats.read)} (Lesejahr bekannt: ${fmtInt(stats.withReadYearEffective)}, davon ${fmtInt(stats.withReadDate)} tagesgenau${readYears.length ? `, ab ${Math.min(...readYears)}` : ''})`],
-      ['Seiten gesamt', fmtInt(stats.pagesTotal)],
+      [m.report.entries, fmtInt(stats.total)],
+      [m.report.media, stats.byMediaType.map(([t, n]) => `${m.media[t as MediaType]} ${fmtInt(n)}`).join(', ')],
+      [m.report.read, m.report.readValue(
+        fmtInt(stats.read),
+        fmtInt(stats.withReadYearEffective),
+        fmtInt(stats.withReadDate),
+        readYears.length ? Math.min(...readYears) : null,
+      )],
+      [m.report.pagesTotal, fmtInt(stats.pagesTotal)],
       ...(stats.readDays.median !== null
-        ? ([['Lesedauer', `meist ${stats.readDays.median} Tage, selten über ${stats.readDays.p90}, längste ${stats.readDays.max}`]] as [string, string][])
+        ? ([[m.report.readDays, m.report.readDaysValue(stats.readDays.median, stats.readDays.p90!, stats.readDays.max!)]] as [string, string][])
         : []),
-      ['Tags', `${fmtInt(stats.tagsNorm.length)} vereinheitlicht (im Export: ${fmtInt(rawTagCount)})`],
-      ['Vertauschte Buchmaße', `${fmtInt(stats.dimsSorted)} korrigiert, ${fmtInt(stats.dimsDiscarded)} verworfen`],
-      ['Geschätzte Buchmaße', `${fmtInt(stats.dimsEstimated)} Bücher (aus der Seitenzahl)`],
-      ['Originalsprache ergänzt', `${fmtInt(stats.origLangInferred)} Bücher (aus der Ausgabesprache)`],
-      ['Sonderzeichen repariert', `${fmtInt(stats.entitiesDecoded)} Felder`],
-      ['Massenimport erkannt', `${fmtInt(stats.bulkImported)} Einträge`],
+      [m.report.tags, m.report.tagsValue(fmtInt(stats.tagsNorm.length), fmtInt(rawTagCount))],
+      [m.report.dimsSwapped, m.report.dimsSwappedValue(fmtInt(stats.dimsSorted), fmtInt(stats.dimsDiscarded))],
+      [m.report.dimsEstimated, m.report.dimsEstimatedValue(fmtInt(stats.dimsEstimated))],
+      [m.report.origLangInferred, m.report.origLangInferredValue(fmtInt(stats.origLangInferred))],
+      [m.report.entitiesDecoded, m.report.entitiesDecodedValue(fmtInt(stats.entitiesDecoded))],
+      [m.report.bulkImport, m.report.bulkImportValue(fmtInt(stats.bulkImported))],
     ]
     return (
       <div className={styles.box}>
-        <h2>Deine Bibliothek ist bereit</h2>
-        <p className={styles.note}>
-          Beim Einlesen wurden kleine Unstimmigkeiten des Katalogs behoben — etwa vertauschte
-          Buchmaße, fehlende Angaben oder kaputte Sonderzeichen. Nichts davon passiert im
-          Verborgenen: Die Übersicht zeigt, was mit deinen Daten geschehen ist.
-        </p>
+        <h2>{m.report.title}</h2>
+        <p className={styles.note}>{m.report.note}</p>
         <dl className={styles.report}>
           {rows.map(([k, v]) => (
             <div key={k} className={styles.row}>
@@ -122,10 +124,10 @@ export function DataUpload({
           ))}
         </dl>
         <button className={styles.primary} onClick={() => accept(up.library, up.sourceName)}>
-          Zur Bibliothek
+          {m.report.toLibrary}
         </button>
         <button className={styles.secondary} onClick={() => setUp({ state: 'idle' })}>
-          Andere Datei wählen
+          {m.report.otherFile}
         </button>
       </div>
     )
@@ -133,29 +135,10 @@ export function DataUpload({
 
   return (
     <div className={styles.box}>
-      <p className={styles.intro}>
-        <em>Tsundoku</em> (積ん読) — Bücher kaufen und stapeln, ohne sie zu lesen. Diese Anwendung
-        erkundet eine LibraryThing-Bibliothek interaktiv: acht verknüpfte Ansichten, vom
-        maßstabsgetreu gezeichneten Regal über Zeitleisten und Tag-Netzwerk bis zum Sprachfluss —
-        und jede Ansicht ist zugleich Filter für alle anderen. Die zentrale Frage dabei: Was
-        verrät die Differenz zwischen dem, was man <em>erwirbt</em>, und dem, was man{' '}
-        <em>liest</em>?
-      </p>
-      <h2>Bibliothek laden</h2>
+      <p className={styles.intro}>{m.upload.intro}</p>
+      <h2>{m.upload.title}</h2>
       {notice && <p className={styles.notice}>{notice}</p>}
-      <p>
-        Die Anwendung liest Exporte von{' '}
-        <a href="https://www.librarything.com" target="_blank" rel="noopener noreferrer">
-          LibraryThing
-        </a>
-        , einem Online-Dienst zum Katalogisieren der eigenen Büchersammlung. Exportiere deine
-        Bibliothek dort auf{' '}
-        <a href="https://www.librarything.com/export.php" target="_blank" rel="noopener noreferrer">
-          librarything.com/export.php
-        </a>{' '}
-        im Format <strong>JSON</strong> und lade die Datei hier. Sie wird direkt im Browser
-        eingelesen und <strong>verlässt deinen Rechner nicht</strong>.
-      </p>
+      <p>{m.upload.ltIntro}</p>
       <div
         className={dragOver ? styles.dropzoneActive : styles.dropzone}
         onDragOver={(e) => {
@@ -171,11 +154,11 @@ export function DataUpload({
         }}
       >
         {up.state === 'working' ? (
-          <p>Wird normalisiert …</p>
+          <p>{m.upload.working}</p>
         ) : (
           <>
-            <p>Export-Datei hierher ziehen oder</p>
-            <button onClick={() => inputRef.current?.click()}>Datei auswählen</button>
+            <p>{m.upload.dropHere}</p>
+            <button onClick={() => inputRef.current?.click()}>{m.upload.chooseFile}</button>
             <input
               ref={inputRef}
               type="file"
@@ -190,10 +173,14 @@ export function DataUpload({
           </>
         )}
       </div>
-      {up.state === 'error' && <p className={styles.error}>Fehler: {up.message}</p>}
+      {up.state === 'error' && (
+        <p className={styles.error}>
+          {m.upload.errorPrefix} {up.message}
+        </p>
+      )}
       {onCancel && (
         <button className={styles.secondary} onClick={onCancel}>
-          Zurück zur geladenen Bibliothek
+          {m.upload.backToLoaded}
         </button>
       )}
     </div>

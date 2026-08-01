@@ -1,12 +1,12 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { de } from '../i18n/de'
-import { fmtInt } from '../lib/format'
+import { useI18n } from '../i18n/LocaleContext'
 import { langLabel } from '../lib/languages'
 import type { Book, Filter } from '../lib/types'
 import { filterLabel, sameFilter, useFilterStore } from '../store/filters'
 import styles from './BookDetail.module.css'
 
 export function BookDetail({ book, onClose }: { book: Book | null; onClose: () => void }) {
+  const { m, fmtInt } = useI18n()
   const ref = useRef<HTMLDialogElement>(null)
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -28,7 +28,7 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
         className={active ? styles.tagActive : styles.tag}
         onClick={() => toggleFilter(f)}
         aria-pressed={active}
-        aria-label={`Filter ${filterLabel(f, de)} umschalten`}
+        aria-label={m.detail.toggleFilterAria(filterLabel(f, m))}
       >
         {label}
       </button>
@@ -38,22 +38,22 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
     nodes.length ? <span className={styles.tags}>{nodes}</span> : null
 
   const rows: [string, ReactNode][] = [
-    ['Original', book.originalTitle],
-    ['Jahr dieser Ausgabe', book.editionYear === null ? null : String(book.editionYear)],
-    ['Sprache', chips(book.languages.map((l) => chip({ kind: 'language', value: l }, langLabel(l, de))))],
+    [m.detail.original, book.originalTitle],
+    [m.detail.editionYear, book.editionYear === null ? null : String(book.editionYear)],
+    [m.detail.language, chips(book.languages.map((l) => chip({ kind: 'language', value: l }, langLabel(l, m))))],
     [
-      'Originalsprache',
-      chips(book.originalLanguages.map((l) => chip({ kind: 'originalLanguage', value: l }, langLabel(l, de)))),
+      m.detail.originalLanguage,
+      chips(book.originalLanguages.map((l) => chip({ kind: 'originalLanguage', value: l }, langLabel(l, m)))),
     ],
-    ['Seiten', book.pages === null ? null : fmtInt(book.pages)],
-    ['Wissensgebiet', book.ddc ? chip({ kind: 'ddcTop', value: book.ddc.top }, book.ddc.topLabel) : null],
-    ['Erworben', book.acquiredDate ?? (book.acquiredYear !== null ? String(book.acquiredYear) : null)],
-    ['Gelesen', book.readDate ?? (book.readYearEffective !== null ? `${book.readYearEffective} (Jahres-Tag)` : null)],
-    ['Bewertung', book.rating !== null ? `★ ${book.rating.toLocaleString('de-DE')}` : null],
-    ['Gekauft bei', book.fromWhere],
-    ['Reihe', book.series.join(', ') || null],
-    ['ISBN', book.isbn],
-    ['Tags', chips(book.tagsNorm.map((t) => chip({ kind: 'tag', value: t }, t)))],
+    [m.detail.pages, book.pages === null ? null : fmtInt(book.pages)],
+    [m.detail.ddc, book.ddc ? chip({ kind: 'ddcTop', value: book.ddc.top }, m.ddc.labels[book.ddc.top]) : null],
+    [m.detail.acquired, book.acquiredDate ?? (book.acquiredYear !== null ? String(book.acquiredYear) : null)],
+    [m.detail.read, book.readDate ?? (book.readYearEffective !== null ? m.detail.readTagged(book.readYearEffective) : null)],
+    [m.detail.rating, book.rating !== null ? `★ ${fmtInt(book.rating)}` : null],
+    [m.detail.boughtAt, book.fromWhere],
+    [m.detail.series, book.series.join(', ') || null],
+    [m.detail.isbn, book.isbn],
+    [m.detail.tags, chips(book.tagsNorm.map((t) => chip({ kind: 'tag', value: t }, t)))],
   ]
 
   return (
@@ -68,7 +68,7 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
               className={active ? styles.authorActive : styles.author}
               onClick={() => toggleFilter({ kind: 'author', value: a.name })}
               aria-pressed={active}
-              aria-label={`Nach ${a.name} filtern`}
+              aria-label={m.detail.filterByAuthorAria(a.name)}
             >
               {a.name}
             </button>
@@ -92,12 +92,12 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
             target="_blank"
             rel="noopener noreferrer"
           >
-            Auf LibraryThing ansehen ↗
+            {m.detail.viewOnLt}
           </a>
         </p>
       )}
       <button className={styles.close} onClick={onClose}>
-        Schließen
+        {m.detail.close}
       </button>
     </dialog>
   )
