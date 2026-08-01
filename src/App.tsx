@@ -9,11 +9,13 @@ import { useFilterStore } from './store/filters'
 import { AcquisitionReading } from './views/AcquisitionReading'
 import { KnowledgeMap } from './views/KnowledgeMap'
 import { LanguageFlow } from './views/LanguageFlow'
+import { Shelf } from './views/Shelf'
 import { TagNetwork } from './views/TagNetwork'
 import { YearMatrix } from './views/YearMatrix'
 
 /** Views tragen sich hier ein, sobald sie gebaut sind (Tasks 7–14). */
 export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: ComponentType }>> = {
+  shelf: { label: 'Regal', component: Shelf },
   timeline: { label: 'Erwerb & Lektüre', component: AcquisitionReading },
   knowledge: { label: 'Wissenslandkarte', component: KnowledgeMap },
   network: { label: 'Tag-Netzwerk', component: TagNetwork },
@@ -21,9 +23,9 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: C
   years: { label: 'Ausgabe × Erwerb', component: YearMatrix },
 }
 
-/** Navigationsreihenfolge; Task 12 stellt 'shelf' nach vorn. */
+/** Navigationsreihenfolge; Regal steht als Signature-Ansicht zuerst. */
 export const VIEW_ORDER: ViewId[] = [
-  'timeline', 'knowledge', 'network', 'languages', 'years', 'shelf', 'pace', 'canon',
+  'shelf', 'timeline', 'knowledge', 'network', 'languages', 'years', 'pace', 'canon',
 ]
 
 type LoadState =

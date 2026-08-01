@@ -1,0 +1,63 @@
+.wrap {
+  position: relative;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-5);
+  font-size: 14px;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.controls select {
+  font: inherit;
+}
+
+.spine {
+  transition: transform 400ms ease;
+  cursor: pointer;
+}
+
+.spine rect:hover,
+.spine rect:focus-visible {
+  stroke: var(--enji);
+  stroke-width: 1.5px;
+}
+
+.unmeasuredTitle {
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--ink-70);
+  margin: var(--space-4) 0 var(--space-1);
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: 14px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid transparent;
+  margin-right: 4px;
+  vertical-align: -1px;
+}
+
+.legendCount {
+  font-family: var(--font-mono);
+  color: var(--ink-70);
+}
