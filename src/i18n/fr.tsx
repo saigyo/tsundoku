@@ -187,6 +187,11 @@ export const fr: Messages = {
     toggleFilterAria: (label) => `Basculer le filtre ${label}`,
     filterByAuthorAria: (name) => `Filtrer par ${name}`,
     viewOnLt: 'Voir sur LibraryThing ↗',
+    coverAlt: (title) => `Couverture : ${title}`,
+    coverLoad: 'Charger la couverture depuis OpenLibrary',
+    coverNote: 'L’ISBN est alors transmis à covers.openlibrary.org. Un seul accord suffit — désactivable à tout moment dans le pied de page.',
+    coverNone: 'Pas de couverture',
+    viewOnOl: 'Voir sur OpenLibrary ↗',
     close: 'Fermer',
   },
   rangeForm: {
@@ -362,6 +367,7 @@ export const fr: Messages = {
   footer: {
     license: 'Licence MIT',
     embedded: 'Licences des polices et bibliothèques embarquées',
+    covers: 'Couvertures OpenLibrary',
     languageAria: 'Langue',
   },
 }

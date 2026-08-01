@@ -183,6 +183,11 @@ export const en: Messages = {
     toggleFilterAria: (label) => `Toggle filter: ${label}`,
     filterByAuthorAria: (name) => `Filter by ${name}`,
     viewOnLt: 'View on LibraryThing ↗',
+    coverAlt: (title) => `Cover: ${title}`,
+    coverLoad: 'Load cover from OpenLibrary',
+    coverNote: 'This sends the ISBN to covers.openlibrary.org. Agreeing once is enough — turn it off any time in the footer.',
+    coverNone: 'No cover',
+    viewOnOl: 'View on OpenLibrary ↗',
     close: 'Close',
   },
   rangeForm: {
@@ -354,6 +359,7 @@ export const en: Messages = {
   footer: {
     license: 'MIT license',
     embedded: 'Licenses for embedded fonts & libraries',
+    covers: 'Covers from OpenLibrary',
     languageAria: 'Language',
   },
 }

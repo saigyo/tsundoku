@@ -181,6 +181,11 @@ export const ja: Messages = {
     toggleFilterAria: (label) => `絞り込み「${label}」を切り替え`,
     filterByAuthorAria: (name) => `著者「${name}」で絞り込む`,
     viewOnLt: 'LibraryThing で見る ↗',
+    coverAlt: (title) => `表紙: ${title}`,
+    coverLoad: 'OpenLibrary から表紙を読み込む',
+    coverNote: '読み込み時に ISBN が covers.openlibrary.org に送信されます。同意は一度だけで済み、フッターでいつでも解除できます。',
+    coverNone: '表紙なし',
+    viewOnOl: 'OpenLibrary で見る ↗',
     close: '閉じる',
   },
   rangeForm: {
@@ -344,6 +349,7 @@ export const ja: Messages = {
   footer: {
     license: 'MIT ライセンス',
     embedded: '同梱フォントとライブラリのライセンス',
+    covers: 'OpenLibrary の表紙',
     languageAria: '言語',
   },
 }
