@@ -14,6 +14,7 @@ import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
+import { isActivationKey } from '../lib/keyboard'
 import { useMeasure } from '../lib/useMeasure'
 import { tagGraph } from '../lib/viewData/tagNetwork'
 import { useFilterStore } from '../store/filters'
@@ -138,7 +139,10 @@ export function TagNetwork() {
               onClick={() => toggleFilter({ kind: 'tag', value: n.id })}
               onDoubleClick={() => setIsolated((cur) => (cur === n.id ? null : n.id))}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') toggleFilter({ kind: 'tag', value: n.id })
+                if (isActivationKey(e)) {
+                  e.preventDefault()
+                  toggleFilter({ kind: 'tag', value: n.id })
+                }
                 if (e.key === 'i') setIsolated((cur) => (cur === n.id ? null : n.id))
               }}
             >

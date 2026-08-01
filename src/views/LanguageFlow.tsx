@@ -4,6 +4,7 @@ import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
+import { isActivationKey } from '../lib/keyboard'
 import { langLabel, LANG_COLORS, OTHER_LANG, UNKNOWN_LANG } from '../lib/languages'
 import { useMeasure } from '../lib/useMeasure'
 import { languageFlows, type FlowLink, type FlowNode } from '../lib/viewData/languageFlows'
@@ -90,6 +91,7 @@ export function LanguageFlow() {
           const s = l.source as SNode
           const t = l.target as SNode
           const label = `${langLabel(s.lang)} → ${langLabel(t.lang)}: ${fmtInt(l.value)} Titel`
+          const activatable = filterable(s.lang) || filterable(t.lang)
           return (
             <path
               key={`${s.id}-${t.id}`}
@@ -97,11 +99,16 @@ export function LanguageFlow() {
               className={styles.link}
               stroke={LANG_COLORS[s.lang] ?? 'var(--ink-45)'}
               strokeWidth={Math.max(1, l.width ?? 1)}
-              role={filterable(s.lang) || filterable(t.lang) ? 'button' : undefined}
-              tabIndex={filterable(s.lang) || filterable(t.lang) ? 0 : undefined}
-              aria-label={`${label}. Enter filtert auf diese Kombination.`}
+              role={activatable ? 'button' : undefined}
+              tabIndex={activatable ? 0 : undefined}
+              aria-label={activatable ? `${label}. Enter filtert auf diese Kombination.` : label}
               onClick={() => clickLink(l)}
-              onKeyDown={(e) => e.key === 'Enter' && clickLink(l)}
+              onKeyDown={(e) => {
+                if (isActivationKey(e)) {
+                  e.preventDefault()
+                  clickLink(l)
+                }
+              }}
             >
               <title>{label}</title>
             </path>
