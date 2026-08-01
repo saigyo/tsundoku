@@ -12,7 +12,9 @@ import { useFilterStore } from '../store/filters'
 import styles from './LanguageFlow.module.css'
 
 const H = 480
-const M = { top: 8, right: 140, bottom: 8, left: 140 }
+// bottom reserviert einen Streifen für die Seitenbeschriftungen, damit sie
+// nicht mit den untersten Knoten-Labels des Sankeys kollidieren.
+const M = { top: 8, right: 140, bottom: 34, left: 140 }
 
 type SNode = SankeyNode<FlowNode, FlowLink>
 type SLink = SankeyLink<FlowNode, FlowLink>
@@ -135,10 +137,10 @@ export function LanguageFlow() {
             </text>
           </g>
         ))}
-        <text x={M.left} y={H - 2} className={styles.sideLabel} textAnchor="start">
+        <text x={M.left} y={H - 4} className={styles.sideLabel} textAnchor="start">
           Originalsprache
         </text>
-        <text x={Math.max(400, width) - M.right} y={H - 2} className={styles.sideLabel} textAnchor="end">
+        <text x={Math.max(400, width) - M.right} y={H - 4} className={styles.sideLabel} textAnchor="end">
           Ausgabesprache
         </text>
       </svg>
