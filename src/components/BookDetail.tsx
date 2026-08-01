@@ -1,7 +1,9 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useI18n } from '../i18n/LocaleContext'
 import { langLabel } from '../lib/languages'
+import { bookUrl, coverUrl, normalizeIsbn } from '../lib/openlibrary'
 import type { Book, Filter } from '../lib/types'
+import { useCoversStore } from '../store/covers'
 import { filterLabel, sameFilter, useFilterStore } from '../store/filters'
 import styles from './BookDetail.module.css'
 
@@ -19,6 +21,10 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
   }, [book])
 
   if (!book) return <dialog ref={ref} />
+
+  // Cover und Link nur bei gültiger ISBN; die ISBN-Zeile in rows zeigt weiter den Rohwert.
+  const isbn = book.isbn === null ? null : normalizeIsbn(book.isbn)
+  const olUrl = isbn === null ? null : bookUrl(isbn)
 
   const chip = (f: Filter, label: string) => {
     const active = filters.some((g) => sameFilter(g, f))
@@ -58,23 +64,28 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
 
   return (
     <dialog ref={ref} className={styles.dialog} onClose={onClose} aria-label={book.title}>
-      <h3 className={styles.title}>{book.title}</h3>
-      <p className={styles.authors}>
-        {book.authors.map((a) => {
-          const active = filters.some((f) => f.kind === 'author' && f.value === a.name)
-          return (
-            <button
-              key={a.name}
-              className={active ? styles.authorActive : styles.author}
-              onClick={() => toggleFilter({ kind: 'author', value: a.name })}
-              aria-pressed={active}
-              aria-label={m.detail.filterByAuthorAria(a.name)}
-            >
-              {a.name}
-            </button>
-          )
-        })}
-      </p>
+      <div className={styles.head}>
+        <div className={styles.headText}>
+          <h3 className={styles.title}>{book.title}</h3>
+          <p className={styles.authors}>
+            {book.authors.map((a) => {
+              const active = filters.some((f) => f.kind === 'author' && f.value === a.name)
+              return (
+                <button
+                  key={a.name}
+                  className={active ? styles.authorActive : styles.author}
+                  onClick={() => toggleFilter({ kind: 'author', value: a.name })}
+                  aria-pressed={active}
+                  aria-label={m.detail.filterByAuthorAria(a.name)}
+                >
+                  {a.name}
+                </button>
+              )
+            })}
+          </p>
+        </div>
+        {isbn !== null && <Cover key={book.id} isbn={isbn} title={book.title} />}
+      </div>
       <dl className={styles.rows}>
         {rows
           .filter(([, v]) => v !== null)
@@ -85,20 +96,66 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
             </div>
           ))}
       </dl>
-      {book.workCode !== null && (
+      {(book.workCode !== null || olUrl !== null) && (
         <p className={styles.ltLink}>
-          <a
-            href={`https://www.librarything.com/work/${book.workCode}/book/${book.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {m.detail.viewOnLt}
-          </a>
+          {book.workCode !== null && (
+            <a
+              href={`https://www.librarything.com/work/${book.workCode}/book/${book.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {m.detail.viewOnLt}
+            </a>
+          )}
+          {book.workCode !== null && olUrl !== null && <span aria-hidden="true"> · </span>}
+          {olUrl !== null && (
+            <a href={olUrl} target="_blank" rel="noopener noreferrer">
+              {m.detail.viewOnOl}
+            </a>
+          )}
         </p>
       )}
       <button className={styles.close} onClick={onClose}>
         {m.detail.close}
       </button>
     </dialog>
+  )
+}
+
+/** Cover-Block mit drei Zuständen: Opt-in-Platzhalter, Bild, „Kein Cover"
+ *  (404 via onError). Wird mit key={book.id} eingesetzt, damit der
+ *  Fehlerzustand beim Wechsel zum nächsten Buch zurückgesetzt wird. */
+function Cover({ isbn, title }: { isbn: string; title: string }) {
+  const { m } = useI18n()
+  const enabled = useCoversStore((s) => s.enabled)
+  const setEnabled = useCoversStore((s) => s.setEnabled)
+  const [failed, setFailed] = useState(false)
+  if (!enabled) {
+    return (
+      <div className={styles.cover}>
+        <button className={styles.coverLoad} onClick={() => setEnabled(true)}>
+          {m.detail.coverLoad}
+        </button>
+        <p className={styles.coverNote}>{m.detail.coverNote}</p>
+      </div>
+    )
+  }
+  if (failed) {
+    return (
+      <div className={styles.cover}>
+        <span className={styles.coverNone}>{m.detail.coverNone}</span>
+      </div>
+    )
+  }
+  return (
+    <div className={styles.cover}>
+      {/* isbn kommt bereits normalisiert vom Aufrufer, coverUrl kann nicht null sein */}
+      <img
+        className={styles.coverImg}
+        src={coverUrl(isbn)!}
+        alt={m.detail.coverAlt(title)}
+        onError={() => setFailed(true)}
+      />
+    </div>
   )
 }
