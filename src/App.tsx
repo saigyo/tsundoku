@@ -7,6 +7,7 @@ import { loadLibrary, LibraryMissingError } from './lib/loadLibrary'
 import type { Library, ViewId } from './lib/types'
 import { useFilterStore } from './store/filters'
 import { AcquisitionReading } from './views/AcquisitionReading'
+import { CanonCheck } from './views/CanonCheck'
 import { KnowledgeMap } from './views/KnowledgeMap'
 import { LanguageFlow } from './views/LanguageFlow'
 import { ReadingPace } from './views/ReadingPace'
@@ -23,6 +24,7 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: C
   languages: { label: 'Sprachfluss', component: LanguageFlow },
   years: { label: 'Ausgabe × Erwerb', component: YearMatrix },
   pace: { label: 'Lesetempo', component: ReadingPace },
+  canon: { label: 'Kanon', component: CanonCheck },
 }
 
 /** Navigationsreihenfolge; Regal steht als Signature-Ansicht zuerst. */
