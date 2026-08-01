@@ -4,6 +4,10 @@
   color: var(--ink-70);
 }
 
-.numbers {
+/* Zahlen bewusst hervorgehoben: Mono nur für die Ziffern (nicht das „von"),
+   dunkler als der umgebende Text, Größe optisch an die Textschrift angepasst. */
+.num {
   font-family: var(--font-mono);
+  font-size: 0.95em;
+  color: var(--sumi);
 }
