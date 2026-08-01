@@ -13,6 +13,26 @@
   margin-bottom: var(--space-2);
 }
 
+.brushArea {
+  cursor: crosshair;
+}
+
+.brushArea path {
+  cursor: pointer;
+}
+
+.annotation {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-70);
+}
+
+.hint {
+  margin: var(--space-1) 0 0;
+  font-size: 13px;
+  color: var(--ink-70);
+}
+
 .legend {
   list-style: none;
   margin: var(--space-3) 0 0;

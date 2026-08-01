@@ -48,6 +48,16 @@
   padding: 2px var(--space-2);
 }
 
+.brushArea {
+  cursor: crosshair;
+}
+
+.hint {
+  margin: var(--space-1) 0 0;
+  font-size: 13px;
+  color: var(--ink-70);
+}
+
 .rangeForm {
   margin-top: var(--space-3);
   display: flex;

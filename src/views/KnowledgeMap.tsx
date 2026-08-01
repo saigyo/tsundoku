@@ -1,6 +1,6 @@
 import { scaleLinear, scalePoint } from 'd3-scale'
 import { area, curveMonotoneX, stack, stackOffsetExpand, stackOffsetWiggle, stackOrderInsideOut, type Series } from 'd3-shape'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { AxisBottom } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
@@ -18,9 +18,13 @@ const M = { top: 8, right: 16, bottom: 28, left: 16 }
 export function KnowledgeMap() {
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
+  const setRange = useFilterStore((s) => s.setRange)
   const [mode, setMode] = useState<'absolute' | 'share'>('absolute')
   const [smooth, setSmooth] = useState(false)
   const [hoverClass, setHoverClass] = useState<number | null>(null)
+  const [drag, setDrag] = useState<{ x0: number; x1: number } | null>(null)
+  const dragMoved = useRef(false)
+  const suppressClick = useRef(false)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const data = useMemo(() => ddcYearMatrix(filtered, { smooth }), [filtered, smooth])
 
@@ -47,6 +51,17 @@ export function KnowledgeMap() {
     .y0((d) => y(d[0]))
     .y1((d) => y(d[1]))
     .curve(curveMonotoneX)
+
+  const yearAt = (px: number) => {
+    const n = data.years.length
+    if (n === 1) return data.years[0]
+    const i = Math.max(0, Math.min(n - 1, Math.round((px / innerW) * (n - 1))))
+    return data.years[i]
+  }
+  const localX = (e: React.PointerEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    return Math.max(0, Math.min(innerW, e.clientX - rect.left - M.left))
+  }
 
   const tickEvery = Math.max(1, Math.ceil(data.years.length / Math.floor(innerW / 60)))
   const xTicks = data.years
@@ -79,7 +94,43 @@ export function KnowledgeMap() {
         </label>
       </div>
 
-      <svg width={width} height={H} role="img" aria-label="DDC-Hauptklassen über Erwerbsjahre">
+      <svg
+        width={width}
+        height={H}
+        role="img"
+        aria-label="DDC-Hauptklassen über Erwerbsjahre"
+        className={styles.brushArea}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return
+          dragMoved.current = false
+          setDrag({ x0: localX(e), x1: localX(e) })
+        }}
+        onPointerMove={(e) => {
+          if (!drag) return
+          const px = localX(e)
+          if (!dragMoved.current && Math.abs(px - drag.x0) > 3) {
+            dragMoved.current = true
+            e.currentTarget.setPointerCapture(e.pointerId)
+          }
+          setDrag((d) => (d ? { ...d, x1: px } : d))
+        }}
+        onPointerUp={() => {
+          // Nur echte Züge filtern den Zeitraum; ein bloßer Klick bleibt der
+          // Klassen-Klick auf dem Strom darunter.
+          if (drag && dragMoved.current) {
+            setRange('acquiredYear', yearAt(Math.min(drag.x0, drag.x1)), yearAt(Math.max(drag.x0, drag.x1)))
+          }
+          suppressClick.current = dragMoved.current
+          dragMoved.current = false
+          setDrag(null)
+        }}
+        onClickCapture={(e) => {
+          if (suppressClick.current) {
+            e.stopPropagation()
+            suppressClick.current = false
+          }
+        }}
+      >
         <g transform={`translate(${M.left},0)`}>
           {stacked.map((s) => (
             <path
@@ -94,9 +145,28 @@ export function KnowledgeMap() {
               <title>{`${s.key} ${DDC_LABELS[s.key]}: ${fmtInt(Math.round(classCounts.get(s.key) ?? 0))} Titel`}</title>
             </path>
           ))}
+          {drag && dragMoved.current && (() => {
+            const left = Math.min(drag.x0, drag.x1)
+            const right = Math.max(drag.x0, drag.x1)
+            return (
+              <g>
+                <rect x={left} y={M.top} width={right - left} height={H - M.top - M.bottom} fill="var(--kon)" opacity={0.15} />
+                <text x={left - 4} y={M.top + 14} textAnchor="end" className={styles.annotation}>
+                  {yearAt(left)}
+                </text>
+                <text x={right + 4} y={M.top + 14} textAnchor="start" className={styles.annotation}>
+                  {yearAt(right)}
+                </text>
+              </g>
+            )
+          })()}
           <AxisBottom ticks={xTicks} y={H - M.bottom + 2} />
         </g>
       </svg>
+      <p className={styles.hint}>
+        Zeitraum wählen: horizontal über das Diagramm ziehen filtert nach Erwerbsjahr; ein Klick auf
+        einen Strom filtert nach dem Wissensgebiet.
+      </p>
 
       <ul className={styles.legend}>
         {data.classes.map((c) => (
