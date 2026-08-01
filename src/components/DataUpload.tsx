@@ -84,20 +84,21 @@ export function DataUpload({
       ['Medien', stats.byMediaType.map(([m, n]) => `${m} ${fmtInt(n)}`).join(', ')],
       ['Gelesen', `${fmtInt(stats.read)} (Lesejahr bekannt: ${fmtInt(stats.withReadYearEffective)}, davon ${fmtInt(stats.withReadDate)} tagesgenau${readYears.length ? `, ab ${Math.min(...readYears)}` : ''})`],
       ['Seiten gesamt', fmtInt(stats.pagesTotal)],
-      ['Lesedauer Median/p90/max', `${stats.readDays.median}/${stats.readDays.p90}/${stats.readDays.max} Tage`],
-      ['Tags', `${fmtInt(stats.tagsNorm.length)} normalisiert (roh: ${fmtInt(rawTagCount)})`],
-      ['Maße permutiert', `${fmtInt(stats.dimsSorted)} korrigiert, ${fmtInt(stats.dimsDiscarded)} verworfen (Regel 9)`],
-      ['Maße geschätzt', `${fmtInt(stats.dimsEstimated)} Bücher aus der Seitenzahl (Regel 11)`],
-      ['Originalsprache übernommen', `${fmtInt(stats.origLangInferred)} Bücher aus der Ausgabesprache (Regel 12)`],
-      ['HTML-Entities dekodiert', `${fmtInt(stats.entitiesDecoded)} Felder (Regel 10)`],
-      ['Massenimport-Flag', fmtInt(stats.bulkImported)],
+      ['Lesedauer', `meist ${stats.readDays.median} Tage, selten über ${stats.readDays.p90}, längste ${stats.readDays.max}`],
+      ['Tags', `${fmtInt(stats.tagsNorm.length)} vereinheitlicht (im Export: ${fmtInt(rawTagCount)})`],
+      ['Vertauschte Buchmaße', `${fmtInt(stats.dimsSorted)} korrigiert, ${fmtInt(stats.dimsDiscarded)} verworfen`],
+      ['Geschätzte Buchmaße', `${fmtInt(stats.dimsEstimated)} Bücher (aus der Seitenzahl)`],
+      ['Originalsprache ergänzt', `${fmtInt(stats.origLangInferred)} Bücher (aus der Ausgabesprache)`],
+      ['Sonderzeichen repariert', `${fmtInt(stats.entitiesDecoded)} Felder`],
+      ['Massenimport erkannt', `${fmtInt(stats.bulkImported)} Einträge`],
     ]
     return (
       <div className={styles.box}>
-        <h2>Normalisierung abgeschlossen</h2>
+        <h2>Deine Bibliothek ist bereit</h2>
         <p className={styles.note}>
-          Alle Bereinigungsregeln sind in <code>docs/datenprofil.md</code> dokumentiert; verworfene
-          oder geschätzte Werte werden gezählt, nicht versteckt.
+          Beim Einlesen wurden kleine Unstimmigkeiten des Katalogs behoben — etwa vertauschte
+          Buchmaße, fehlende Angaben oder kaputte Sonderzeichen. Nichts davon passiert im
+          Verborgenen: Die Übersicht zeigt, was mit deinen Daten geschehen ist.
         </p>
         <dl className={styles.report}>
           {rows.map(([k, v]) => (
