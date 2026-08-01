@@ -40,6 +40,32 @@
   border-radius: var(--radius);
   padding: 2px var(--space-2);
   font-size: 13px;
+  text-align: center;
+  line-height: 1.3;
+  /* Letzte Textzeile des Buttons sitzt auf der Baseline der View-Labels —
+     einzeilig identisch zu vorher, zweizeilig wächst der Button nach oben. */
+  align-self: last baseline;
+}
+
+/* FR/ES-Labels sind zu breit für die Kopfzeile: im Button zweizeilig umbrechen
+   statt die ganze Zeile zu sprengen. Bewusst je Sprache statt über eine
+   Breitenschwelle, die auch DE („Bibliothek wechseln") oder JA treffen könnte. */
+.replaceLibrary:lang(fr),
+.replaceLibrary:lang(es) {
+  max-width: 9em;
+}
+
+/* Zweiter Hebel für die breiten FR/ES-Labels: engere Tab-Abstände und
+   Header-Gaps. Budget bei 1440 px Fensterbreite (ES, der breiteste Fall):
+   Marke 231 + Nav ~1003 + Button 117 + 2 Gaps = ~1383 von 1392 px Inhalt. */
+.navItem:lang(fr),
+.navItem:lang(es) {
+  padding: var(--space-1) 6px;
+}
+
+.header:lang(fr),
+.header:lang(es) {
+  gap: var(--space-4);
 }
 
 .navItem {
