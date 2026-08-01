@@ -191,6 +191,7 @@ export const fr: Messages = {
     coverLoad: 'Charger la couverture depuis OpenLibrary',
     coverNote: 'L’ISBN est alors transmis à covers.openlibrary.org. Un seul accord suffit — désactivable à tout moment dans le pied de page.',
     coverNone: 'Pas de couverture',
+    coverZoomAria: 'Agrandir la couverture',
     viewOnOl: 'Voir sur OpenLibrary ↗',
     close: 'Fermer',
   },

@@ -137,6 +137,7 @@ export interface Messages {
     coverLoad: string
     coverNote: string
     coverNone: string
+    coverZoomAria: string
     viewOnOl: string
     close: string
   }

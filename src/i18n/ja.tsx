@@ -185,6 +185,7 @@ export const ja: Messages = {
     coverLoad: 'OpenLibrary から表紙を読み込む',
     coverNote: '読み込み時に ISBN が covers.openlibrary.org に送信されます。同意は一度だけで済み、フッターでいつでも解除できます。',
     coverNone: '表紙なし',
+    coverZoomAria: '表紙を拡大',
     viewOnOl: 'OpenLibrary で見る ↗',
     close: '閉じる',
   },

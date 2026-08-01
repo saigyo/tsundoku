@@ -31,6 +31,11 @@ describe('coverUrl / bookUrl', () => {
       'https://covers.openlibrary.org/b/isbn/9783868324853-M.jpg?default=false',
     )
   })
+  it('baut die L-Cover-URL für das Zoom-Overlay', () => {
+    expect(coverUrl('0195121236', 'L')).toBe(
+      'https://covers.openlibrary.org/b/isbn/0195121236-L.jpg?default=false',
+    )
+  })
   it('baut die Buchseiten-URL', () => {
     expect(bookUrl('0195121236')).toBe('https://openlibrary.org/isbn/0195121236')
   })

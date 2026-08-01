@@ -10,11 +10,12 @@ export function normalizeIsbn(raw: string): string | null {
   return /^[0-9]{9}[0-9X]$|^[0-9]{13}$/.test(s) ? s : null
 }
 
-/** Cover Größe M; ?default=false lässt fehlende Cover als 404 antworten
- *  statt als leeres 1×1-GIF, sodass onError im <img> greift. */
-export function coverUrl(isbn: string): string | null {
+/** Cover, Größe M (Popup) oder L (Zoom-Overlay); ?default=false lässt
+ *  fehlende Cover als 404 antworten statt als leeres 1×1-GIF, sodass
+ *  onError im <img> greift. */
+export function coverUrl(isbn: string, size: 'M' | 'L' = 'M'): string | null {
   const n = normalizeIsbn(isbn)
-  return n === null ? null : `https://covers.openlibrary.org/b/isbn/${n}-M.jpg?default=false`
+  return n === null ? null : `https://covers.openlibrary.org/b/isbn/${n}-${size}.jpg?default=false`
 }
 
 /** Buchseite; OpenLibrary leitet auf die Editionsseite weiter. */
