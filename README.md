@@ -59,6 +59,10 @@ schätzt oder verwirft, ist als Regel dokumentiert und gezählt
 
 ## Start
 
+Als Datengrundlage dient ein Export der eigenen LibraryThing-Bibliothek:
+auf <https://www.librarything.com/export.php> das Format **JSON** wählen,
+die erzeugte Datei herunterladen und dem Normalizer übergeben:
+
 ```bash
 node scripts/normalize.mjs ~/pfad/librarything_export.json
 npm install
@@ -66,7 +70,10 @@ npm run dev
 ```
 
 Der erste Befehl schreibt `public/data/library.json` und gibt Kennzahlen aus,
-die gegen `docs/datenprofil.md` geprüft werden können.
+die gegen `docs/datenprofil.md` geprüft werden können. (Die dort dokumentierten
+Zahlen und einige Bereinigungsregeln sind spezifisch für diese Bibliothek —
+mit einem fremden Export läuft die App trotzdem, nur das Datenprofil passt
+dann nicht mehr.)
 
 ## Stack
 
