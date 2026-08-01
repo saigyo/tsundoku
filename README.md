@@ -1,7 +1,8 @@
 # Tsundoku 積ん読
 
-Interaktive Exploration einer LibraryThing-Bibliothek: 4.865 Einträge,
-Erwerbshistorie ab 1991, Lesehistorie ab 1988.
+Interaktive Exploration einer [LibraryThing](https://www.librarything.com)-Bibliothek
+(LibraryThing ist ein Online-Dienst zum Katalogisieren der eigenen
+Büchersammlung): 4.865 Einträge, Erwerbshistorie ab 1991, Lesehistorie ab 1988.
 
 積ん読 — „Bücher kaufen und stapeln, ohne sie zu lesen". Der Name ist Programm:
 Die zentrale Frage der Anwendung ist nicht „was besitze ich", sondern **„was
@@ -87,9 +88,9 @@ halten alles im Speicher; größere Bibliotheken lassen sich bei LibraryThing
 gefiltert exportieren.
 
 **Lokal** (Node ≥ 24): Als Datengrundlage dient ein Export der eigenen
-LibraryThing-Bibliothek: auf <https://www.librarything.com/export.php> das
-Format **JSON** wählen, die erzeugte Datei herunterladen und dem Normalizer
-übergeben:
+[LibraryThing](https://www.librarything.com)-Bibliothek: auf
+<https://www.librarything.com/export.php> das Format **JSON** wählen, die
+erzeugte Datei herunterladen und dem Normalizer übergeben:
 
 ```bash
 node scripts/normalize.mjs ~/pfad/librarything_export.json

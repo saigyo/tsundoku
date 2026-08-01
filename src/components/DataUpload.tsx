@@ -144,7 +144,12 @@ export function DataUpload({
       <h2>Bibliothek laden</h2>
       {notice && <p className={styles.notice}>{notice}</p>}
       <p>
-        Exportiere deine LibraryThing-Bibliothek auf{' '}
+        Die Anwendung liest Exporte von{' '}
+        <a href="https://www.librarything.com" target="_blank" rel="noopener noreferrer">
+          LibraryThing
+        </a>
+        , einem Online-Dienst zum Katalogisieren der eigenen Büchersammlung. Exportiere deine
+        Bibliothek dort auf{' '}
         <a href="https://www.librarything.com/export.php" target="_blank" rel="noopener noreferrer">
           librarything.com/export.php
         </a>{' '}
