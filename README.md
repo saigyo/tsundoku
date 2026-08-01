@@ -25,5 +25,7 @@ die gegen `docs/datenprofil.md` geprüft werden können.
 
 ## Stand
 
-Normalisierung fertig und am realen Export getestet. Anwendung noch nicht
-begonnen; Reihenfolge steht in `docs/visualisierungen.md`.
+Anwendung vollständig: Fundament (Filter-Store, URL-Sync, Shell) und alle acht
+Views aus `docs/visualisierungen.md`. Start mit `npm run dev`, statischer Build
+mit `npm run build`. Datengrundlage einmalig per
+`node scripts/normalize.mjs <export.json>` erzeugen.
