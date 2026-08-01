@@ -11,9 +11,12 @@
   --ink-15: rgba(28, 27, 25, 0.15);
   --ink-08: rgba(28, 27, 25, 0.08);
 
-  --font-display: 'Fraunces', 'Noto Sans JP', serif;
+  --font-display: 'Fraunces', 'Shippori Mincho', 'Noto Sans JP', serif;
+  --font-title: 'Fraunces', 'Noto Serif JP', serif;
   --font-body: 'Source Sans 3', 'Noto Sans JP', sans-serif;
   --font-mono: 'IBM Plex Mono', 'Noto Sans JP', monospace;
+  --line-height: 1.5;
+  --weight-display: 500;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -23,4 +26,13 @@
   --space-6: 40px;
   --radius: 2px;
   --focus-ring: 2px solid var(--kon);
+}
+
+/* Optische Angleichung für japanische UI: Kanji füllen das Geviert (latein.
+ * Versalhöhe ~0,7 em) -> Grundgröße leicht runter; Mincho-Waagerechte sind
+ * dünn -> Display einen Schnitt schwerer; CJK braucht mehr Durchschuss. */
+:root:lang(ja) {
+  font-size: 15px; /* ~0,94 × 16px */
+  --line-height: 1.85;
+  --weight-display: 600;
 }
