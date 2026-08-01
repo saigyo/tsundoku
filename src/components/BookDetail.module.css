@@ -3,7 +3,9 @@
   border-radius: var(--radius);
   background: var(--paper);
   color: var(--sumi);
-  max-width: 36rem;
+  /* 36rem + Coverspalte: Text und Bild stehen nebeneinander, ohne dass die
+     Detailzeilen schmaler werden als vor der Cover-Einführung. */
+  max-width: 50rem;
   padding: var(--space-5);
 }
 
@@ -100,27 +102,28 @@
   margin-top: var(--space-4);
 }
 
-.head {
+/* Coverspalte neben dem gesamten Textblock (Titel, Autoren, Detailzeilen,
+   Links) — das Cover schiebt die Zeilen nicht mehr nach unten. */
+.body {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-5);
   align-items: flex-start;
 }
 
-.headText {
+.bodyText {
   flex: 1;
   min-width: 0;
 }
 
-/* Reservierte Coverfläche 2:3 — kein Layoutsprung durch nachladende Bilder.
-   Dient zugleich als Opt-in-Platzhalter und als „Kein Cover"-Fläche.
-   min-height statt festem aspect-ratio-Zwang: der Opt-in-Platzhalter mit
-   Einwilligungstext braucht in FR/ES mehr als 180px, das Bild/„Kein Cover"
-   bleibt bei den üblichen 120×180. overflow sichtbar statt hidden, damit ein
-   zu langer Text die Box wachsen lässt statt abgeschnitten zu werden. */
+/* Opt-in-Platzhalter und „Kein Cover"-Fläche; das Bild selbst erscheint in
+   natürlicher M-Größe (üblich 180px breit). Breite = 180px Inhalt plus
+   Padding und Rahmen; min-height nahe der üblichen Coverhöhe, damit der
+   Wechsel zwischen den Zuständen das Layout wenig bewegt. overflow bleibt
+   sichtbar, damit langer Einwilligungstext (FR/ES) die Box wachsen lässt. */
 .cover {
   flex-shrink: 0;
-  width: 120px;
-  min-height: 180px;
+  width: 198px;
+  min-height: 270px;
   background: var(--shironeri);
   border: 1px solid var(--ink-15);
   border-radius: var(--radius);
@@ -133,10 +136,12 @@
   text-align: center;
 }
 
+/* Natürliche Größe des M-Covers; nur breitere Ausreißer werden auf die
+   Spaltenbreite herunterskaliert. */
 .coverImg {
-  width: 100%;
-  aspect-ratio: 2 / 3;
-  object-fit: contain;
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 .coverLoad {
