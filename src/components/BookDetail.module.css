@@ -31,6 +31,10 @@
   border: none;
   padding: 0 var(--space-1);
   border-radius: 3px;
+  /* Chip-Text bündig mit Titel und Labels: das Chip-Padding ragt nach links
+     über die Ausrichtungskante hinaus — ein überstehender Hintergrund ist
+     akzeptabler als verschoben wirkender Text. */
+  margin-left: calc(-1 * var(--space-1));
 }
 
 .author {
@@ -76,6 +80,10 @@
   padding: 0 var(--space-1);
   border-radius: 3px;
   font-size: inherit;
+  /* Wie .author: Chip-Text bündig mit den nicht-klickbaren Werten der
+     Spalte, Padding ragt nach links über die Kante. Gilt auch für
+     umbrochene Chip-Zeilen (Tags). */
+  margin-left: calc(-1 * var(--space-1));
 }
 
 .tag {
