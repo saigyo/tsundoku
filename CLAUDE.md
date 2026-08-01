@@ -33,7 +33,8 @@ sie spart. SVG direkt aus React rendern, D3 nur für Skalen, Layouts und Pfade.
 ## Struktur
 
 ```
-scripts/normalize.mjs     Roh-Export -> public/data/library.json  (existiert, getestet)
+scripts/normalize.mjs     CLI: Roh-Export -> public/data/library.json  (existiert, getestet)
+scripts/normalize-core.mjs Normalizer-Kern ohne Node-APIs — läuft auch im Browser (Upload-Pfad)
 scripts/tag-aliases.json  DE/EN-Tag-Mapping, per Hand erweiterbar (existiert)
 docs/datenprofil.md       Feldinventar, Bereinigungsregeln, Fallstricke — VOR dem Bauen lesen
 docs/visualisierungen.md  Die acht Views als Einzelspezifikationen mit Definition of Done

@@ -81,6 +81,12 @@ export interface Stats {
   withReadYearEffective: number
   withRating: number
   bulkImported: number
+  /** Zähler der Bereinigungsregeln (docs/datenprofil.md, Regeln 9–12). */
+  dimsSorted: number
+  dimsDiscarded: number
+  dimsEstimated: number
+  origLangInferred: number
+  entitiesDecoded: number
   pagesTotal: number
   readDays: ReadDaysStats
   languages: Facet

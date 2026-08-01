@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import styles from './App.module.css'
 import { DataSummary } from './components/DataSummary'
+import { DataUpload } from './components/DataUpload'
 import { FilterChips } from './components/FilterChips'
 import { DataProvider } from './lib/DataContext'
 import { loadLibrary, LibraryMissingError } from './lib/loadLibrary'
@@ -55,13 +56,12 @@ export default function App() {
 
   if (load.state === 'loading') return <p className={styles.center}>Bibliothek wird geladen …</p>
   if (load.state === 'missing') {
+    // Keine library.json (z. B. auf der veröffentlichten GitHub-Page):
+    // Export im Browser hochladen und dort normalisieren.
     return (
-      <div className={styles.center}>
-        <h1>Tsundoku 積ん読</h1>
-        <p>
-          <code>public/data/library.json</code> fehlt. Einmal generieren:
-        </p>
-        <pre>node scripts/normalize.mjs librarything_kaixo_202607210219.json</pre>
+      <div>
+        <h1 className={styles.center}>Tsundoku 積ん読</h1>
+        <DataUpload onLoaded={(library) => setLoad({ state: 'ready', library })} />
       </div>
     )
   }

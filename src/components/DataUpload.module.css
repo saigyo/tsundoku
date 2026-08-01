@@ -1,0 +1,67 @@
+.box {
+  max-width: 40rem;
+  margin: 10vh auto 0;
+  padding: 0 var(--space-4);
+}
+
+.dropzone,
+.dropzoneActive {
+  border: 2px dashed var(--ink-45);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+  text-align: center;
+  margin: var(--space-4) 0;
+}
+
+.dropzoneActive {
+  border-color: var(--kon);
+  background: rgba(34, 58, 112, 0.06);
+}
+
+.error {
+  color: var(--enji);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink-70);
+}
+
+.report {
+  margin: var(--space-4) 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+  font-size: 14px;
+}
+
+.row {
+  display: contents;
+}
+
+.row dt {
+  color: var(--ink-70);
+}
+
+.row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.primary {
+  background: var(--kon);
+  color: var(--shironeri);
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  font-size: 15px;
+}
+
+.secondary {
+  margin-left: var(--space-3);
+  background: none;
+  border: 1px solid var(--ink-45);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+}
