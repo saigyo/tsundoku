@@ -6,6 +6,7 @@ import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
+import { isActivationKey } from '../lib/keyboard'
 import { langLabel } from '../lib/languages'
 import type { Book } from '../lib/types'
 import { useMeasure } from '../lib/useMeasure'
@@ -108,7 +109,7 @@ export function ReadingPace() {
                       aria-label={`${p.book.title}: ${fmtInt(p.pages)} Seiten in ${fmtInt(p.days)} Tagen`}
                       onClick={() => setSelected(p.book)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (isActivationKey(e)) {
                           e.preventDefault()
                           setSelected(p.book)
                         }

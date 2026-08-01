@@ -7,6 +7,7 @@ import { Tooltip } from '../components/Tooltip'
 import { useLibraryData } from '../lib/DataContext'
 import { DDC_COLORS, DDC_SHORT } from '../lib/ddc'
 import { fmtInt } from '../lib/format'
+import { isActivationKey } from '../lib/keyboard'
 import { langLabel, LANG_COLORS } from '../lib/languages'
 import type { Book } from '../lib/types'
 import { useMeasure } from '../lib/useMeasure'
@@ -64,7 +65,7 @@ export function Shelf() {
 
   const open = (b: Book) => setSelected(b)
   const onSpineKeyDown = (b: Book) => (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (isActivationKey(e)) {
       e.preventDefault()
       open(b)
     }
