@@ -2,7 +2,16 @@ import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
-import { toPages, toMm, toGrams, normTag, mediaType, fixPermutedDimensions, normalize } from './normalize.mjs'
+import {
+  toPages,
+  toMm,
+  toGrams,
+  normTag,
+  mediaType,
+  fixPermutedDimensions,
+  decodeEntities,
+  normalize,
+} from './normalize.mjs'
 
 // Regeln aus docs/datenprofil.md, Abschnitt „Bereinigungsregeln"
 
@@ -86,6 +95,27 @@ describe('fixPermutedDimensions (Regel 9: permutierte height/thickness/length)',
       lengthMm: null,
       correction: null,
     })
+  })
+})
+
+describe('decodeEntities (Regel 10: rohe HTML-Entities)', () => {
+  it('dekodiert numerische CJK-Entities', () => {
+    // realer originalTitle aus dem Export: 宴のあと (Mishima, "Nach dem Bankett")
+    expect(decodeEntities('&#23476;&#12398;&#12354;&#12392;')).toBe('宴のあと')
+  })
+  it('dekodiert benannte Umlaut-Entities', () => {
+    expect(decodeEntities('Tageb&uuml;cher')).toBe('Tagebücher')
+    expect(decodeEntities('Habermas, J&uuml;rgen')).toBe('Habermas, Jürgen')
+  })
+  it('dekodiert numerisches Apostroph', () => {
+    expect(decodeEntities("George O&#039;Brien")).toBe("George O'Brien")
+  })
+  it('lässt Strings ohne Entities unverändert', () => {
+    expect(decodeEntities('Die Verwandlung')).toBe('Die Verwandlung')
+  })
+  it('lässt null/undefined unverändert', () => {
+    expect(decodeEntities(null)).toBeNull()
+    expect(decodeEntities(undefined)).toBeUndefined()
   })
 })
 
