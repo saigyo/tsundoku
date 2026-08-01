@@ -28,10 +28,24 @@ describe('filterBooks', () => {
   it('ODER innerhalb einer Dimension', () => {
     expect(
       filterBooks(all, [
+        { kind: 'language', value: 'ja' },
+        { kind: 'language', value: 'de' },
+      ]),
+    ).toEqual([japan, philo, roman])
+  })
+  it('Ausnahme Tags: UND innerhalb der Dimension (Buch trägt alle gewählten Tags)', () => {
+    expect(
+      filterBooks(all, [
+        { kind: 'tag', value: 'Japan' },
+        { kind: 'tag', value: 'Roman' },
+      ]),
+    ).toEqual([roman])
+    expect(
+      filterBooks(all, [
         { kind: 'tag', value: 'Philosophie' },
         { kind: 'tag', value: 'Roman' },
       ]),
-    ).toEqual([philo, roman])
+    ).toEqual([])
   })
   it('UND über Dimensionen', () => {
     expect(
