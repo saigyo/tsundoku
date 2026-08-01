@@ -19,6 +19,7 @@ export function mkBook(over: Partial<Book> = {}): Book {
     ddc: null,
     languages: [],
     originalLanguages: [],
+    originalLanguagesInferred: false,
     editionYear: null,
     formats: [],
     mediaType: 'book',

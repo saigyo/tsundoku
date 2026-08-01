@@ -29,6 +29,8 @@ export interface Book {
   ddc: { code: string; top: number; topLabel: string } | null
   languages: string[]
   originalLanguages: string[]
+  /** true, wenn die Originalsprache aus der Ausgabesprache übernommen wurde (Regel 12). */
+  originalLanguagesInferred: boolean
   editionYear: number | null
   formats: string[]
   mediaType: MediaType

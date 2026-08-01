@@ -102,8 +102,12 @@ Deutsch → Deutsch.
 Klick auf einen Strom filtert auf diese Sprachkombination.
 
 **Fallstricke:** Sprachen mit weniger als ~10 Titeln zu „andere" bündeln, sonst
-ist das Diagramm ein Faserbündel. Fehlende `originallanguage` nicht als
-„identisch" annehmen, sondern als eigenen Strom „unbekannt" führen.
+ist das Diagramm ein Faserbündel. Fehlende `originallanguage` gilt per
+Erfassungskonvention als identisch mit der Ausgabesprache (Regel 12 im
+Datenprofil, `originalLanguagesInferred`) — die Originalsprache wurde nur bei
+Übersetzungen eingetragen. „Unbekannt" bleibt nur für Titel ganz ohne
+Sprachangabe; die stehen mangels Ausgabesprache außerhalb des Flusses und
+tauchen in der Abdeckungszeile auf.
 
 **Fertig, wenn:** ablesbar ist, ab welchem Jahr japanische Titel im Original
 erworben werden und wie groß dieser Anteil heute ist.

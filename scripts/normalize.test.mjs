@@ -11,6 +11,7 @@ import {
   fixPermutedDimensions,
   decodeEntities,
   estimateMissingDimensions,
+  inferOriginalLanguages,
   normalize,
 } from './normalize.mjs'
 
@@ -162,6 +163,27 @@ describe('estimateMissingDimensions (Regel 11: Maße aus Seitenzahl schätzen)',
     expect(estimated).toBe(0)
     expect(vinyl.physicalEstimated).toBe(false)
     expect(done.physicalEstimated).toBe(false)
+  })
+})
+
+describe('inferOriginalLanguages (Regel 12: Ausgabesprache als Original, wenn keins erfasst)', () => {
+  it('übernimmt die Ausgabesprache, wenn keine Originalsprache erfasst ist', () => {
+    expect(inferOriginalLanguages(['German'], [])).toEqual({
+      originalLanguages: ['German'],
+      inferred: true,
+    })
+  })
+  it('lässt eine erfasste Originalsprache unangetastet', () => {
+    expect(inferOriginalLanguages(['German'], ['Japanese'])).toEqual({
+      originalLanguages: ['Japanese'],
+      inferred: false,
+    })
+  })
+  it('ohne jede Sprache bleibt es leer — unbekannt nur noch hier', () => {
+    expect(inferOriginalLanguages([], [])).toEqual({
+      originalLanguages: [],
+      inferred: false,
+    })
   })
 })
 

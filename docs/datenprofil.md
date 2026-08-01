@@ -150,6 +150,15 @@ Implementiert in `scripts/normalize.mjs`.
     Implementiert als `estimateMissingDimensions()` in
     `scripts/normalize.mjs`, mit Unit-Tests.
 
+12. **Fehlende Originalsprache = Ausgabesprache (Erfassungskonvention).**
+    Die Originalsprache wurde beim Katalogisieren nur eingetragen, wenn sie
+    von der Ausgabesprache abweicht (Übersetzung). Der Normalizer übernimmt
+    deshalb bei erfasster Ausgabe-, aber fehlender Originalsprache die
+    Ausgabesprache als Original (**1.016 Bücher**, markiert mit
+    `originalLanguagesInferred: true`). „Unbekannt" bleibt damit nur für
+    Titel ganz ohne Sprachangabe. Implementiert als
+    `inferOriginalLanguages()` in `scripts/normalize.mjs`, mit Unit-Tests.
+
 ## Ausgabeformat
 
 `public/data/library.json`:
@@ -171,7 +180,7 @@ App zur Laufzeit selbst.
 Ein `Book` trägt u. a.: `id`, `title`, `originalTitle`, `authors[]`,
 `primaryAuthor`, `tags[]`, `tagsNorm[]`, `collections[]`, `genres[]`,
 `series[]`, `awards[]`, `ddc {code, top, topLabel}`, `languages[]`,
-`originalLanguages[]`, `editionYear`, `formats[]`, `mediaType`, `pages`,
+`originalLanguages[]`, `originalLanguagesInferred`, `editionYear`, `formats[]`, `mediaType`, `pages`,
 `volumes`, `physical {heightMm, thicknessMm, lengthMm, weightG}`,
 `physicalEstimated`, `rating`,
 `acquiredDate`, `acquiredYear`, `entryDate`, `bulkImport`, `startedDate`,
