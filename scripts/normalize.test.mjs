@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
-import { toPages, toMm, toGrams, normTag, mediaType, normalize } from './normalize.mjs'
+import { toPages, toMm, toGrams, normTag, mediaType, fixPermutedDimensions, normalize } from './normalize.mjs'
 
 // Regeln aus docs/datenprofil.md, Abschnitt „Bereinigungsregeln"
 
@@ -42,6 +42,50 @@ describe('normTag (Regel 4: DE/EN-Aliase)', () => {
     // konkretes Mapping vor dem Schreiben in scripts/tag-aliases.json nachgeschlagen:
     // "japanese literature" / "japanische literatur" -> "japanische Literatur"
     expect(normTag('Japanese literature')).toBe(normTag('japanische Literatur'))
+  })
+})
+
+describe('fixPermutedDimensions (Regel 9: permutierte height/thickness/length)', () => {
+  it('lässt unauffällige Maße unangetastet (thickness <= height)', () => {
+    expect(fixPermutedDimensions(210, 22, 137)).toEqual({
+      heightMm: 210,
+      thicknessMm: 22,
+      lengthMm: 137,
+      correction: null,
+    })
+  })
+  it('rotiert height/thickness/length, wenn length als Dicke plausibel ist', () => {
+    // realer Fall aus dem Export: height 231, thickness 325, length 12
+    expect(fixPermutedDimensions(231, 325, 12)).toEqual({
+      heightMm: 325,
+      thicknessMm: 12,
+      lengthMm: 231,
+      correction: 'rotated',
+    })
+  })
+  it('verwirft thickness, wenn length selbst nicht als Dicke plausibel ist', () => {
+    expect(fixPermutedDimensions(17, 207, 152)).toEqual({
+      heightMm: 17,
+      thicknessMm: null,
+      lengthMm: 152,
+      correction: 'discarded',
+    })
+  })
+  it('verwirft thickness, wenn length fehlt', () => {
+    expect(fixPermutedDimensions(138, 213, null)).toEqual({
+      heightMm: 138,
+      thicknessMm: null,
+      lengthMm: null,
+      correction: 'discarded',
+    })
+  })
+  it('lässt fehlende Maße unangetastet', () => {
+    expect(fixPermutedDimensions(null, null, null)).toEqual({
+      heightMm: null,
+      thicknessMm: null,
+      lengthMm: null,
+      correction: null,
+    })
   })
 })
 
