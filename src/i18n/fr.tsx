@@ -126,7 +126,7 @@ export const fr: Messages = {
     },
   },
   lang: {
-    other: 'autres',
+    other: 'autre',
     unknown: 'inconnue',
   },
   filter: {
