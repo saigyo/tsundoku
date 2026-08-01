@@ -137,6 +137,12 @@ function Cover({ isbn, title }: { isbn: string; title: string }) {
   const setEnabled = useCoversStore((s) => s.setEnabled)
   const [failed, setFailed] = useState(false)
   const [zoom, setZoom] = useState(false)
+  // Erneutes Aktivieren (Fußzeile aus/ein) startet einen neuen Ladeversuch —
+  // sonst bliebe ein einmaliger Fehler (auch ein transienter Netzwerkfehler)
+  // bis zum Schließen des Popups als „Kein Cover" stehen.
+  useEffect(() => {
+    if (enabled) setFailed(false)
+  }, [enabled])
   if (!enabled) {
     return (
       <div className={styles.cover}>
