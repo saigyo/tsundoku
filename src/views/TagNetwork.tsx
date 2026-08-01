@@ -19,7 +19,7 @@ import { tagGraph } from '../lib/viewData/tagNetwork'
 import { useFilterStore } from '../store/filters'
 import styles from './TagNetwork.module.css'
 
-const H = 640
+const H = 860
 
 interface SimNode extends SimulationNodeDatum {
   id: string
@@ -55,15 +55,19 @@ export function TagNetwork() {
         'link',
         forceLink<SimNode, SimLink>(links)
           .id((d) => d.id)
-          .distance((l) => 40 + 160 * (1 - l.jaccard))
-          .strength((l) => 0.2 + 0.8 * l.jaccard),
+          .distance((l) => 45 + 180 * (1 - l.jaccard))
+          .strength((l) => 0.12 + 0.75 * l.jaccard),
       )
-      .force('charge', forceManyBody().strength(-80))
+      .force('charge', forceManyBody().strength(-110))
       .force('x', forceX(width / 2).strength(0.05))
-      .force('y', forceY(H / 2).strength(0.07))
+      .force('y', forceY(H / 2).strength(0.11))
       .force('collide', forceCollide<SimNode>((d) => r(d.count) + 3))
       .stop()
-    sim.tick(300)
+    // Tick-Budget sinkt mit der Knotenzahl, damit der Schwellwert-Slider bei
+    // niedrigen Werten (viele Knoten, z. B. Mindestanzahl 3 -> >1000 Tags)
+    // unter einer Sekunde reagiert; 317 Knoten (Default 10) bleiben bei 400.
+    const ticks = Math.max(150, Math.min(400, Math.round((400 * 317) / nodes.length)))
+    sim.tick(ticks)
     // Nach dem Tick hat d3 source/target in jedem Link zu SimNode-Objekten aufgelöst.
     return { nodes, links: links as (SimLink & { source: SimNode; target: SimNode })[] }
   }, [graph, width, r])
