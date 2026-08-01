@@ -302,9 +302,9 @@ export const es: Messages = {
       linkAriaFilter: (label) => `${label}. Pulsa Intro para filtrar por esta combinación.`,
       origSide: 'Idioma original',
       edSide: 'Idioma de edición',
-      nodeAria: (side, lang, countFmt) => `${side} ${lang}, ${countFmt} títulos`,
+      nodeAria: (side, lang, countFmt) => `${side}: ${lang}, ${countFmt} títulos`,
       nodeTitle: (side, lang, countFmt) =>
-        `${side} ${lang}: ${countFmt} títulos (un clic filtra solo este idioma)`,
+        `${side}: ${lang} — ${countFmt} títulos (un clic filtra solo este idioma)`,
     },
     years: {
       title: 'Año de edición frente a año de adquisición',
