@@ -3,8 +3,10 @@ dist/
 .DS_Store
 *.local
 
-# Generiert aus dem Roh-Export, ~6 MB
-public/data/library.json
+# Generiert aus dem Roh-Export, ~6 MB — private Bibliotheksdaten duerfen
+# unter keinem Pfad ins Repo (und damit ins Pages-Deployment) gelangen.
+public/data/*
+!public/data/.gitkeep
 
 # Roh-Export gehoert nicht ins Repo
 *librarything*.json
