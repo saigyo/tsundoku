@@ -7,9 +7,9 @@ since 1988.
 
 積ん読 — "buying books and letting them pile up, unread." The name is the
 thesis: the question at the heart of this app is not "what do I own" but
-**"what does the gap between acquiring and reading reveal about me?"** Just
-over a quarter of the collection has been read; the rest is the pile, and the
-pile has a history.
+**"what does the gap between acquiring and reading reveal about me?"** Only
+just over a quarter of the collection has been read; the rest is the pile,
+and the pile has a history.
 
 A client-side single-page app, no backend — running at
 **<https://saigyo.github.io/tsundoku/>** with your own LibraryThing library:
@@ -49,10 +49,10 @@ horizontally across the chart filters the acquisition period:
 **The Language Flow** connects original language and edition language as a
 Sankey diagram: what gets read in the original, what in translation? A
 stream filters both languages at once, the language bars on the left and
-right each only their own side; the period filter takes either acquisition
-or reading years. Here restricted to acquisitions from 2020–2026 — clearly
-visible the Japanese stream, splitting into German and English translations
-and into the original:
+right each filter only their own side; the period filter takes either
+acquisition or reading years. Here restricted to acquisitions from
+2020–2026 — the Japanese stream is clearly visible, splitting into German
+and English translations and into the original:
 
 ![Language Flow for acquisitions 2020–2026](docs/screenshots/sprachfluss-gefiltert.png)
 
@@ -63,7 +63,7 @@ with zoom, panning, tag search, and isolatable neighborhoods),
 **Edition × Acquisition** (new releases on the diagonal, reaching back below
 it; dragging out a rectangle filters both axes), the **Reading Pace** (pages
 against days, facetable by language — does the original slow you down?), and
-the **Canon Comparison** (Harenberg, "1001 Books" & co.: owned versus read,
+the **Canon Comparison** (Harenberg, "1001 Books" & Co.: owned versus read,
 deliberately without percentages, because the full length of each list is
 unknown).
 
