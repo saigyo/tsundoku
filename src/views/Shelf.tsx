@@ -60,7 +60,16 @@ export function Shelf() {
   const stroke = (b: Book) =>
     color === 'readStatus' && !b.hasRead ? 'var(--sumi)' : 'none'
 
-  const legend = buildLegend(color, layout.placed.map((p) => p.book))
+  const legend = buildLegend(color, layout.placed.map((p) => p.book), yearScale)
+
+  const open = (b: Book) => setSelected(b)
+  const onSpineKeyDown = (b: Book) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      open(b)
+    }
+  }
+  const spineLabel = (b: Book) => `${b.title}${b.primaryAuthor ? ` — ${b.primaryAuthor}` : ''}`
 
   return (
     <div ref={wrapRef} className={styles.wrap}>
@@ -97,8 +106,11 @@ export function Shelf() {
               fill={fill(p.book)}
               stroke={stroke(p.book)}
               strokeWidth={1}
-              tabIndex={-1}
-              onClick={() => setSelected(p.book)}
+              tabIndex={0}
+              role="button"
+              aria-label={spineLabel(p.book)}
+              onClick={() => open(p.book)}
+              onKeyDown={onSpineKeyDown(p.book)}
               onPointerEnter={(e) => {
                 const r = e.currentTarget.ownerSVGElement!.getBoundingClientRect()
                 setHover({ book: p.book, px: e.clientX - r.left, py: e.clientY - r.top })
@@ -109,34 +121,39 @@ export function Shelf() {
         ))}
       </svg>
 
-      {layout.unmeasured.length > 0 && (
-        <section aria-label="Bücher ohne Maßangaben">
-          <h3 className={styles.unmeasuredTitle}>
-            ohne Maßangaben ({fmtInt(layout.unmeasured.length)}) — Einheitsgröße, nicht maßstäblich
-          </h3>
-          <svg width={width} height={64}>
-            {layout.unmeasured.map((b, i) => {
-              const perRow = Math.floor(Math.max(320, width) / 5)
-              return (
+      {layout.unmeasured.length > 0 && (() => {
+        const perRow = Math.max(1, Math.floor(Math.max(320, width) / 5))
+        const rowCount = Math.ceil(layout.unmeasured.length / perRow)
+        return (
+          <section aria-label="Bücher ohne Maßangaben">
+            <h3 className={styles.unmeasuredTitle}>
+              ohne Maßangaben ({fmtInt(layout.unmeasured.length)}) — Einheitsgröße, nicht maßstäblich
+            </h3>
+            <svg width={width} height={rowCount * 60 + 4}>
+              {layout.unmeasured.map((b, i) => (
                 <rect
                   key={b.id}
                   x={(i % perRow) * 5}
-                  y={(Math.floor(i / perRow)) * 60}
+                  y={Math.floor(i / perRow) * 60}
                   width={4}
                   height={56}
                   fill={fill(b)}
                   stroke="var(--ink-45)"
                   strokeDasharray="2 2"
                   strokeWidth={0.5}
-                  onClick={() => setSelected(b)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={spineLabel(b)}
+                  onClick={() => open(b)}
+                  onKeyDown={onSpineKeyDown(b)}
                 >
                   <title>{b.title}</title>
                 </rect>
-              )
-            })}
-          </svg>
-        </section>
-      )}
+              ))}
+            </svg>
+          </section>
+        )
+      })()}
 
       <ul className={styles.legend} aria-label="Farblegende">
         {legend.map((l) => (
@@ -158,7 +175,11 @@ export function Shelf() {
   )
 }
 
-function buildLegend(mode: ColorMode, books: Book[]): { label: string; color: string; count: number }[] {
+function buildLegend(
+  mode: ColorMode,
+  books: Book[],
+  yearScale: (y: number) => string,
+): { label: string; color: string; count: number }[] {
   const add = (m: Map<string, { color: string; count: number }>, label: string, color: string) => {
     const e = m.get(label)
     if (e) e.count += 1
@@ -176,9 +197,17 @@ function buildLegend(mode: ColorMode, books: Book[]): { label: string; color: st
       case 'readStatus':
         add(m, b.hasRead ? 'gelesen' : 'ungelesen (Kontur)', b.hasRead ? '#223a70' : '#f4efe6')
         break
-      case 'acquiredYear':
-        add(m, b.acquiredYear === null ? 'ohne Erwerbsjahr' : `${Math.floor(b.acquiredYear / 10) * 10}er`, NEUTRAL)
+      case 'acquiredYear': {
+        // Dekaden bekommen einen Swatch aus dem tatsächlichen Jahresverlauf
+        // (Farbe am Dekaden-Mittelpunkt), sonst wäre die Legende ohne Farbwert nutzlos.
+        if (b.acquiredYear === null) {
+          add(m, 'ohne Erwerbsjahr', NEUTRAL)
+        } else {
+          const decade = Math.floor(b.acquiredYear / 10) * 10
+          add(m, `${decade}er`, yearScale(decade + 5))
+        }
         break
+      }
     }
   }
   return [...m].map(([label, v]) => ({ label, ...v })).sort((a, b) => b.count - a.count)
