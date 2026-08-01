@@ -1,5 +1,5 @@
 import { sankey, sankeyLinkHorizontal, type SankeyLink, type SankeyNode } from 'd3-sankey'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useLibraryData } from '../lib/DataContext'
@@ -18,13 +18,37 @@ const M = { top: 8, right: 140, bottom: 34, left: 140 }
 
 type SNode = SankeyNode<FlowNode, FlowLink>
 type SLink = SankeyLink<FlowNode, FlowLink>
+type RangeDim = 'acquiredYear' | 'readYear'
 
 export function LanguageFlow() {
   const { filtered } = useLibraryData()
   const addFilter = useFilterStore((s) => s.addFilter)
   const setRange = useFilterStore((s) => s.setRange)
+  const filters = useFilterStore((s) => s.filters)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const data = useMemo(() => languageFlows(filtered), [filtered])
+
+  // Zeitraumfilter wie in Erwerb & Lektüre: eine Dimension zur Zeit (Erwerb
+  // oder Lektüre), die Felder spiegeln den aktiven Filterzustand; ohne Filter
+  // zeigen sie die Spannweite der Daten.
+  const [formDim, setFormDim] = useState<RangeDim>('acquiredYear')
+  const [formFrom, setFormFrom] = useState(0)
+  const [formTo, setFormTo] = useState(0)
+  useEffect(() => {
+    const r = filters.find((f) => f.kind === formDim)
+    if (r && 'from' in r) {
+      setFormFrom(r.from)
+      setFormTo(r.to)
+      return
+    }
+    const ys = filtered
+      .map((b) => (formDim === 'acquiredYear' ? b.acquiredYear : b.readYearEffective))
+      .filter((y): y is number => y !== null)
+    if (ys.length) {
+      setFormFrom(Math.min(...ys))
+      setFormTo(Math.max(...ys))
+    }
+  }, [formDim, filters, filtered])
 
   if (filtered.length === 0) return <EmptyState />
   if (data.links.length === 0) {
@@ -56,9 +80,6 @@ export function LanguageFlow() {
   }
 
   const inferredCount = filtered.filter((b) => b.languages.length > 0 && b.originalLanguagesInferred).length
-  const years = filtered.map((b) => b.acquiredYear).filter((y): y is number => y !== null)
-  const yMin = years.length ? Math.min(...years) : 1991
-  const yMax = years.length ? Math.max(...years) : 2026
 
   return (
     <div ref={wrapRef}>
@@ -74,19 +95,38 @@ export function LanguageFlow() {
         className={styles.rangeForm}
         onSubmit={(e) => {
           e.preventDefault()
-          const fd = new FormData(e.currentTarget)
-          const from = Number(fd.get('from'))
-          const to = Number(fd.get('to'))
-          if (from >= 1900 && to >= from) setRange('acquiredYear', from, to)
+          if (formFrom >= 1900 && formTo >= formFrom) setRange(formDim, formFrom, formTo)
         }}
       >
+        <select
+          value={formDim}
+          onChange={(e) => setFormDim(e.target.value as RangeDim)}
+          aria-label="Dimension des Zeitraumfilters"
+        >
+          <option value="acquiredYear">Erwerb</option>
+          <option value="readYear">Lektüre</option>
+        </select>
         <label>
-          Erwerb von <input name="from" type="number" defaultValue={yMin} min={1900} max={2100} />
+          von{' '}
+          <input
+            type="number"
+            value={formFrom}
+            onChange={(e) => setFormFrom(Number(e.target.value))}
+            min={1900}
+            max={2100}
+          />
         </label>
         <label>
-          bis <input name="to" type="number" defaultValue={yMax} min={1900} max={2100} />
+          bis{' '}
+          <input
+            type="number"
+            value={formTo}
+            onChange={(e) => setFormTo(Number(e.target.value))}
+            min={1900}
+            max={2100}
+          />
         </label>
-        <button type="submit">anwenden</button>
+        <button type="submit">Zeitraum filtern</button>
       </form>
 
       <svg width={width} height={H} role="img" aria-label="Fluss von Originalsprache zu Ausgabesprache">
