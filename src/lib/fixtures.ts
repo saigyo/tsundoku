@@ -25,6 +25,7 @@ export function mkBook(over: Partial<Book> = {}): Book {
     pages: null,
     volumes: null,
     physical: { heightMm: null, thicknessMm: null, lengthMm: null, weightG: null },
+    physicalEstimated: false,
     rating: null,
     acquiredDate: null,
     acquiredYear: null,

@@ -10,6 +10,7 @@ import {
   mediaType,
   fixPermutedDimensions,
   decodeEntities,
+  estimateMissingDimensions,
   normalize,
 } from './normalize.mjs'
 
@@ -118,6 +119,49 @@ describe('fixPermutedDimensions (Regel 9: permutierte height/thickness/length)',
       lengthMm: null,
       correction: null,
     })
+  })
+})
+
+describe('estimateMissingDimensions (Regel 11: Maße aus Seitenzahl schätzen)', () => {
+  const phys = (heightMm, thicknessMm) => ({ heightMm, thicknessMm, lengthMm: null, weightG: null })
+  const mk = (over) => ({ mediaType: 'book', pages: null, physical: phys(null, null), physicalEstimated: false, ...over })
+
+  // Referenzbestand: 200 Seiten -> 20 mm (0,1 mm/Seite), Hoehe 200/210/220 -> Median 210
+  const reference = [
+    mk({ pages: 200, physical: phys(200, 20) }),
+    mk({ pages: 300, physical: phys(210, 30) }),
+    mk({ pages: 400, physical: phys(220, 40) }),
+  ]
+
+  it('schätzt Dicke aus Seitenzahl und Höhe als Median, setzt das Flag', () => {
+    const target = mk({ pages: 100 })
+    const { estimated } = estimateMissingDimensions([...reference, target])
+    expect(estimated).toBe(1)
+    expect(target.physical.thicknessMm).toBe(10) // 100 Seiten × 0,1 mm/Seite
+    expect(target.physical.heightMm).toBe(210)   // Medianhöhe
+    expect(target.physicalEstimated).toBe(true)
+  })
+  it('füllt nur fehlende Felder, echte Werte bleiben stehen', () => {
+    const target = mk({ pages: 100, physical: phys(180, null) })
+    estimateMissingDimensions([...reference, target])
+    expect(target.physical.heightMm).toBe(180)
+    expect(target.physical.thicknessMm).toBe(10)
+    expect(target.physicalEstimated).toBe(true)
+  })
+  it('ohne Seitenzahl keine Schätzung — das Buch bleibt unvermessen', () => {
+    const target = mk({})
+    const { estimated } = estimateMissingDimensions([...reference, target])
+    expect(estimated).toBe(0)
+    expect(target.physical.thicknessMm).toBeNull()
+    expect(target.physicalEstimated).toBe(false)
+  })
+  it('Nicht-Bücher und vollständig vermessene Bücher bleiben unangetastet', () => {
+    const vinyl = mk({ mediaType: 'vinyl', pages: 100 })
+    const done = mk({ pages: 100, physical: phys(200, 20) })
+    const { estimated } = estimateMissingDimensions([...reference, vinyl, done])
+    expect(estimated).toBe(0)
+    expect(vinyl.physicalEstimated).toBe(false)
+    expect(done.physicalEstimated).toBe(false)
   })
 })
 

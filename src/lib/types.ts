@@ -35,6 +35,8 @@ export interface Book {
   pages: number | null
   volumes: number | null
   physical: Physical
+  /** true, wenn Höhe/Dicke aus der Seitenzahl geschätzt wurden (Regel 11). */
+  physicalEstimated: boolean
   rating: number | null
   acquiredDate: string | null
   acquiredYear: number | null

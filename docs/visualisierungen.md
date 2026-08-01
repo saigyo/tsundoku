@@ -140,8 +140,11 @@ und die Diagonale als Referenzlinie eingezeichnet ist.
 
 **Darstellung:** Maßstabsgetreue Buchrücken als SVG-Rechtecke, in Reihen
 umbrechend. Höhe und Breite aus den echten Maßen, Farbe wahlweise nach DDC,
-Sprache, Lesestatus oder Erwerbsjahr. Bücher ohne Maße kommen in ein eigenes,
-sichtbar als solches markiertes Segment — nicht mit Durchschnittswerten füllen.
+Sprache, Lesestatus oder Erwerbsjahr. Bücher mit aus der Seitenzahl
+geschätzten Maßen (Regel 11 im Datenprofil) stehen im Regal, aber sichtbar
+markiert (halbtransparent, gestrichelte Kontur). Bücher ohne Maße *und* ohne
+Seitenzahl kommen in ein eigenes, sichtbar als solches markiertes Segment —
+nicht mit bezugslosen Durchschnittswerten füllen.
 
 **Interaktion:** Sortierung per Umschalter (Erwerb, Autor, Höhe, Wissensgebiet).
 Hover zeigt den Titel, Klick öffnet die Detailkarte. Das Regal reagiert auf alle

@@ -137,6 +137,19 @@ Implementiert in `scripts/normalize.mjs`.
     keine Regression; `tags`/`awards`/`pages`/Medienzahlen (golden Test) sind
     davon nicht betroffen, da dort keine Entities vorkamen.
 
+11. **Fehlende Maße werden aus der Seitenzahl geschätzt.** 902 Bücher haben
+    weder Höhe noch Dicke, 32 nur eines von beiden; 563 davon haben eine
+    Seitenzahl. Für diese wird die Dicke als Seiten × Median-Seitendicke der
+    vollständig vermessenen Bücher extrapoliert (~0,078 mm/Seite, gedeckelt
+    auf 1–120 mm) und eine fehlende Höhe durch die Medianhöhe ersetzt.
+    Rückwärts an den vermessenen Büchern geprüft: Schätzfehler Median
+    4,7 mm, p90 12,8 mm. Geschätzte Bücher tragen `physicalEstimated: true`
+    und werden im Regal halbtransparent mit gestrichelter Kontur gezeigt —
+    keine stille Korrektur. Bücher ohne Seitenzahl (~371) bleiben im
+    unvermessenen Segment: für sie gäbe es nur bezugslose Platzhalter.
+    Implementiert als `estimateMissingDimensions()` in
+    `scripts/normalize.mjs`, mit Unit-Tests.
+
 ## Ausgabeformat
 
 `public/data/library.json`:
@@ -159,7 +172,8 @@ Ein `Book` trägt u. a.: `id`, `title`, `originalTitle`, `authors[]`,
 `primaryAuthor`, `tags[]`, `tagsNorm[]`, `collections[]`, `genres[]`,
 `series[]`, `awards[]`, `ddc {code, top, topLabel}`, `languages[]`,
 `originalLanguages[]`, `editionYear`, `formats[]`, `mediaType`, `pages`,
-`volumes`, `physical {heightMm, thicknessMm, lengthMm, weightG}`, `rating`,
+`volumes`, `physical {heightMm, thicknessMm, lengthMm, weightG}`,
+`physicalEstimated`, `rating`,
 `acquiredDate`, `acquiredYear`, `entryDate`, `bulkImport`, `startedDate`,
 `readDate`, `readYear`, `yearTags[]`, `readYearEffective`, `readYearSource`,
 `readDays`, `hasRead`, `fromWhere`, `price {amount, currency}`, `comment`,
