@@ -1,7 +1,15 @@
 .box {
   max-width: 40rem;
-  margin: 10vh auto 0;
+  margin: 6vh auto var(--space-6);
   padding: 0 var(--space-4);
+}
+
+.intro {
+  font-size: 15px;
+  line-height: 1.6;
+  border-left: 3px solid var(--kon);
+  padding-left: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .dropzone,

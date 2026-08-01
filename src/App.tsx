@@ -3,6 +3,7 @@ import styles from './App.module.css'
 import { DataSummary } from './components/DataSummary'
 import { DataUpload } from './components/DataUpload'
 import { FilterChips } from './components/FilterChips'
+import { Footer } from './components/Footer'
 import { DataProvider } from './lib/DataContext'
 import { clearStoredLibrary, loadStoredLibrary } from './lib/libraryStore'
 import { loadLibrary, LibraryMissingError } from './lib/loadLibrary'
@@ -73,9 +74,11 @@ export default function App() {
       })
   }, [])
 
-  if (load.state === 'loading') return <p className={styles.center}>Bibliothek wird geladen …</p>
-  if (load.state === 'missing' || (load.state === 'ready' && replacing)) {
-    return (
+  let content
+  if (load.state === 'loading') {
+    content = <p className={styles.center}>Bibliothek wird geladen …</p>
+  } else if (load.state === 'missing' || (load.state === 'ready' && replacing)) {
+    content = (
       <div>
         <h1 className={styles.center}>Tsundoku 積ん読</h1>
         <DataUpload
@@ -88,20 +91,26 @@ export default function App() {
         />
       </div>
     )
-  }
-  if (load.state === 'error') {
-    return (
+  } else if (load.state === 'error') {
+    content = (
       <div className={styles.center}>
         <h1>Tsundoku 積ん読</h1>
         <p>Bibliothek konnte nicht geladen werden: {load.message}</p>
       </div>
     )
+  } else {
+    content = (
+      <DataProvider library={load.library}>
+        <Shell onReplaceLibrary={load.source === 'browser' ? () => setReplacing(true) : undefined} />
+      </DataProvider>
+    )
   }
 
   return (
-    <DataProvider library={load.library}>
-      <Shell onReplaceLibrary={load.source === 'browser' ? () => setReplacing(true) : undefined} />
-    </DataProvider>
+    <div className={styles.app}>
+      {content}
+      <Footer />
+    </div>
   )
 }
 
