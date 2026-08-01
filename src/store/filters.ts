@@ -1,16 +1,8 @@
 import { create } from 'zustand'
-import { de } from '../i18n/de'
+import type { Messages } from '../i18n/messages'
 import { canonicalAward } from '../lib/awards'
-import { DDC_SHORT } from '../lib/ddc'
 import { langLabel } from '../lib/languages'
 import { DEFAULT_VIEW, type Book, type Filter, type RangeKind, type ViewId } from '../lib/types'
-
-const MEDIA_LABELS: Record<string, string> = {
-  book: 'Buch',
-  ebook: 'E-Book',
-  film: 'Film',
-  vinyl: 'Schallplatte',
-}
 
 function matches(b: Book, f: Filter): boolean {
   switch (f.kind) {
@@ -68,32 +60,32 @@ export function sameFilter(a: Filter, b: Filter): boolean {
   return false
 }
 
-export function filterLabel(f: Filter): string {
+export function filterLabel(f: Filter, m: Messages): string {
   switch (f.kind) {
     case 'tag':
-      return `Tag: ${f.value}`
+      return m.filter.tag(f.value)
     case 'language':
-      return `Sprache: ${langLabel(f.value, de)}`
+      return m.filter.language(langLabel(f.value, m))
     case 'originalLanguage':
-      return `Original: ${langLabel(f.value, de)}`
+      return m.filter.originalLanguage(langLabel(f.value, m))
     case 'ddcTop':
-      return `Wissensgebiet: ${DDC_SHORT[f.value] ?? f.value}`
+      return m.filter.ddcTop(m.ddc.short[f.value] ?? String(f.value))
     case 'mediaType':
-      return `Medium: ${MEDIA_LABELS[f.value]}`
+      return m.filter.mediaType(m.media[f.value])
     case 'collection':
-      return `Sammlung: ${f.value}`
+      return m.filter.collection(f.value)
     case 'author':
-      return `Autor·in: ${f.value}`
+      return m.filter.author(f.value)
     case 'award':
-      return `Liste: ${f.value}`
+      return m.filter.award(f.value)
     case 'acquiredYear':
-      return `Erworben: ${f.from}–${f.to}`
+      return m.filter.acquired(f.from, f.to)
     case 'readYear':
-      return `Gelesen: ${f.from}–${f.to}`
+      return m.filter.read(f.from, f.to)
     case 'editionYear':
-      return `Ausgabe: ${f.from}–${f.to}`
+      return m.filter.edition(f.from, f.to)
     case 'readStatus':
-      return `Status: ${f.value === 'read' ? 'gelesen' : 'ungelesen'}`
+      return f.value === 'read' ? m.filter.statusRead : m.filter.statusUnread
   }
 }
 

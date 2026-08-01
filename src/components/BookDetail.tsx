@@ -28,7 +28,7 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
         className={active ? styles.tagActive : styles.tag}
         onClick={() => toggleFilter(f)}
         aria-pressed={active}
-        aria-label={`Filter ${filterLabel(f)} umschalten`}
+        aria-label={`Filter ${filterLabel(f, de)} umschalten`}
       >
         {label}
       </button>

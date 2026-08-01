@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { fmtInt } from '../lib/format'
+import { useI18n } from '../i18n/LocaleContext'
 import styles from './CoverageNote.module.css'
 
 /** Zahlen-Akzent der Abdeckungszeile — für Anzahlen im Fließtext der Views. */
@@ -8,16 +8,21 @@ export function Num({ children }: { children: ReactNode }) {
 }
 
 /** „935 von 4.865 Titeln haben …" — jede View weist ihre Datengrundlage aus. */
-export function CoverageNote({ covered, total, unit = 'Titeln', children }: {
+export function CoverageNote({ covered, total, unit, children }: {
   covered: number
   total: number
   unit?: string
   children: ReactNode
 }) {
+  const { m, fmtInt } = useI18n()
   return (
     <p className={styles.note}>
-      <span className={styles.num}>{fmtInt(covered)}</span> von{' '}
-      <span className={styles.num}>{fmtInt(total)}</span> {unit} {children}
+      {m.coverage.frame(
+        <span className={styles.num}>{fmtInt(covered)}</span>,
+        <span className={styles.num}>{fmtInt(total)}</span>,
+        unit ?? m.coverage.unitTitles,
+      )}{' '}
+      {children}
     </p>
   )
 }

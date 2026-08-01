@@ -1,10 +1,13 @@
+import { useI18n } from '../i18n/LocaleContext'
+import { LOCALE_NAMES, SUPPORTED_LOCALES, type Locale } from '../i18n/messages'
 import styles from './Footer.module.css'
 
 const REPO = 'https://github.com/saigyo/tsundoku'
 
 /** Fußzeile auf jeder Seite: Repo-Link, Lizenz, Verweis auf die
- *  Lizenzübersicht der eingebetteten Schriften und Bibliotheken. */
+ *  Lizenzübersicht der eingebetteten Schriften und Bibliotheken, Sprachumschalter. */
 export function Footer() {
+  const { locale, m, setLocale } = useI18n()
   return (
     <footer className={styles.footer}>
       <a href={REPO} target="_blank" rel="noopener noreferrer" className={styles.repo}>
@@ -16,12 +19,25 @@ export function Footer() {
       </a>
       <span className={styles.sep} aria-hidden="true">·</span>
       <a href={`${REPO}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
-        MIT-Lizenz
+        {m.footer.license}
       </a>
       <span className={styles.sep} aria-hidden="true">·</span>
       <a href={`${REPO}#lizenz`} target="_blank" rel="noopener noreferrer">
-        Lizenzen eingebetteter Schriften &amp; Bibliotheken
+        {m.footer.embedded}
       </a>
+      <span className={styles.sep} aria-hidden="true">·</span>
+      <select
+        className={styles.lang}
+        value={locale}
+        aria-label={m.footer.languageAria}
+        onChange={(e) => setLocale(e.target.value as Locale)}
+      >
+        {SUPPORTED_LOCALES.map((l) => (
+          <option key={l} value={l}>
+            {LOCALE_NAMES[l]}
+          </option>
+        ))}
+      </select>
     </footer>
   )
 }
