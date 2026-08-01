@@ -126,5 +126,4 @@ export const VIEW_IDS = [
 ] as const
 export type ViewId = (typeof VIEW_IDS)[number]
 
-/** Wird in Task 12 auf 'shelf' umgestellt, sobald das Regal existiert. */
-export const DEFAULT_VIEW: ViewId = 'timeline'
+export const DEFAULT_VIEW: ViewId = 'shelf'
