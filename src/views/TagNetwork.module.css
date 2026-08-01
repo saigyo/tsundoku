@@ -23,9 +23,22 @@
   font-family: var(--font-mono);
 }
 
+/* Feste Breite für Slider-Wertanzeigen: Eine mit dem Wert wachsende
+   Beschriftung verschiebt den Slider unter dem Cursor, und der Wert
+   springt zurück — Rückkopplung, sichtbar als Zucken um 100 %. */
+.sliderValue {
+  display: inline-block;
+  min-width: 3ch;
+  text-align: right;
+}
+
 .pannable {
   cursor: grab;
   touch-action: none;
+  /* Ohne dies markiert der Browser beim Ziehen Labels/Nachbarelemente
+     (hellblaues Flackern der Textselektion). */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .pannable:active {

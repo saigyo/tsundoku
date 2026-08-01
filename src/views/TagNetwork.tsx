@@ -181,7 +181,7 @@ export function TagNetwork() {
 
       <div className={styles.controls}>
         <label>
-          Mindestanzahl Titel: <span className={styles.mono}>{minCount}</span>
+          Mindestanzahl Titel: <span className={`${styles.mono} ${styles.sliderValue}`}>{minCount}</span>
           <input type="range" min={3} max={50} value={minCount} onChange={(e) => setMinCount(Number(e.target.value))} />
         </label>
         <input
@@ -196,7 +196,7 @@ export function TagNetwork() {
           {graph.nodes.map((n) => <option key={n.id} value={n.id} />)}
         </datalist>
         <label>
-          Zoom: <span className={styles.mono}>{Math.round(zoom * 100)} %</span>
+          Zoom: <span className={`${styles.mono} ${styles.sliderValue}`}>{Math.round(zoom * 100)}</span> %
           <input
             type="range"
             min={ZOOM_MIN * 100}
@@ -224,15 +224,21 @@ export function TagNetwork() {
           role="img"
           aria-label="Netzwerk gemeinsam vergebener Tags"
           onPointerDown={(e) => {
-            if (zoom <= 1) return
+            if (zoom <= 1 || e.button !== 0) return
             drag.current = { x: e.clientX, y: e.clientY, moved: false }
-            e.currentTarget.setPointerCapture(e.pointerId)
           }}
           onPointerMove={(e) => {
             if (!drag.current) return
             const dx = e.clientX - drag.current.x
             const dy = e.clientY - drag.current.y
-            if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true
+            if (!drag.current.moved) {
+              if (Math.abs(dx) + Math.abs(dy) <= 3) return
+              // Erst ab Bewegungsschwelle capturen: ein sofortiges Capture im
+              // pointerdown leitet auch das Click-Event auf das SVG um, und
+              // der Knoten unter dem Cursor bekäme seinen Klick nie.
+              drag.current.moved = true
+              e.currentTarget.setPointerCapture(e.pointerId)
+            }
             drag.current.x = e.clientX
             drag.current.y = e.clientY
             const cur = { x: view.x + view.w / 2, y: view.y + view.h / 2 }
