@@ -16,6 +16,16 @@ export const LANG_LABELS: Record<string, string> = {
   Spanish: 'Spanisch',
   French: 'Französisch',
   Latin: 'Latein',
+  Russian: 'Russisch',
+  Italian: 'Italienisch',
+  Dutch: 'Niederländisch',
+  Polish: 'Polnisch',
+  Portuguese: 'Portugiesisch',
+  Hungarian: 'Ungarisch',
+  Ukrainian: 'Ukrainisch',
+  Turkish: 'Türkisch',
+  Czech: 'Tschechisch',
+  Korean: 'Koreanisch',
   'Greek (Ancient)': 'Altgriechisch',
 }
 

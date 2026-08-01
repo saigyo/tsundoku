@@ -128,6 +128,20 @@ function estimateMissingDimensions(books) {
   return { estimated, mmPerPage, medianHeight }
 }
 
+/**
+ * Regel 12 (abgeleitete Originalsprache): Erfassungskonvention dieser
+ * Bibliothek — eine Originalsprache wurde nur eingetragen, wenn sie von der
+ * Ausgabesprache abweicht (Übersetzung). Fehlt sie, gilt die Ausgabesprache
+ * als Original. Abgeleitete Werte tragen `originalLanguagesInferred: true`;
+ * „unbekannt" bleibt nur für Bücher ganz ohne Sprachangabe.
+ */
+function inferOriginalLanguages(languages, originalLanguages) {
+  if (originalLanguages.length === 0 && languages.length > 0) {
+    return { originalLanguages: languages, inferred: true }
+  }
+  return { originalLanguages, inferred: false }
+}
+
 /** "1.1 pounds" | "0.5 kg" -> Gramm */
 function toGrams(raw) {
   if (!raw) return null
@@ -265,6 +279,9 @@ function normalize(raw, source = null) {
   let dimsSorted = 0
   let dimsDiscarded = 0
 
+  // Regel 12: abgeleitete Originalsprachen (siehe inferOriginalLanguages).
+  let origLangInferred = 0
+
   // Regel 10: HTML-Entities in Freitextfeldern (siehe decodeEntities).
   let entitiesDecoded = 0
   const decode = (s) => {
@@ -307,7 +324,12 @@ function normalize(raw, source = null) {
         ? { code: ddcCode, top: Number(String(ddcCode)[0]), topLabel: DDC_TOP[Number(String(ddcCode)[0])] ?? null }
         : null,
       languages: r.language ?? [],
-      originalLanguages: r.originallanguage ?? [],
+      // Regel 12: fehlt die Originalsprache, gilt die Ausgabesprache als Original.
+      ...(() => {
+        const inf = inferOriginalLanguages(r.language ?? [], r.originallanguage ?? [])
+        if (inf.inferred) origLangInferred++
+        return { originalLanguages: inf.originalLanguages, originalLanguagesInferred: inf.inferred }
+      })(),
       // Achtung: r.date ist das Jahr DIESER Ausgabe, nicht der Erstveroeffentlichung.
       editionYear: toDate(r.date).year,
       formats,
@@ -380,6 +402,7 @@ function normalize(raw, source = null) {
     dimsSorted,
     dimsDiscarded,
     dimsEstimated: dimsEstimate.estimated,
+    origLangInferred,
     entitiesDecoded,
     pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
     readDays: { median: pct(durations, 0.5), p90: pct(durations, 0.9), max: durations.at(-1) ?? null },
@@ -431,6 +454,9 @@ function main() {
   console.log(
     `  Maße geschätzt aus Seitenzahl: ${stats.dimsEstimated} Bücher (physicalEstimated-Flag, im Regal markiert)`,
   )
+  console.log(
+    `  Originalsprache aus Ausgabesprache übernommen: ${stats.origLangInferred} Bücher (Erfassungskonvention)`,
+  )
   console.log(`  HTML-Entities dekodiert: ${stats.entitiesDecoded} Felder (Titel, Autorennamen)`)
   console.log(
     `  Seiten gesamt: ${stats.pagesTotal.toLocaleString('de-DE')} | Lesedauer Median/p90/max: ` +
@@ -455,6 +481,7 @@ export {
   fixPermutedDimensions,
   decodeEntities,
   estimateMissingDimensions,
+  inferOriginalLanguages,
   normalize,
 }
 

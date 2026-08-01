@@ -53,6 +53,7 @@ export function LanguageFlow() {
     if (filterable(t.lang)) addFilter({ kind: 'language', value: t.lang })
   }
 
+  const inferredCount = filtered.filter((b) => b.languages.length > 0 && b.originalLanguagesInferred).length
   const years = filtered.map((b) => b.acquiredYear).filter((y): y is number => y !== null)
   const yMin = years.length ? Math.min(...years) : 1991
   const yMax = years.length ? Math.max(...years) : 2026
@@ -62,8 +63,8 @@ export function LanguageFlow() {
       <header className={styles.head}>
         <h2>Sprachfluss</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          haben eine Ausgabesprache; {fmtInt(data.unknownOrig)} davon ohne bekannte
-          Originalsprache (eigener Strom „unbekannt").
+          haben eine Ausgabesprache; bei {fmtInt(inferredCount)} davon gilt sie mangels
+          erfasster Originalsprache zugleich als Original (Erfassungskonvention).
         </CoverageNote>
       </header>
 
