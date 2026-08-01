@@ -26,6 +26,7 @@ export function AcquisitionReading() {
   const data = useMemo(() => timelineData(filtered), [filtered])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const [hover, setHover] = useState<{ year: number; px: number; py: number } | null>(null)
+  const [unreadHover, setUnreadHover] = useState<{ year: number; count: number; px: number; py: number } | null>(null)
   const [drag, setDrag] = useState<{ x0: number; x1: number; dim: RangeDim } | null>(null)
 
   // Das von/bis-Formular ist der Tastatur-Zwilling des Brushs: gleiche
@@ -212,13 +213,38 @@ export function AcquisitionReading() {
         </g>
       </svg>
 
-      <svg width={width} height={H2} role="img" aria-label="Ungelesener Bestand, kumulativ">
+      <svg width={width} height={H2} className={styles.chart} role="img" aria-label="Ungelesener Bestand, kumulativ">
         <g transform={`translate(${M.left},0)`}>
           <path d={unreadArea(data.unread) ?? ''} fill="var(--ink-08)" stroke="var(--sumi)" strokeWidth={1.5} />
           <AxisLeft x={0} ticks={y2.ticks(3).map((v) => ({ y: y2(v), label: fmtInt(v) }))} />
           <text x={4} y={16} className={styles.panelLabel}>
             ungelesener Bestand (nur Titel mit Erwerbsjahr)
           </text>
+          {unreadHover && (
+            <g transform={`translate(${(x(unreadHover.year) ?? 0) + bw / 2},0)`}>
+              <line y1={y2(unreadHover.count)} y2={y2(0)} stroke="var(--ink-45)" strokeDasharray="2 3" />
+              <circle cy={y2(unreadHover.count)} r={3.5} fill="var(--enji)" stroke="var(--shironeri)" />
+            </g>
+          )}
+          <rect
+            x={0}
+            y={0}
+            width={innerW}
+            height={H2}
+            fill="transparent"
+            onPointerMove={(e) => {
+              const px = e.clientX - e.currentTarget.getBoundingClientRect().left
+              const year = yearAt(px)
+              const entry = data.unread.find((u) => u.year === year)
+              const wrapRect = wrapRef.current?.getBoundingClientRect()
+              setUnreadHover(
+                entry && wrapRect
+                  ? { year, count: entry.count, px: e.clientX - wrapRect.left, py: e.clientY - wrapRect.top }
+                  : null,
+              )
+            }}
+            onPointerLeave={() => setUnreadHover(null)}
+          />
         </g>
       </svg>
 
@@ -282,6 +308,11 @@ export function AcquisitionReading() {
             ))}
             {hoverTitles.length > 10 && <li>… und {fmtInt(hoverTitles.length - 10)} weitere</li>}
           </ul>
+        </Tooltip>
+      )}
+      {unreadHover && (
+        <Tooltip x={unreadHover.px} y={unreadHover.py}>
+          <strong>{unreadHover.year}</strong>: {fmtInt(unreadHover.count)} ungelesen im Bestand
         </Tooltip>
       )}
     </div>
