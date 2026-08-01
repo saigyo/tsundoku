@@ -56,10 +56,18 @@ Kleiner Zustand-Store nach dem Muster der Sprachwahl (`LocaleContext`):
 
 Der Cover-Block erscheint nur, wenn `normalizeIsbn(book.isbn)` eine gültige
 ISBN liefert — Bücher ohne (gültige) ISBN zeigen das Popup unverändert wie
-heute, ohne Platzhalter. Der Block sitzt rechts neben Titel und Autoren
-(Flex-Layout im Kopfbereich), feste Breite ~120 px mit reserviertem
-Seitenverhältnis 2:3 — kein Layoutsprung durch nachladende Bilder. Drei
-Zustände:
+heute, ohne Platzhalter. Der Block bildet eine eigene Spalte rechts neben
+dem *gesamten* Textblock (Titel, Autoren, Detailzeilen, Links; Dialogbreite
+dafür 50 rem statt 36 rem), damit das Cover die Detailzeilen nicht nach
+unten schiebt. Spaltenbreite 198 px (180 px Inhalt plus Padding/Rahmen),
+`min-height` 270 px nahe der üblichen M-Coverhöhe; das Bild selbst erscheint
+in natürlicher M-Größe (üblich 180 px breit), nur breitere Ausreißer werden
+herunterskaliert. Drei Zustände:
+
+*(Ursprünglich war eine schmalere 120-px-Spalte mit festem Seitenverhältnis
+2:3 neben nur Titel/Autoren spezifiziert; nach Sichtung auf dem Dev-Server
+wurde das Layout auf natürliche M-Größe und die Vollspalten-Anordnung
+geändert — dieser Text beschreibt den umgesetzten Stand.)*
 
 1. **Opt-in fehlt:** Platzhalterfläche im Palettenstil (shironeri-Fläche,
    ink-Rahmen) mit Button „Cover von OpenLibrary laden" und einem
@@ -68,7 +76,15 @@ Zustände:
 2. **Aktiviert:** `<img>` mit `coverUrl(isbn)`, `alt` aus
    `m.detail.coverAlt(book.title)`; bis zum Laden liegt die Platzhalterfläche
    darunter. `loading="lazy"` ist unnötig (Einzelbild), `referrerpolicy`
-   bleibt Browser-Default.
+   bleibt Browser-Default. Das Bild ist ein Button (`m.detail.coverZoomAria`):
+   Klick öffnet ein **Zoom-Overlay** (verschachtelter `<dialog>`) mit der
+   L-Version des Covers in natürlicher Größe, viewport-begrenzt; Esc oder
+   Klick schließt nur das Overlay (das `close`-Event wird per
+   `stopPropagation` am Aufsteigen zum Buch-Popup gehindert). Fehlt die
+   L-Version (404), fällt das Overlay auf das bereits geladene M-Cover
+   zurück. Ein einmal fehlgeschlagener Ladeversuch wird beim erneuten
+   Aktivieren über die Fußzeile zurückgesetzt (neuer Versuch statt
+   dauerhaftem „Kein Cover").
 3. **Kein Cover bei OpenLibrary (404):** dieselbe Platzhalterfläche ohne
    Button, mit dezenter Beschriftung „Kein Cover". 404 wird über das
    `onError`-Event des `<img>` erkannt (State pro Buch — beim Öffnen eines
@@ -90,7 +106,7 @@ Neben dem Sprachumschalter eine beschriftete Checkbox „Cover von
 OpenLibrary", direkt an `useCoversStore` gebunden. Abschalten wirkt sofort:
 offene/kommende Popups zeigen wieder den Opt-in-Platzhalter (Zustand 1).
 
-## 5. i18n — sechs neue Message-Keys in allen fünf Bundles
+## 5. i18n — sieben neue Message-Keys in allen fünf Bundles
 
 | Key | Deutsche Referenzfassung |
 | --- | --- |
@@ -98,6 +114,7 @@ offene/kommende Popups zeigen wieder den Opt-in-Platzhalter (Zustand 1).
 | `detail.coverLoad` | „Cover von OpenLibrary laden" |
 | `detail.coverNote` | „Dabei wird die ISBN an covers.openlibrary.org übermittelt. Einmal zustimmen genügt — abschaltbar in der Fußzeile." |
 | `detail.coverNone` | „Kein Cover" |
+| `detail.coverZoomAria` | „Cover vergrößern" (Aria-Label des Zoom-Buttons) |
 | `detail.viewOnOl` | „Bei OpenLibrary ansehen" |
 | `footer.covers` | „Cover von OpenLibrary" |
 
