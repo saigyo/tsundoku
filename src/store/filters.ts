@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { de } from '../i18n/de'
 import { canonicalAward } from '../lib/awards'
 import { DDC_SHORT } from '../lib/ddc'
 import { langLabel } from '../lib/languages'
@@ -72,9 +73,9 @@ export function filterLabel(f: Filter): string {
     case 'tag':
       return `Tag: ${f.value}`
     case 'language':
-      return `Sprache: ${langLabel(f.value)}`
+      return `Sprache: ${langLabel(f.value, de)}`
     case 'originalLanguage':
-      return `Original: ${langLabel(f.value)}`
+      return `Original: ${langLabel(f.value, de)}`
     case 'ddcTop':
       return `Wissensgebiet: ${DDC_SHORT[f.value] ?? f.value}`
     case 'mediaType':

@@ -2,6 +2,7 @@ import { sankey, sankeyLinkHorizontal, type SankeyLink, type SankeyNode } from '
 import { useEffect, useMemo, useState } from 'react'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
+import { de } from '../i18n/de'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
 import { isActivationKey } from '../lib/keyboard'
@@ -134,7 +135,7 @@ export function LanguageFlow() {
         {layout.links.map((l) => {
           const s = l.source as SNode
           const t = l.target as SNode
-          const label = `${langLabel(s.lang)} → ${langLabel(t.lang)}: ${fmtInt(l.value)} Titel`
+          const label = `${langLabel(s.lang, de)} → ${langLabel(t.lang, de)}: ${fmtInt(l.value)} Titel`
           const activatable = filterable(s.lang) || filterable(t.lang)
           return (
             <path
@@ -177,7 +178,7 @@ export function LanguageFlow() {
               role={clickable ? 'button' : undefined}
               tabIndex={clickable ? 0 : undefined}
               aria-pressed={clickable ? active : undefined}
-              aria-label={clickable ? `${sideLabel} ${langLabel(n.lang)}, ${fmtInt(n.total)} Titel` : undefined}
+              aria-label={clickable ? `${sideLabel} ${langLabel(n.lang, de)}, ${fmtInt(n.total)} Titel` : undefined}
               onClick={clickable ? () => toggleFilter(nodeFilter) : undefined}
               onKeyDown={
                 clickable
@@ -206,10 +207,10 @@ export function LanguageFlow() {
                 textAnchor={n.side === 'orig' ? 'end' : 'start'}
                 className={styles.nodeLabel}
               >
-                {langLabel(n.lang)} · {fmtInt(n.total)}
+                {langLabel(n.lang, de)} · {fmtInt(n.total)}
               </text>
               {clickable && (
-                <title>{`${sideLabel} ${langLabel(n.lang)}: ${fmtInt(n.total)} Titel (Klick filtert nur diese Sprache)`}</title>
+                <title>{`${sideLabel} ${langLabel(n.lang, de)}: ${fmtInt(n.total)} Titel (Klick filtert nur diese Sprache)`}</title>
               )}
             </g>
           )

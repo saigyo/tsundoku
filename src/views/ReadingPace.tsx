@@ -4,6 +4,7 @@ import { AxisBottom, AxisLeft } from '../components/Axis'
 import { BookDetail } from '../components/BookDetail'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
+import { de } from '../i18n/de'
 import { useLibraryData } from '../lib/DataContext'
 import { fmtInt } from '../lib/format'
 import { isActivationKey } from '../lib/keyboard'
@@ -67,14 +68,14 @@ export function ReadingPace() {
             <figure key={panel.lang ?? 'alle'} className={styles.panel}>
               {panel.lang && (
                 <figcaption className={styles.caption}>
-                  {langLabel(panel.lang)} · {fmtInt(panel.points.length)}
+                  {langLabel(panel.lang, de)} · {fmtInt(panel.points.length)}
                 </figcaption>
               )}
               <svg
                 width={panelW}
                 height={panelH}
                 role="img"
-                aria-label={`Seiten gegen Lesedauer${panel.lang ? `, ${langLabel(panel.lang)}` : ''}`}
+                aria-label={`Seiten gegen Lesedauer${panel.lang ? `, ${langLabel(panel.lang, de)}` : ''}`}
               >
                 <g transform={`translate(${M.left},${M.top})`}>
                   {RATES.map((rate) => {

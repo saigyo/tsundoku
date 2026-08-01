@@ -4,6 +4,7 @@ import { BookDetail } from '../components/BookDetail'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
+import { de } from '../i18n/de'
 import { useLibraryData } from '../lib/DataContext'
 import { DDC_COLORS, DDC_SHORT } from '../lib/ddc'
 import { fmtInt } from '../lib/format'
@@ -207,7 +208,7 @@ function buildLegend(
         add(m, b.ddc ? DDC_SHORT[b.ddc.top] : 'ohne Angabe', b.ddc ? DDC_COLORS[b.ddc.top] : NEUTRAL)
         break
       case 'language':
-        add(m, b.languages[0] ? langLabel(b.languages[0]) : 'ohne Angabe', LANG_COLORS[b.languages[0] ?? ''] ?? NEUTRAL)
+        add(m, b.languages[0] ? langLabel(b.languages[0], de) : 'ohne Angabe', LANG_COLORS[b.languages[0] ?? ''] ?? NEUTRAL)
         break
       case 'readStatus':
         add(m, b.hasRead ? 'gelesen' : 'ungelesen (Kontur)', b.hasRead ? '#223a70' : '#f4efe6')

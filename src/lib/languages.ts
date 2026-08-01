@@ -8,33 +8,49 @@
  * French 49, Latin 29, Greek (Ancient) 19. `stats.originalLanguages` nutzt
  * dasselbe Format (z. B. English 1708, German 645, Japanese 630).
  */
-export const LANG_LABELS: Record<string, string> = {
-  German: 'Deutsch',
-  English: 'Englisch',
-  Japanese: 'Japanisch',
-  Chinese: 'Chinesisch',
-  Spanish: 'Spanisch',
-  French: 'Französisch',
-  Latin: 'Latein',
-  Russian: 'Russisch',
-  Italian: 'Italienisch',
-  Dutch: 'Niederländisch',
-  Polish: 'Polnisch',
-  Portuguese: 'Portugiesisch',
-  Hungarian: 'Ungarisch',
-  Ukrainian: 'Ukrainisch',
-  Turkish: 'Türkisch',
-  Czech: 'Tschechisch',
-  Korean: 'Koreanisch',
-  'Greek (Ancient)': 'Altgriechisch',
+import type { Locale, Messages } from '../i18n/messages'
+
+/** LibraryThing-Sprachname -> ISO-639-Code; Anzeige übernimmt Intl.DisplayNames. */
+export const LANG_ISO: Record<string, string> = {
+  German: 'de',
+  English: 'en',
+  Japanese: 'ja',
+  Chinese: 'zh',
+  Spanish: 'es',
+  French: 'fr',
+  Latin: 'la',
+  Russian: 'ru',
+  Italian: 'it',
+  Dutch: 'nl',
+  Polish: 'pl',
+  Portuguese: 'pt',
+  Hungarian: 'hu',
+  Ukrainian: 'uk',
+  Turkish: 'tr',
+  Czech: 'cs',
+  Korean: 'ko',
+  'Greek (Ancient)': 'grc',
 }
 
 export const OTHER_LANG = 'andere'
 export const UNKNOWN_LANG = 'unbekannt'
 
-export function langLabel(code: string): string {
-  if (code === OTHER_LANG || code === UNKNOWN_LANG) return code
-  return LANG_LABELS[code] ?? code
+const displayNames = new Map<Locale, Intl.DisplayNames>()
+
+export function langLabel(code: string, m: Messages): string {
+  if (code === OTHER_LANG) return m.lang.other
+  if (code === UNKNOWN_LANG) return m.lang.unknown
+  const iso = LANG_ISO[code]
+  if (!iso) return code
+  let dn = displayNames.get(m.locale)
+  if (!dn) {
+    dn = new Intl.DisplayNames([m.locale], { type: 'language' })
+    displayNames.set(m.locale, dn)
+  }
+  const label = dn.of(iso)
+  // DisplayNames gibt bei unbekanntem Code die Eingabe zurück — dann ist der
+  // rohe LibraryThing-Name die bessere Anzeige.
+  return label && label !== iso ? label : code
 }
 
 export const LANG_COLORS: Record<string, string> = {
