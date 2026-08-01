@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { fmtInt } from '../lib/format'
-import type { Book } from '../lib/types'
-import { useFilterStore } from '../store/filters'
+import { langLabel } from '../lib/languages'
+import type { Book, Filter } from '../lib/types'
+import { filterLabel, sameFilter, useFilterStore } from '../store/filters'
 import styles from './BookDetail.module.css'
 
 export function BookDetail({ book, onClose }: { book: Book | null; onClose: () => void }) {
@@ -18,19 +19,40 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
 
   if (!book) return <dialog ref={ref} />
 
-  const rows: [string, string | null][] = [
+  const chip = (f: Filter, label: string) => {
+    const active = filters.some((g) => sameFilter(g, f))
+    return (
+      <button
+        key={label}
+        className={active ? styles.tagActive : styles.tag}
+        onClick={() => toggleFilter(f)}
+        aria-pressed={active}
+        aria-label={`Filter ${filterLabel(f)} umschalten`}
+      >
+        {label}
+      </button>
+    )
+  }
+  const chips = (nodes: ReactNode[]) =>
+    nodes.length ? <span className={styles.tags}>{nodes}</span> : null
+
+  const rows: [string, ReactNode][] = [
     ['Original', book.originalTitle],
     ['Jahr dieser Ausgabe', book.editionYear === null ? null : String(book.editionYear)],
-    ['Sprache', book.languages.join(', ') || null],
-    ['Originalsprache', book.originalLanguages.join(', ') || null],
+    ['Sprache', chips(book.languages.map((l) => chip({ kind: 'language', value: l }, langLabel(l))))],
+    [
+      'Originalsprache',
+      chips(book.originalLanguages.map((l) => chip({ kind: 'originalLanguage', value: l }, langLabel(l)))),
+    ],
     ['Seiten', book.pages === null ? null : fmtInt(book.pages)],
-    ['Wissensgebiet', book.ddc?.topLabel ?? null],
+    ['Wissensgebiet', book.ddc ? chip({ kind: 'ddcTop', value: book.ddc.top }, book.ddc.topLabel) : null],
     ['Erworben', book.acquiredDate ?? (book.acquiredYear !== null ? String(book.acquiredYear) : null)],
     ['Gelesen', book.readDate ?? (book.readYearEffective !== null ? `${book.readYearEffective} (Jahres-Tag)` : null)],
     ['Bewertung', book.rating !== null ? `★ ${book.rating.toLocaleString('de-DE')}` : null],
     ['Gekauft bei', book.fromWhere],
     ['Reihe', book.series.join(', ') || null],
     ['ISBN', book.isbn],
+    ['Tags', chips(book.tagsNorm.map((t) => chip({ kind: 'tag', value: t }, t)))],
   ]
 
   return (
@@ -61,27 +83,6 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
               <dd>{v}</dd>
             </div>
           ))}
-        {book.tagsNorm.length > 0 && (
-          <div className={styles.row}>
-            <dt>Tags</dt>
-            <dd className={styles.tags}>
-              {book.tagsNorm.map((t) => {
-                const active = filters.some((f) => f.kind === 'tag' && f.value === t)
-                return (
-                  <button
-                    key={t}
-                    className={active ? styles.tagActive : styles.tag}
-                    onClick={() => toggleFilter({ kind: 'tag', value: t })}
-                    aria-pressed={active}
-                    aria-label={`Nach Tag ${t} filtern`}
-                  >
-                    {t}
-                  </button>
-                )
-              })}
-            </dd>
-          </div>
-        )}
       </dl>
       {book.workCode !== null && (
         <p className={styles.ltLink}>
