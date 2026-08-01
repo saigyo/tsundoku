@@ -1,0 +1,60 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.facetToggle {
+  display: inline-block;
+  font-size: 14px;
+  margin: var(--space-2) 0;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.panel {
+  margin: 0;
+}
+
+.caption {
+  font-size: 14px;
+  color: var(--ink-70);
+}
+
+.dot {
+  fill: var(--kon);
+  fill-opacity: 0.55;
+  cursor: pointer;
+}
+
+.dotSuspect {
+  fill: none;
+  stroke: var(--enji);
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.dot:hover,
+.dot:focus-visible,
+.dotSuspect:hover,
+.dotSuspect:focus-visible {
+  stroke: var(--sumi);
+  stroke-width: 2;
+}
+
+.rateLabel,
+.axisTitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-70);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--ink-70);
+}

@@ -9,6 +9,7 @@ import { useFilterStore } from './store/filters'
 import { AcquisitionReading } from './views/AcquisitionReading'
 import { KnowledgeMap } from './views/KnowledgeMap'
 import { LanguageFlow } from './views/LanguageFlow'
+import { ReadingPace } from './views/ReadingPace'
 import { Shelf } from './views/Shelf'
 import { TagNetwork } from './views/TagNetwork'
 import { YearMatrix } from './views/YearMatrix'
@@ -21,6 +22,7 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, { label: string; component: C
   network: { label: 'Tag-Netzwerk', component: TagNetwork },
   languages: { label: 'Sprachfluss', component: LanguageFlow },
   years: { label: 'Ausgabe × Erwerb', component: YearMatrix },
+  pace: { label: 'Lesetempo', component: ReadingPace },
 }
 
 /** Navigationsreihenfolge; Regal steht als Signature-Ansicht zuerst. */
