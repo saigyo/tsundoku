@@ -14,6 +14,8 @@ export interface Author {
   role: string | null
 }
 
+/** Achtung: inkompatible Änderungen an Book/Stats erfordern ein Erhöhen von
+ *  SCHEMA_VERSION in libraryStore.ts (im Browser gespeicherte Bibliotheken). */
 export interface Book {
   id: string
   /** LibraryThing-Werkschlüssel: librarything.com/work/{workCode}/book/{id} */

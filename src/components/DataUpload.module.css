@@ -22,6 +22,14 @@
   color: var(--enji);
 }
 
+.notice {
+  border: 1px solid var(--enji);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  color: var(--enji);
+  font-size: 14px;
+}
+
 .note {
   font-size: 14px;
   color: var(--ink-70);
