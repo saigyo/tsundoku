@@ -23,6 +23,15 @@
   font-family: var(--font-mono);
 }
 
+.pannable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.pannable:active {
+  cursor: grabbing;
+}
+
 .node {
   cursor: pointer;
 }
