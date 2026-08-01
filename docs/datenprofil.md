@@ -96,6 +96,26 @@ Implementiert in `scripts/normalize.mjs`.
    *wenn* sie gefallen haben. Als Verteilung irreführend, als Filter („nur
    Favoriten") brauchbar.
 
+9. **`height`/`thickness`/`length` sind bei ~20 % der vermessenen Titel um
+   eine Position rotiert.** Erkennbar an `thicknessMm > heightMm` (ein Buch
+   ist nie dicker als hoch) — betrifft 794 von 3.838 Datensätzen mit Maßen.
+   An mehreren realen Fällen geprüft (`node -e` gegen den Rohexport): bei den
+   betroffenen Datensätzen liegt das rohe `height` im Wertebereich der echten
+   Buchbreite (Median 138 mm ≈ `length` unauffälliger Datensätze, 137 mm),
+   das rohe `thickness` im Wertebereich der echten Höhe (Median 213 mm ≈
+   `height` unauffälliger Datensätze, 210 mm) und das rohe `length` im
+   Wertebereich der echten Dicke (Median 25 mm ≈ `thickness` unauffälliger
+   Datensätze, 22 mm). Regel: ist `length` selbst eine plausible Dicke
+   (> 0 und < 80 mm), wird rotiert — `height` ← `thickness`, `length` ←
+   `height`, `thickness` ← `length` (**695 Fälle korrigiert**). Ist `length`
+   fehlend oder selbst zu groß für eine Dicke, lässt sich das Tripel nicht
+   sicher auflösen; hier wird nur `thicknessMm` verworfen, das Buch landet im
+   unvermessenen Regal-Segment (**99 Fälle verworfen**). Implementiert als
+   `fixPermutedDimensions()` in `scripts/normalize.mjs`, mit Unit-Tests für
+   beide Zweige. Ohne diese Regel hätte das Regal (View 6) 762 Bücher mit bis
+   zu 594 mm „Dicke" gezeigt und rund 20 % der Fläche als unrealistisch
+   breite Blöcke gerendert statt als Buchrücken.
+
 ## Ausgabeformat
 
 `public/data/library.json`:

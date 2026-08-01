@@ -50,6 +50,39 @@ function toMm(raw) {
   return Math.round(v)
 }
 
+/**
+ * Regel 9 (permutierte Maße): Bei ~20 % der vermessenen Titel steht die
+ * längste der drei Kanten in `thickness` statt in `height` — LibraryThing
+ * hat height/thickness/length beim Import um eine Position rotiert.
+ * Erkennbar an `thicknessMm > heightMm` (ein Buch ist nie dicker als hoch).
+ *
+ * Verifiziert an mehreren realen Fällen (`node -e` gegen den Rohexport):
+ * bei den betroffenen Datensaetzen liegt `heightMm` im Wertebereich der
+ * echten Buchbreite (Median 138 mm ≈ `length` unauffälliger Datensätze,
+ * Median 137 mm), `thicknessMm` im Wertebereich der echten Höhe (Median
+ * 213 mm ≈ `height` unauffälliger Datensätze, Median 210 mm) und `length`
+ * im Wertebereich der echten Dicke (Median 25 mm ≈ `thickness`
+ * unauffälliger Datensätze, Median 22 mm). Die drei Felder sind also um
+ * eine Position rotiert: `height` <- `thickness`, `length` <- `height`,
+ * `thickness` <- `length`.
+ *
+ * Das gilt nur, wenn `length` selbst eine plausible Dicke ist (> 0 und
+ * < 80 mm — die dickste unauffällige Dicke im Korpus liegt bei 79 mm).
+ * Ist `length` fehlend oder selbst zu groß für eine Dicke, ist das Tripel
+ * auf eine Weise verdreht, die sich nicht sicher auflösen lässt; hier wird
+ * nur `thicknessMm` verworfen (Buch landet im unvermessenen Regal-Segment),
+ * `height`/`length` bleiben unangetastet statt eine zweite Heuristik zu raten.
+ */
+function fixPermutedDimensions(heightMm, thicknessMm, lengthMm) {
+  if (heightMm == null || thicknessMm == null || thicknessMm <= heightMm) {
+    return { heightMm, thicknessMm, lengthMm, correction: null }
+  }
+  if (lengthMm != null && lengthMm > 0 && lengthMm < 80) {
+    return { heightMm: thicknessMm, thicknessMm: lengthMm, lengthMm: heightMm, correction: 'rotated' }
+  }
+  return { heightMm, thicknessMm: null, lengthMm, correction: 'discarded' }
+}
+
 /** "1.1 pounds" | "0.5 kg" -> Gramm */
 function toGrams(raw) {
   if (!raw) return null
@@ -145,6 +178,10 @@ function normalize(raw, source = null) {
   const BULK_THRESHOLD = 50
   const bulkDates = new Set([...perEntryDate].filter(([, n]) => n >= BULK_THRESHOLD).map(([d]) => d))
 
+  // Regel 9: permutierte height/thickness/length (siehe fixPermutedDimensions).
+  let dimsRotated = 0
+  let dimsDiscarded = 0
+
   const books = records.map((r) => {
     const collections = r.collections ?? []
     const formats = (r.format ?? []).map((f) => (typeof f === 'string' ? f : f.text)).filter(Boolean)
@@ -181,12 +218,17 @@ function normalize(raw, source = null) {
       mediaType: mediaType(formats, collections),
       pages: toPages(r.pages),
       volumes: r.volumes ? Number(r.volumes) : null,
-      physical: {
-        heightMm: toMm(r.height),
-        thicknessMm: toMm(r.thickness),
-        lengthMm: toMm(r.length),
-        weightG: toGrams(r.weight),
-      },
+      physical: (() => {
+        const dims = fixPermutedDimensions(toMm(r.height), toMm(r.thickness), toMm(r.length))
+        if (dims.correction === 'rotated') dimsRotated++
+        else if (dims.correction === 'discarded') dimsDiscarded++
+        return {
+          heightMm: dims.heightMm,
+          thicknessMm: dims.thicknessMm,
+          lengthMm: dims.lengthMm,
+          weightG: toGrams(r.weight),
+        }
+      })(),
       rating: typeof r.rating === 'number' ? r.rating : null,
       acquiredDate: acquired.date,
       acquiredYear: acquired.year,
@@ -233,6 +275,8 @@ function normalize(raw, source = null) {
     withReadYearEffective: books.filter((b) => b.readYearEffective).length,
     withRating: books.filter((b) => b.rating != null).length,
     bulkImported: books.filter((b) => b.bulkImport).length,
+    dimsRotated,
+    dimsDiscarded,
     pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
     readDays: { median: pct(durations, 0.5), p90: pct(durations, 0.9), max: durations.at(-1) ?? null },
     languages: count((b) => b.languages),
@@ -277,6 +321,10 @@ function main() {
     `  Medien: ${JSON.stringify(stats.byMediaType)} | gelesen: ${stats.read} | Massenimport-Flag: ${stats.bulkImported}`,
   )
   console.log(
+    `  Maße permutiert: ${stats.dimsRotated} korrigiert (height/thickness/length rotiert), ` +
+      `${stats.dimsDiscarded} verworfen (thickness > height, length nicht als Dicke plausibel)`,
+  )
+  console.log(
     `  Seiten gesamt: ${stats.pagesTotal.toLocaleString('de-DE')} | Lesedauer Median/p90/max: ` +
       `${stats.readDays.median}/${stats.readDays.p90}/${stats.readDays.max} Tage`,
   )
@@ -287,7 +335,18 @@ function main() {
   )
 }
 
-export { toPages, toMm, toGrams, toPrice, toDate, daysBetween, normTag, mediaType, normalize }
+export {
+  toPages,
+  toMm,
+  toGrams,
+  toPrice,
+  toDate,
+  daysBetween,
+  normTag,
+  mediaType,
+  fixPermutedDimensions,
+  normalize,
+}
 
 const isCli = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href
 if (isCli) main()
