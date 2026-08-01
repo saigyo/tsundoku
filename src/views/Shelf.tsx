@@ -73,6 +73,11 @@ export function Shelf() {
   }
   const spineLabel = (b: Book) =>
     `${b.title}${b.primaryAuthor ? ` — ${b.primaryAuthor}` : ''}${b.physicalEstimated ? ' (Maße geschätzt)' : ''}`
+  // Tooltip-Koordinaten relativ zu .wrap — dort positioniert <Tooltip> absolut.
+  const hoverAt = (b: Book) => (e: React.PointerEvent) => {
+    const r = wrapRef.current?.getBoundingClientRect()
+    if (r) setHover({ book: b, px: e.clientX - r.left, py: e.clientY - r.top })
+  }
 
   return (
     <div ref={wrapRef} className={styles.wrap}>
@@ -116,10 +121,7 @@ export function Shelf() {
               aria-label={spineLabel(p.book)}
               onClick={() => open(p.book)}
               onKeyDown={onSpineKeyDown(p.book)}
-              onPointerEnter={(e) => {
-                const r = e.currentTarget.ownerSVGElement!.getBoundingClientRect()
-                setHover({ book: p.book, px: e.clientX - r.left, py: e.clientY - r.top })
-              }}
+              onPointerEnter={hoverAt(p.book)}
               onPointerLeave={() => setHover(null)}
             />
           </g>
@@ -127,7 +129,13 @@ export function Shelf() {
       </svg>
 
       {layout.unmeasured.length > 0 && (() => {
-        const perRow = Math.max(1, Math.floor(Math.max(320, width) / 5))
+        // 8-px-Rücken im 11-px-Raster: klein genug für hunderte Slots,
+        // groß genug zum Treffen mit Maus und Finger.
+        const slotW = 8
+        const pitchX = 11
+        const slotH = 72
+        const pitchY = 80
+        const perRow = Math.max(1, Math.floor(Math.max(320, width) / pitchX))
         const rowCount = Math.ceil(layout.unmeasured.length / perRow)
         return (
           <section aria-label="Bücher ohne Maßangaben">
@@ -135,14 +143,14 @@ export function Shelf() {
               ohne Maße und ohne Seitenzahl zur Schätzung ({fmtInt(layout.unmeasured.length)}) —
               Einheitsgröße, nicht maßstäblich
             </h3>
-            <svg width={width} height={rowCount * 60 + 4}>
+            <svg width={width} height={rowCount * pitchY + 4}>
               {layout.unmeasured.map((b, i) => (
                 <rect
                   key={b.id}
-                  x={(i % perRow) * 5}
-                  y={Math.floor(i / perRow) * 60}
-                  width={4}
-                  height={56}
+                  x={(i % perRow) * pitchX}
+                  y={Math.floor(i / perRow) * pitchY}
+                  width={slotW}
+                  height={slotH}
                   fill={fill(b)}
                   stroke="var(--ink-45)"
                   strokeDasharray="2 2"
@@ -152,9 +160,9 @@ export function Shelf() {
                   aria-label={spineLabel(b)}
                   onClick={() => open(b)}
                   onKeyDown={onSpineKeyDown(b)}
-                >
-                  <title>{b.title}</title>
-                </rect>
+                  onPointerEnter={hoverAt(b)}
+                  onPointerLeave={() => setHover(null)}
+                />
               ))}
             </svg>
           </section>
@@ -171,9 +179,10 @@ export function Shelf() {
       </ul>
 
       {hover && (
-        <Tooltip x={hover.px} y={hover.py + 140}>
+        <Tooltip x={hover.px} y={hover.py}>
           <strong>{hover.book.title}</strong>
           {hover.book.primaryAuthor && <> — {hover.book.primaryAuthor}</>}
+          {hover.book.physicalEstimated && <> · Maße geschätzt</>}
         </Tooltip>
       )}
       <BookDetail book={selected} onClose={() => setSelected(null)} />
