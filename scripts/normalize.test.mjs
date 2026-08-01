@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { beforeAll, describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
@@ -203,8 +203,14 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const EXPORT_PATH = resolve(HERE, '../librarything_kaixo_202607210219.json')
 
 describe.skipIf(!existsSync(EXPORT_PATH))('Goldene Kennzahlen am realen Export', () => {
-  const raw = JSON.parse(readFileSync(EXPORT_PATH, 'utf8'))
-  const { books } = normalize(raw)
+  // Lazy in beforeAll: der describe-Body laeuft bei der Collection auch dann,
+  // wenn die Suite per skipIf uebersprungen wird — ein eager readFileSync
+  // wuerde ohne Export (z. B. in CI) die ganze Suite crashen statt skippen.
+  let books
+  beforeAll(() => {
+    const raw = JSON.parse(readFileSync(EXPORT_PATH, 'utf8'))
+    books = normalize(raw).books
+  })
 
   it('4865 Einträge', () => {
     expect(books.length).toBe(4865)
