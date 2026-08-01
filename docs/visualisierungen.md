@@ -74,8 +74,10 @@ Voreinstellung auf Tags mit ≥ 10 Titeln (~150 Knoten), Schwellwert per Regler
 veränderbar. Kantengewicht besser über Jaccard-Ähnlichkeit als über absolute
 Zahl, sonst dominieren `gelesen` und `Japan` alles.
 
-**Interaktion:** Klick auf Knoten → Tag-Filter. Doppelklick → Nachbarschaft
-isolieren. Suchfeld springt zu einem Tag.
+**Interaktion:** Klick auf Knoten → Tag-Filter. Shift-Klick (Tastatur: `i`) →
+Nachbarschaft isolieren. (Doppelklick schied aus: sein erster Klick filtert
+und zeichnet neu, der zweite träfe einen anderen Knoten.) Suchfeld springt
+zu einem Tag.
 
 **Fallstricke:** Jahres-Tags (`1998`, `2004`) und Statusmarker (`gelesen`,
 `ungelesen`) sind keine Themen — vor dem Layout ausschließen, sonst verbindet
