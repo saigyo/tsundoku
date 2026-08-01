@@ -217,6 +217,13 @@ describe('mediaType (Regel 5)', () => {
   })
 })
 
+describe('normalize-core bleibt browserfähig', () => {
+  it('keine node:-Imports im Kern (läuft auch im Browser)', () => {
+    const src = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'normalize-core.mjs'), 'utf8')
+    expect(src).not.toMatch(/from 'node:/)
+  })
+})
+
 describe('workCode (LibraryThing-Werkschlüssel)', () => {
   it('übernimmt workcode aus dem Rohdatensatz', () => {
     const raw = { 42: { books_id: '42', title: 'T', workcode: '199744' } }

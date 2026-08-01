@@ -59,9 +59,17 @@ schätzt oder verwirft, ist als Regel dokumentiert und gezählt
 
 ## Start
 
-Als Datengrundlage dient ein Export der eigenen LibraryThing-Bibliothek:
-auf <https://www.librarything.com/export.php> das Format **JSON** wählen,
-die erzeugte Datei herunterladen und dem Normalizer übergeben:
+**Ohne Installation:** Die App läuft als statische Seite auf
+<https://saigyo.github.io/tsundoku/> — ohne eingebaute Bibliotheksdaten.
+Beim Start nimmt sie einen LibraryThing-Export entgegen, normalisiert ihn
+direkt im Browser (derselbe Code wie das CLI-Skript), zeigt die Kennzahlen
+der Normalisierung und lädt dann die Ansichten. Die Datei verlässt den
+Browser dabei nicht.
+
+**Lokal:** Als Datengrundlage dient ein Export der eigenen
+LibraryThing-Bibliothek: auf <https://www.librarything.com/export.php> das
+Format **JSON** wählen, die erzeugte Datei herunterladen und dem Normalizer
+übergeben:
 
 ```bash
 node scripts/normalize.mjs ~/pfad/librarything_export.json
@@ -70,7 +78,8 @@ npm run dev
 ```
 
 Der erste Befehl schreibt `public/data/library.json` und gibt Kennzahlen aus,
-die gegen `docs/datenprofil.md` geprüft werden können. (Die dort dokumentierten
+die gegen `docs/datenprofil.md` geprüft werden können. Fehlt die Datei,
+zeigt auch die lokale App den Upload-Dialog. (Die dort dokumentierten
 Zahlen und einige Bereinigungsregeln sind spezifisch für diese Bibliothek —
 mit einem fremden Export läuft die App trotzdem, nur das Datenprofil passt
 dann nicht mehr.)
@@ -80,8 +89,11 @@ dann nicht mehr.)
 Vite + React + TypeScript, Zustand für den einen Filter-Store, D3-Module
 (`d3-scale`, `d3-shape`, `d3-force`, `d3-sankey`) für Skalen, Layouts und
 Pfade — das SVG rendert React selbst. Kein Router: der Query-String ist der
-Zustand. Vitest testet Normalizer, Filterlogik und URL-Roundtrip; eine
-GitHub Action baut und testet jeden PR.
+Zustand. Der Normalizer ist ein Node-freies ES-Modul
+(`scripts/normalize-core.mjs`), das CLI und Browser-Upload gemeinsam nutzen.
+Vitest testet Normalizer, Filterlogik und URL-Roundtrip; eine GitHub Action
+baut und testet jeden PR, eine weitere veröffentlicht `main` als
+GitHub-Page (ohne Bibliotheksdaten).
 
 ## Dokumente
 
