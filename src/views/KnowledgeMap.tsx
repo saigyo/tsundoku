@@ -1,6 +1,6 @@
 import { scaleLinear, scalePoint } from 'd3-scale'
 import { area, curveMonotoneX, stack, stackOffsetExpand, stackOffsetWiggle, stackOrderInsideOut, type Series } from 'd3-shape'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AxisBottom } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
@@ -25,6 +25,22 @@ export function KnowledgeMap() {
   const [drag, setDrag] = useState<{ x0: number; x1: number } | null>(null)
   const dragMoved = useRef(false)
   const suppressClick = useRef(false)
+
+  // Während des Brushs: Textselektion global aus (die Maus verlässt das SVG,
+  // sonst markiert der Browser die Seite) und Escape bricht ohne Filter ab.
+  const dragging = drag !== null
+  useEffect(() => {
+    if (!dragging) return
+    document.body.style.userSelect = 'none'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrag(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.userSelect = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [dragging])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const data = useMemo(() => ddcYearMatrix(filtered, { smooth }), [filtered, smooth])
 
@@ -102,6 +118,7 @@ export function KnowledgeMap() {
         className={styles.brushArea}
         onPointerDown={(e) => {
           if (e.button !== 0) return
+          e.preventDefault()
           dragMoved.current = false
           setDrag({ x0: localX(e), x1: localX(e) })
         }}
@@ -164,8 +181,8 @@ export function KnowledgeMap() {
         </g>
       </svg>
       <p className={styles.hint}>
-        Zeitraum wählen: horizontal über das Diagramm ziehen filtert nach Erwerbsjahr; ein Klick auf
-        einen Strom filtert nach dem Wissensgebiet.
+        Zeitraum wählen: horizontal über das Diagramm ziehen filtert nach Erwerbsjahr, Esc bricht die
+        Auswahl ab; ein Klick auf einen Strom filtert nach dem Wissensgebiet.
       </p>
 
       <ul className={styles.legend}>

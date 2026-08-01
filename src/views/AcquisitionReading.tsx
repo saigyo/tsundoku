@@ -44,6 +44,22 @@ export function AcquisitionReading() {
     }
   }, [formDim, filters, data])
 
+  // Während des Brushs: Textselektion global aus (die Maus verlässt das SVG,
+  // sonst markiert der Browser die Seite) und Escape bricht ohne Filter ab.
+  const dragging = drag !== null
+  useEffect(() => {
+    if (!dragging) return
+    document.body.style.userSelect = 'none'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrag(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.userSelect = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [dragging])
+
   if (filtered.length === 0) return <EmptyState />
   if (data.points.length === 0) {
     return (
@@ -164,6 +180,7 @@ export function AcquisitionReading() {
             fill="transparent"
             className={styles.brushArea}
             onPointerDown={(e) => {
+              e.preventDefault()
               const px = localX(e)
               // Halbebene bestimmt die Dimension: über der Nulllinie Erwerb,
               // darunter Lektüre (Overlay beginnt bei M.top).
@@ -215,7 +232,7 @@ export function AcquisitionReading() {
       </div>
       <p className={styles.hint}>
         Zeitraum wählen: im Diagramm horizontal ziehen — über der Nulllinie filtert nach Erwerbsjahr,
-        darunter nach Lesejahr; ein Klick wählt ein einzelnes Jahr.
+        darunter nach Lesejahr; ein Klick wählt ein einzelnes Jahr, Esc bricht die Auswahl ab.
       </p>
 
       <form
