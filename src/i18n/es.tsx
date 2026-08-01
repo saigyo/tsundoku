@@ -118,7 +118,7 @@ export const es: Messages = {
       2: 'Religión',
       3: 'Ciencias sociales',
       4: 'Lenguas',
-      5: 'Ciencias',
+      5: 'Ciencias naturales',
       6: 'Tecnología',
       7: 'Artes',
       8: 'Literatura',

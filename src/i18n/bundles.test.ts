@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { BUNDLES } from './bundles'
-import { de } from './de'
 import { SUPPORTED_LOCALES } from './messages'
 
 describe('bundles', () => {
   it.each(SUPPORTED_LOCALES)('%s: Funktions-Messages liefern nicht-leere Strings', (locale) => {
     const m = BUNDLES[locale]
-    if (m !== de) expect(m.locale).toBe(locale)
+    expect(m.locale).toBe(locale)
     expect(m.app.loadError('HTTP 500')).toContain('HTTP 500')
     expect(m.upload.errTooLarge('60', '50').length).toBeGreaterThan(0)
     expect(m.upload.errTooMany('10.000').length).toBeGreaterThan(0)
