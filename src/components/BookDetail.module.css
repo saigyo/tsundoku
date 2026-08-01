@@ -181,6 +181,43 @@
   height: auto;
 }
 
+/* Während des Ladens: Bild unsichtbar, lädt aber; die Box darunter hält den
+   Dialog in L-Proportion (~2:3), statt ihn als winziges Quadrat zu zeigen. */
+.zoomImgLoading {
+  display: none;
+}
+
+.zoomLoadingBox {
+  width: min(20rem, 80vw);
+  aspect-ratio: 2 / 3;
+  max-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoomSpinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--ink-15);
+  border-top-color: var(--kon);
+  border-radius: 50%;
+  animation: zoom-spin 0.9s linear infinite;
+}
+
+@keyframes zoom-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Reduzierte Bewegung: statischer Ring statt Rotation. */
+@media (prefers-reduced-motion: reduce) {
+  .zoomSpinner {
+    animation: none;
+  }
+}
+
 .coverLoad {
   border: 1px solid var(--ink-45);
   background: none;

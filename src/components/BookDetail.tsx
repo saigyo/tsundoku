@@ -183,6 +183,10 @@ function CoverZoom({ isbn, title, onClose }: { isbn: string; title: string; onCl
   const { m } = useI18n()
   const ref = useRef<HTMLDialogElement>(null)
   const [failed, setFailed] = useState(false)
+  // Bis onLoad hat das <img> keine Maße und der Dialog wäre nur ein winziges
+  // Quadrat — solange zeigt eine Platzhalterfläche in L-Proportion einen
+  // Ladeindikator; das Bild bleibt derweil unsichtbar (lädt aber bereits).
+  const [loaded, setLoaded] = useState(false)
   useEffect(() => ref.current?.showModal(), [])
   return (
     <dialog
@@ -197,10 +201,16 @@ function CoverZoom({ isbn, title, onClose }: { isbn: string; title: string; onCl
       onClick={onClose}
       aria-label={m.detail.coverAlt(title)}
     >
+      {!loaded && (
+        <div className={styles.zoomLoadingBox}>
+          <div className={styles.zoomSpinner} aria-hidden="true" />
+        </div>
+      )}
       <img
-        className={styles.zoomImg}
+        className={loaded ? styles.zoomImg : styles.zoomImgLoading}
         src={coverUrl(isbn, failed ? 'M' : 'L')!}
         alt={m.detail.coverAlt(title)}
+        onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />
     </dialog>
