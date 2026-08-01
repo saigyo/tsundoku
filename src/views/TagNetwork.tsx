@@ -310,8 +310,13 @@ export function TagNetwork() {
               tabIndex={0}
               aria-pressed={activeTags.has(n.id)}
               aria-label={`Tag ${n.id}, ${fmtInt(n.count)} Titel`}
-              onClick={() => toggleFilter({ kind: 'tag', value: n.id })}
-              onDoubleClick={() => setIsolated((cur) => (cur === n.id ? null : n.id))}
+              onClick={(e) => {
+                // Isolation per Shift-Klick statt Doppelklick: der erste Klick
+                // eines Doppelklicks filtert und zeichnet den Graphen neu, der
+                // zweite träfe einen anderen Knoten.
+                if (e.shiftKey) setIsolated((cur) => (cur === n.id ? null : n.id))
+                else toggleFilter({ kind: 'tag', value: n.id })
+              }}
               onKeyDown={(e) => {
                 if (isActivationKey(e)) {
                   e.preventDefault()
@@ -334,7 +339,7 @@ export function TagNetwork() {
                   {n.id}
                 </text>
               )}
-              <title>{`${n.id}: ${fmtInt(n.count)} Titel (Enter = filtern, i = isolieren)`}</title>
+              <title>{`${n.id}: ${fmtInt(n.count)} Titel (Klick = filtern, Shift-Klick = Nachbarschaft isolieren)`}</title>
             </g>
           ))}
         </svg>
