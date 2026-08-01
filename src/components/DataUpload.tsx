@@ -135,8 +135,8 @@ export function DataUpload({
         <a href="https://www.librarything.com/export.php" target="_blank" rel="noopener noreferrer">
           librarything.com/export.php
         </a>{' '}
-        im Format <strong>JSON</strong> und lade die Datei hier — sie wird direkt im Browser
-        normalisiert und <strong>verlässt deinen Rechner nicht</strong>.
+        im Format <strong>JSON</strong> und lade die Datei hier. Sie wird direkt im Browser
+        eingelesen und <strong>verlässt deinen Rechner nicht</strong>.
       </p>
       <div
         className={dragOver ? styles.dropzoneActive : styles.dropzone}
@@ -178,11 +178,6 @@ export function DataUpload({
           Zurück zur geladenen Bibliothek
         </button>
       )}
-      <p className={styles.note}>
-        Für den lokalen Entwicklungsbetrieb geht es auch ohne Upload:{' '}
-        <code>node scripts/normalize.mjs &lt;export.json&gt;</code> erzeugt{' '}
-        <code>public/data/library.json</code>, die beim Start automatisch geladen wird.
-      </p>
     </div>
   )
 }
