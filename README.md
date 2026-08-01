@@ -88,6 +88,12 @@ version that has since become incompatible, the app asks for a fresh upload.
 The limit is 10,000 entries, because the views keep everything in memory;
 larger libraries can be exported in filtered form from LibraryThing.
 
+The one **opt-in** exception: book covers in the detail popup. Enable them
+once (button in the popup) and the app fetches the cover of the currently
+opened book from OpenLibrary — transmitting that book's ISBN, plus the usual
+request metadata, to covers.openlibrary.org. Nothing else is sent, and the
+toggle in the footer turns covers off again at any time.
+
 **Locally** (Node ≥ 24): the data basis is an export of your own
 [LibraryThing](https://www.librarything.com) library: at
 <https://www.librarything.com/export.php> choose the **JSON** format,

@@ -35,3 +35,9 @@
   border-radius: var(--radius);
   padding: 2px 4px;
 }
+
+.covers {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
