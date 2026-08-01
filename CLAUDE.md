@@ -40,6 +40,7 @@ docs/datenprofil.md       Feldinventar, Bereinigungsregeln, Fallstricke — VOR 
 docs/visualisierungen.md  Die acht Views als Einzelspezifikationen mit Definition of Done
 public/data/library.json  generiert, nicht eingecheckt
 src/store/filters.ts      globaler Filterzustand (Cross-Filtering)
+src/i18n/                Messages-Interface + fünf Sprach-Bundles, LocaleContext (useI18n)
 src/views/<View>.tsx      eine Datei pro Visualisierung
 src/lib/                  Skalen, Farbzuordnungen, Formatierung
 ```
@@ -92,8 +93,9 @@ Abweichung wegcasten.
 
 ## Konventionen
 
-- **Deutsch in der Oberfläche**, Englisch im Code (Bezeichner, Kommentare in
-  Ausnahmen deutsch, wenn sie Datenkuriositäten erklären).
+- **Fünfsprachige Oberfläche** (DE/EN/FR/ES/JA) über typisierte
+  Message-Bundles in `src/i18n/` — UI-Texte nie hart in Komponenten, `de.tsx`
+  ist die Referenzfassung; Englisch im Code.
 - **Keine stillen Datenkorrekturen.** Jede Regel, die Werte verändert oder
   verwirft, steht in `docs/datenprofil.md` und im Code an der Stelle, wo sie
   greift. Verworfene Werte werden gezählt und in einer Datenqualitäts-Ansicht
