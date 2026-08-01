@@ -81,7 +81,7 @@ export function AcquisitionReading() {
         </CoverageNote>
       </header>
 
-      <svg width={width} height={H} role="img" aria-label="Erwerb (nach oben) und Lektüre (nach unten) pro Jahr">
+      <svg width={width} height={H} className={styles.chart} role="img" aria-label="Erwerb (nach oben) und Lektüre (nach unten) pro Jahr">
         <defs>
           <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <rect width="4" height="4" fill="var(--enji)" opacity="0.25" />

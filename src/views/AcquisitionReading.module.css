@@ -52,6 +52,12 @@
   cursor: crosshair;
 }
 
+/* WebKit/Chromium markieren beim Ziehen sonst das SVG als Textselektion. */
+.chart {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .hint {
   margin: var(--space-1) 0 0;
   font-size: 13px;
