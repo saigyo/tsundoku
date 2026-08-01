@@ -128,9 +128,13 @@ export function TagNetwork() {
     return box
   }, [layout, r])
 
-  // Neues Layout (Filter, Schwellwert) -> Pan zurück auf die Mitte; der
-  // Zoomfaktor des Nutzers bleibt erhalten.
-  useEffect(() => setCenter(null), [graph])
+  // Neues Layout (Filter, Schwellwert) -> automatisch einpassen. Der gewählte
+  // Knoten kann nach dem Neuzeichnen sonst außerhalb des gezoomten Ausschnitts
+  // liegen und man sähe nur irgendeine Mitte des neuen Graphen.
+  useEffect(() => {
+    setZoom(1)
+    setCenter(null)
+  }, [graph])
 
   // Dokumentposition des SVG bestimmt die verfügbare Höhe; neu messen bei
   // Fenster-Resize und wenn die Kontrollleiste umbricht (Isolations-Knopf).
