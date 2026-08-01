@@ -42,6 +42,12 @@ export function checkStored(value: unknown): StoredResult {
   if (!lib || !Array.isArray(lib.books) || lib.stats === null || typeof lib.stats !== 'object') {
     return { state: 'incompatible' }
   }
+  // Stichprobe statt Tiefenprüfung: ein manipulierter/teilkaputter Datensatz
+  // soll zum Neu-Upload-Hinweis führen, nicht zum Render-Crash.
+  const sample = lib.books[0]
+  if (lib.books.length > 0 && (sample === null || typeof sample !== 'object' || !Array.isArray(sample.tagsNorm))) {
+    return { state: 'incompatible' }
+  }
   return { state: 'ok', record: rec as StoredLibrary }
 }
 

@@ -44,6 +44,12 @@ Jahres-Tag` und markiert die Herkunft in `readYearSource`. Jede Zeitreihe zur
 Lektüre nutzt `readYearEffective`; wo tagesgenaue Daten nötig sind (Lesedauer),
 bleibt `dateread` maßgeblich, und die Ansicht weist die kleinere Grundmenge aus.
 
+`hasRead` folgt der Sammlungs-Konvention („Have read"/„Read but unowned"),
+solange die Bibliothek sie verwendet — hier gibt es Bücher mit Lesedatum, die
+bewusst nicht als gelesen gelten. Nur Exporte ganz ohne diese Sammlungen
+(Upload-Pfad fremder Bibliotheken) fallen auf `dateread`/Jahres-Tags zurück,
+damit „gelesen" dort nicht pauschal 0 ist.
+
 Lektüre pro Jahr (effektiv): 1988–1995 je 1–6, ab 1996 zweistellig, Maximum 2014
 mit 74, seither 40–60 pro Jahr.
 

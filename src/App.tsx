@@ -51,16 +51,19 @@ export default function App() {
     loadLibrary()
       .then((library) => setLoad({ state: 'ready', library, source: 'server' }))
       .catch(async (e: unknown) => {
+        // Keine library.json (z. B. auf der veröffentlichten GitHub-Page) oder
+        // Lade-/Netzfehler: zuvor hochgeladene Bibliothek aus IndexedDB nutzen;
+        // der Fehlerbildschirm ist die letzte Instanz.
+        const stored = await loadStoredLibrary()
+        if (stored.state === 'ok') {
+          setLoad({ state: 'ready', library: stored.record.library, source: 'browser' })
+          return
+        }
         if (!(e instanceof LibraryMissingError)) {
           setLoad({ state: 'error', message: e instanceof Error ? e.message : String(e) })
           return
         }
-        // Keine library.json (z. B. auf der veröffentlichten GitHub-Page):
-        // zuvor hochgeladene Bibliothek aus IndexedDB, sonst Upload-Dialog.
-        const stored = await loadStoredLibrary()
-        if (stored.state === 'ok') {
-          setLoad({ state: 'ready', library: stored.record.library, source: 'browser' })
-        } else if (stored.state === 'incompatible') {
+        if (stored.state === 'incompatible') {
           clearStoredLibrary().catch(() => undefined)
           setLoad({
             state: 'missing',

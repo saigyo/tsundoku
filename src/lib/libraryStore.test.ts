@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { checkStored, SCHEMA_VERSION } from './libraryStore'
 
-const validLibrary = { stats: { total: 1 }, books: [{ id: '1' }] }
+const validLibrary = { stats: { total: 1 }, books: [{ id: '1', tagsNorm: [] }] }
 
 describe('checkStored (Formatprüfung der gespeicherten Bibliothek)', () => {
   it('leerer Speicher -> none', () => {
@@ -26,5 +26,11 @@ describe('checkStored (Formatprüfung der gespeicherten Bibliothek)', () => {
     expect(checkStored({ schemaVersion: SCHEMA_VERSION }).state).toBe('incompatible')
     expect(checkStored({ schemaVersion: SCHEMA_VERSION, library: { books: 'nope', stats: {} } }).state).toBe('incompatible')
     expect(checkStored({ schemaVersion: SCHEMA_VERSION, library: { books: [], stats: null } }).state).toBe('incompatible')
+  })
+
+  it('kaputte Book-Objekte (Stichprobe) -> incompatible statt Render-Crash', () => {
+    expect(checkStored({ schemaVersion: SCHEMA_VERSION, library: { books: [42], stats: {} } }).state).toBe('incompatible')
+    expect(checkStored({ schemaVersion: SCHEMA_VERSION, library: { books: [{ id: '1' }], stats: {} } }).state).toBe('incompatible')
+    expect(checkStored({ schemaVersion: SCHEMA_VERSION, library: { books: [], stats: {} } }).state).toBe('ok')
   })
 })
