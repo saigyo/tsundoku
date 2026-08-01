@@ -7,6 +7,8 @@ import styles from './BookDetail.module.css'
 export function BookDetail({ book, onClose }: { book: Book | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
   const addFilter = useFilterStore((s) => s.addFilter)
+  const toggleFilter = useFilterStore((s) => s.toggleFilter)
+  const filters = useFilterStore((s) => s.filters)
 
   useEffect(() => {
     const el = ref.current
@@ -29,7 +31,6 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
     ['Bewertung', book.rating !== null ? `★ ${book.rating.toLocaleString('de-DE')}` : null],
     ['Gekauft bei', book.fromWhere],
     ['Reihe', book.series.join(', ') || null],
-    ['Tags', book.tagsNorm.join(', ') || null],
     ['ISBN', book.isbn],
   ]
 
@@ -60,6 +61,27 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
               <dd>{v}</dd>
             </div>
           ))}
+        {book.tagsNorm.length > 0 && (
+          <div className={styles.row}>
+            <dt>Tags</dt>
+            <dd className={styles.tags}>
+              {book.tagsNorm.map((t) => {
+                const active = filters.some((f) => f.kind === 'tag' && f.value === t)
+                return (
+                  <button
+                    key={t}
+                    className={active ? styles.tagActive : styles.tag}
+                    onClick={() => toggleFilter({ kind: 'tag', value: t })}
+                    aria-pressed={active}
+                    aria-label={`Nach Tag ${t} filtern`}
+                  >
+                    {t}
+                  </button>
+                )
+              })}
+            </dd>
+          </div>
+        )}
       </dl>
       {book.workCode !== null && (
         <p className={styles.ltLink}>

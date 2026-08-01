@@ -8,7 +8,7 @@
 }
 
 .dialog::backdrop {
-  background: rgba(28, 27, 25, 0.5);
+  background: rgba(28, 27, 25, 0.25);
 }
 
 .title {
@@ -49,6 +49,31 @@
 
 .row dd {
   margin: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+.tag,
+.tagActive {
+  border: none;
+  padding: 0 var(--space-1);
+  border-radius: 3px;
+  font-size: inherit;
+}
+
+.tag {
+  background: none;
+  color: var(--kon);
+  text-decoration: underline;
+}
+
+.tagActive {
+  background: var(--kon);
+  color: var(--shironeri);
 }
 
 .ltLink {
