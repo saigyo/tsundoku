@@ -62,6 +62,7 @@ export function Shelf() {
     color === 'readStatus' && !b.hasRead ? 'var(--sumi)' : 'none'
 
   const legend = buildLegend(color, layout.placed.map((p) => p.book), yearScale)
+  const estimatedCount = layout.placed.filter((p) => p.book.physicalEstimated).length
 
   const open = (b: Book) => setSelected(b)
   const onSpineKeyDown = (b: Book) => (e: React.KeyboardEvent) => {
@@ -70,16 +71,17 @@ export function Shelf() {
       open(b)
     }
   }
-  const spineLabel = (b: Book) => `${b.title}${b.primaryAuthor ? ` — ${b.primaryAuthor}` : ''}`
+  const spineLabel = (b: Book) =>
+    `${b.title}${b.primaryAuthor ? ` — ${b.primaryAuthor}` : ''}${b.physicalEstimated ? ' (Maße geschätzt)' : ''}`
 
   return (
     <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.head}>
         <h2>Das Regal</h2>
         <CoverageNote covered={layout.placed.length} total={filtered.length}>
-          sind Bücher mit Höhen- und Dickenangabe und stehen maßstabsgetreu im Regal
-          ({fmtInt(layout.unmeasured.length)} ohne Maße unten, {fmtInt(layout.nonBooks)} Nicht-Bücher
-          nicht dargestellt).
+          stehen im Regal — davon {fmtInt(estimatedCount)} mit aus der Seitenzahl geschätzten
+          Maßen (halbtransparent, gestrichelte Kontur). {fmtInt(layout.unmeasured.length)} ohne
+          Maße und Seitenzahl unten, {fmtInt(layout.nonBooks)} Nicht-Bücher nicht dargestellt.
         </CoverageNote>
       </header>
 
@@ -105,7 +107,9 @@ export function Shelf() {
               width={p.w}
               height={p.h}
               fill={fill(p.book)}
-              stroke={stroke(p.book)}
+              fillOpacity={p.book.physicalEstimated ? 0.5 : 1}
+              stroke={p.book.physicalEstimated && stroke(p.book) === 'none' ? 'var(--ink-45)' : stroke(p.book)}
+              strokeDasharray={p.book.physicalEstimated ? '3 2' : undefined}
               strokeWidth={1}
               tabIndex={0}
               role="button"
@@ -128,7 +132,8 @@ export function Shelf() {
         return (
           <section aria-label="Bücher ohne Maßangaben">
             <h3 className={styles.unmeasuredTitle}>
-              ohne Maßangaben ({fmtInt(layout.unmeasured.length)}) — Einheitsgröße, nicht maßstäblich
+              ohne Maße und ohne Seitenzahl zur Schätzung ({fmtInt(layout.unmeasured.length)}) —
+              Einheitsgröße, nicht maßstäblich
             </h3>
             <svg width={width} height={rowCount * 60 + 4}>
               {layout.unmeasured.map((b, i) => (

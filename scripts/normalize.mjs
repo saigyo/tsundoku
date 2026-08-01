@@ -85,6 +85,49 @@ function fixPermutedDimensions(heightMm, thicknessMm, lengthMm) {
   return out
 }
 
+/**
+ * Regel 11 (geschätzte Maße): Bücher ohne Höhe/Dicke, aber mit Seitenzahl,
+ * bekommen eine aus dem eigenen Bestand extrapolierte Dicke (Seiten ×
+ * Median-Seitendicke der vollständig vermessenen Bücher, ~0,078 mm/Seite;
+ * Schätzfehler rückwärts geprüft: Median 4,7 mm, p90 12,8 mm) und, wo die
+ * Höhe fehlt, die Medianhöhe. Geschätzte Bücher tragen
+ * `physicalEstimated: true` und werden im Regal sichtbar markiert —
+ * keine stille Korrektur. Bücher ohne Seitenzahl bleiben unvermessen:
+ * für sie gäbe es nur bezugslose Platzhalterwerte.
+ */
+function estimateMissingDimensions(books) {
+  const median = (values) => {
+    if (!values.length) return null
+    const s = [...values].sort((a, b) => a - b)
+    return s[Math.floor(s.length / 2)]
+  }
+  const reference = books.filter(
+    (b) =>
+      b.mediaType === 'book' &&
+      b.physical.thicknessMm != null &&
+      b.physical.thicknessMm >= 2 &&
+      b.pages != null &&
+      b.pages > 20,
+  )
+  const mmPerPage = median(reference.map((b) => b.physical.thicknessMm / b.pages))
+  const medianHeight = median(
+    books.filter((b) => b.mediaType === 'book' && b.physical.heightMm != null).map((b) => b.physical.heightMm),
+  )
+  if (mmPerPage == null || medianHeight == null) return { estimated: 0, mmPerPage, medianHeight }
+
+  let estimated = 0
+  for (const b of books) {
+    if (b.mediaType !== 'book' || b.pages == null) continue
+    const p = b.physical
+    if (p.heightMm != null && p.thicknessMm != null) continue
+    if (p.thicknessMm == null) p.thicknessMm = Math.min(120, Math.max(1, Math.round(b.pages * mmPerPage)))
+    if (p.heightMm == null) p.heightMm = medianHeight
+    b.physicalEstimated = true
+    estimated++
+  }
+  return { estimated, mmPerPage, medianHeight }
+}
+
 /** "1.1 pounds" | "0.5 kg" -> Gramm */
 function toGrams(raw) {
   if (!raw) return null
@@ -282,6 +325,8 @@ function normalize(raw, source = null) {
           weightG: toGrams(r.weight),
         }
       })(),
+      // Regel 11: wird ggf. nach dem Aufbau aller Buecher gesetzt.
+      physicalEstimated: false,
       rating: typeof r.rating === 'number' ? r.rating : null,
       acquiredDate: acquired.date,
       acquiredYear: acquired.year,
@@ -303,6 +348,10 @@ function normalize(raw, source = null) {
       isbn: r.originalisbn ?? null,
     }
   })
+
+  // Regel 11: fehlende Maße aus der Seitenzahl schätzen (nach dem Aufbau
+  // aller Bücher, weil die Mediane den ganzen Bestand brauchen).
+  const dimsEstimate = estimateMissingDimensions(books)
 
   // --- Facetten & Kennzahlen fuer die Startansicht ---------------------------
 
@@ -330,6 +379,7 @@ function normalize(raw, source = null) {
     bulkImported: books.filter((b) => b.bulkImport).length,
     dimsSorted,
     dimsDiscarded,
+    dimsEstimated: dimsEstimate.estimated,
     entitiesDecoded,
     pagesTotal: books.reduce((a, b) => a + (b.pages ?? 0), 0),
     readDays: { median: pct(durations, 0.5), p90: pct(durations, 0.9), max: durations.at(-1) ?? null },
@@ -378,6 +428,9 @@ function main() {
     `  Maße permutiert: ${stats.dimsSorted} korrigiert (Tripel sortiert, Dicke = kleinster Wert), ` +
       `${stats.dimsDiscarded} verworfen (kleinster Wert keine plausible Dicke)`,
   )
+  console.log(
+    `  Maße geschätzt aus Seitenzahl: ${stats.dimsEstimated} Bücher (physicalEstimated-Flag, im Regal markiert)`,
+  )
   console.log(`  HTML-Entities dekodiert: ${stats.entitiesDecoded} Felder (Titel, Autorennamen)`)
   console.log(
     `  Seiten gesamt: ${stats.pagesTotal.toLocaleString('de-DE')} | Lesedauer Median/p90/max: ` +
@@ -401,6 +454,7 @@ export {
   mediaType,
   fixPermutedDimensions,
   decodeEntities,
+  estimateMissingDimensions,
   normalize,
 }
 
