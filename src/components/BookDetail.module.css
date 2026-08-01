@@ -51,6 +51,15 @@
   margin: 0;
 }
 
+.ltLink {
+  margin: var(--space-4) 0 0;
+  font-size: 14px;
+}
+
+.ltLink a {
+  color: var(--kon);
+}
+
 .close {
   margin-top: var(--space-4);
 }
