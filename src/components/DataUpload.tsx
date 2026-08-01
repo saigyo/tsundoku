@@ -52,11 +52,15 @@ export function DataUpload({
         }
         // Obergrenze VOR normalize() prüfen: Millionen Mini-Records unter 50 MB
         // würden sonst erst vollständig materialisiert (OOM/Freeze), bevor die
-        // Fehlermeldung je erscheinen könnte.
-        const recordCount = Object.keys(raw).length
+        // Fehlermeldung je erscheinen könnte. Zählung per for-in mit Early-Exit
+        // statt Object.keys, das selbst ein Millionen-Array materialisieren würde.
+        let recordCount = 0
+        for (const _key in raw) {
+          if (++recordCount > MAX_BOOKS) break
+        }
         if (recordCount > MAX_BOOKS) {
           throw new Error(
-            `der Export enthält ${fmtInt(recordCount)} Einträge — mehr als die Obergrenze von ${fmtInt(MAX_BOOKS)}. ` +
+            `der Export enthält mehr als ${fmtInt(MAX_BOOKS)} Einträge. ` +
               'Die Ansichten halten alles im Speicher; bitte einen gefilterten Export wählen (LibraryThing kann z. B. nach Sammlung exportieren).',
           )
         }
