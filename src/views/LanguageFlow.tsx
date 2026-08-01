@@ -2,9 +2,8 @@ import { sankey, sankeyLinkHorizontal, type SankeyLink, type SankeyNode } from '
 import { useEffect, useMemo, useState } from 'react'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
-import { de } from '../i18n/de'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { fmtInt } from '../lib/format'
 import { isActivationKey } from '../lib/keyboard'
 import { langLabel, LANG_COLORS, OTHER_LANG, UNKNOWN_LANG } from '../lib/languages'
 import { useMeasure } from '../lib/useMeasure'
@@ -22,6 +21,7 @@ type SLink = SankeyLink<FlowNode, FlowLink>
 type RangeDim = 'acquiredYear' | 'readYear'
 
 export function LanguageFlow() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const addFilter = useFilterStore((s) => s.addFilter)
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
@@ -56,7 +56,7 @@ export function LanguageFlow() {
   if (data.links.length === 0) {
     return (
       <CoverageNote covered={0} total={filtered.length}>
-        im aktuellen Filter haben eine Ausgabesprache.
+        {m.views.languages.noData}
       </CoverageNote>
     )
   }
@@ -86,10 +86,9 @@ export function LanguageFlow() {
   return (
     <div ref={wrapRef}>
       <header className={styles.head}>
-        <h2>Sprachfluss</h2>
+        <h2>{m.views.languages.title}</h2>
         <CoverageNote covered={data.covered} total={filtered.length}>
-          haben eine Ausgabesprache; bei <Num>{fmtInt(inferredCount)}</Num> davon gilt sie mangels
-          erfasster Originalsprache zugleich als Original (Erfassungskonvention).
+          {m.views.languages.coverage(<Num>{fmtInt(inferredCount)}</Num>)}
         </CoverageNote>
       </header>
 
@@ -103,13 +102,13 @@ export function LanguageFlow() {
         <select
           value={formDim}
           onChange={(e) => setFormDim(e.target.value as RangeDim)}
-          aria-label="Dimension des Zeitraumfilters"
+          aria-label={m.rangeForm.dimensionAria}
         >
-          <option value="acquiredYear">Erwerb</option>
-          <option value="readYear">Lektüre</option>
+          <option value="acquiredYear">{m.rangeForm.acquired}</option>
+          <option value="readYear">{m.rangeForm.read}</option>
         </select>
         <label>
-          von{' '}
+          {m.rangeForm.from}{' '}
           <input
             type="number"
             value={formFrom}
@@ -119,7 +118,7 @@ export function LanguageFlow() {
           />
         </label>
         <label>
-          bis{' '}
+          {m.rangeForm.to}{' '}
           <input
             type="number"
             value={formTo}
@@ -128,14 +127,14 @@ export function LanguageFlow() {
             max={2100}
           />
         </label>
-        <button type="submit">Zeitraum filtern</button>
+        <button type="submit">{m.rangeForm.submit}</button>
       </form>
 
-      <svg width={width} height={H} role="img" aria-label="Fluss von Originalsprache zu Ausgabesprache">
+      <svg width={width} height={H} role="img" aria-label={m.views.languages.svgAria}>
         {layout.links.map((l) => {
           const s = l.source as SNode
           const t = l.target as SNode
-          const label = `${langLabel(s.lang, de)} → ${langLabel(t.lang, de)}: ${fmtInt(l.value)} Titel`
+          const label = m.views.languages.linkLabel(langLabel(s.lang, m), langLabel(t.lang, m), fmtInt(l.value))
           const activatable = filterable(s.lang) || filterable(t.lang)
           return (
             <path
@@ -146,7 +145,7 @@ export function LanguageFlow() {
               strokeWidth={Math.max(1, l.width ?? 1)}
               role={activatable ? 'button' : undefined}
               tabIndex={activatable ? 0 : undefined}
-              aria-label={activatable ? `${label}. Enter filtert auf diese Kombination.` : label}
+              aria-label={activatable ? m.views.languages.linkAriaFilter(label) : label}
               onClick={() => clickLink(l)}
               onKeyDown={(e) => {
                 if (isActivationKey(e)) {
@@ -170,7 +169,7 @@ export function LanguageFlow() {
           const active = filters.some(
             (f) => f.kind === nodeFilter.kind && 'value' in f && f.value === n.lang,
           )
-          const sideLabel = n.side === 'orig' ? 'Originalsprache' : 'Ausgabesprache'
+          const sideLabel = n.side === 'orig' ? m.views.languages.origSide : m.views.languages.edSide
           return (
             <g
               key={n.id}
@@ -178,7 +177,7 @@ export function LanguageFlow() {
               role={clickable ? 'button' : undefined}
               tabIndex={clickable ? 0 : undefined}
               aria-pressed={clickable ? active : undefined}
-              aria-label={clickable ? `${sideLabel} ${langLabel(n.lang, de)}, ${fmtInt(n.total)} Titel` : undefined}
+              aria-label={clickable ? m.views.languages.nodeAria(sideLabel, langLabel(n.lang, m), fmtInt(n.total)) : undefined}
               onClick={clickable ? () => toggleFilter(nodeFilter) : undefined}
               onKeyDown={
                 clickable
@@ -207,19 +206,19 @@ export function LanguageFlow() {
                 textAnchor={n.side === 'orig' ? 'end' : 'start'}
                 className={styles.nodeLabel}
               >
-                {langLabel(n.lang, de)} · {fmtInt(n.total)}
+                {langLabel(n.lang, m)} · {fmtInt(n.total)}
               </text>
               {clickable && (
-                <title>{`${sideLabel} ${langLabel(n.lang, de)}: ${fmtInt(n.total)} Titel (Klick filtert nur diese Sprache)`}</title>
+                <title>{m.views.languages.nodeTitle(sideLabel, langLabel(n.lang, m), fmtInt(n.total))}</title>
               )}
             </g>
           )
         })}
         <text x={M.left} y={H - 4} className={styles.sideLabel} textAnchor="start">
-          Originalsprache
+          {m.views.languages.origSide}
         </text>
         <text x={Math.max(400, width) - M.right} y={H - 4} className={styles.sideLabel} textAnchor="end">
-          Ausgabesprache
+          {m.views.languages.edSide}
         </text>
       </svg>
     </div>

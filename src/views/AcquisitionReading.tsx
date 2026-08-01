@@ -5,8 +5,8 @@ import { AxisBottom, AxisLeft } from '../components/Axis'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
+import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
-import { fmtInt } from '../lib/format'
 import { useMeasure } from '../lib/useMeasure'
 import { timelineData } from '../lib/viewData/timeline'
 import { useFilterStore } from '../store/filters'
@@ -19,6 +19,7 @@ const M = { top: 12, right: 16, bottom: 28, left: 48 }
 type RangeDim = 'acquiredYear' | 'readYear'
 
 export function AcquisitionReading() {
+  const { m, fmtInt } = useI18n()
   const { filtered } = useLibraryData()
   const setRange = useFilterStore((s) => s.setRange)
   const addFilter = useFilterStore((s) => s.addFilter)
@@ -66,7 +67,7 @@ export function AcquisitionReading() {
     return (
       <div>
         <CoverageNote covered={0} total={filtered.length}>
-          im aktuellen Filter haben ein Erwerbs- oder Lesejahr.
+          {m.views.timeline.noYears}
         </CoverageNote>
       </div>
     )
@@ -110,14 +111,13 @@ export function AcquisitionReading() {
   return (
     <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.head}>
-        <h2>Erwerb und Lektüre</h2>
+        <h2>{m.views.timeline.title}</h2>
         <CoverageNote covered={data.acquiredKnown} total={filtered.length}>
-          haben ein Erwerbsjahr; <Num>{fmtInt(data.readKnown)}</Num> ein Lesejahr, davon{' '}
-          <Num>{fmtInt(data.readTaggedOnly)}</Num> nur über Jahres-Tags.
+          {m.views.timeline.coverage(<Num>{fmtInt(data.readKnown)}</Num>, <Num>{fmtInt(data.readTaggedOnly)}</Num>)}
         </CoverageNote>
       </header>
 
-      <svg width={width} height={H} className={styles.chart} role="img" aria-label="Erwerb (nach oben) und Lektüre (nach unten) pro Jahr">
+      <svg width={width} height={H} className={styles.chart} role="img" aria-label={m.views.timeline.svgAria}>
         <defs>
           <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <rect width="4" height="4" fill="var(--enji)" opacity="0.25" />
@@ -141,7 +141,7 @@ export function AcquisitionReading() {
             <g transform={`translate(${(x(data.maxGapYear) ?? 0) + bw / 2},${M.top})`}>
               <line y2={y(0) - M.top} stroke="var(--sumi)" strokeDasharray="2 3" />
               <text y={-2} textAnchor="middle" className={styles.annotation}>
-                größte Schere: {data.maxGapYear}
+                {m.views.timeline.maxGap(data.maxGapYear)}
               </text>
             </g>
           )}
@@ -163,7 +163,7 @@ export function AcquisitionReading() {
                   </text>
                 )}
                 <text x={(left + right) / 2} y={M.top + 14} textAnchor="middle" className={styles.annotation}>
-                  {drag.dim === 'acquiredYear' ? 'Erwerb' : 'Lektüre'}
+                  {drag.dim === 'acquiredYear' ? m.views.timeline.brushAcquired : m.views.timeline.brushRead}
                 </text>
               </g>
             )
@@ -213,12 +213,12 @@ export function AcquisitionReading() {
         </g>
       </svg>
 
-      <svg width={width} height={H2} className={styles.chart} role="img" aria-label="Ungelesener Bestand, kumulativ">
+      <svg width={width} height={H2} className={styles.chart} role="img" aria-label={m.views.timeline.unreadSvgAria}>
         <g transform={`translate(${M.left},0)`}>
           <path d={unreadArea(data.unread) ?? ''} fill="var(--ink-08)" stroke="var(--sumi)" strokeWidth={1.5} />
           <AxisLeft x={0} ticks={y2.ticks(3).map((v) => ({ y: y2(v), label: fmtInt(v) }))} />
           <text x={4} y={16} className={styles.panelLabel}>
-            ungelesener Bestand (nur Titel mit Erwerbsjahr)
+            {m.views.timeline.unreadPanelLabel}
           </text>
           {unreadHover && (
             <g transform={`translate(${(x(unreadHover.year) ?? 0) + bw / 2},0)`}>
@@ -249,17 +249,14 @@ export function AcquisitionReading() {
       </svg>
 
       <div className={styles.legendRow}>
-        <span className={styles.legend}><i className={styles.swatchKon} /> Erwerb</span>
-        <span className={styles.legend}><i className={styles.swatchEnji} /> Lektüre (tagesgenau)</span>
-        <span className={styles.legend}><i className={styles.swatchHatch} /> Lektüre (Jahres-Tag)</span>
+        <span className={styles.legend}><i className={styles.swatchKon} /> {m.views.timeline.legendAcquired}</span>
+        <span className={styles.legend}><i className={styles.swatchEnji} /> {m.views.timeline.legendReadDated}</span>
+        <span className={styles.legend}><i className={styles.swatchHatch} /> {m.views.timeline.legendReadTagged}</span>
         <button className={styles.action} onClick={() => addFilter({ kind: 'readStatus', value: 'unread' })}>
-          Ungelesene filtern
+          {m.views.timeline.filterUnread}
         </button>
       </div>
-      <p className={styles.hint}>
-        Zeitraum wählen: im Diagramm horizontal ziehen — über der Nulllinie filtert nach Erwerbsjahr,
-        darunter nach Lesejahr; ein Klick wählt ein einzelnes Jahr, Esc bricht die Auswahl ab.
-      </p>
+      <p className={styles.hint}>{m.views.timeline.hint}</p>
 
       <form
         className={styles.rangeForm}
@@ -271,13 +268,13 @@ export function AcquisitionReading() {
         <select
           value={formDim}
           onChange={(e) => setFormDim(e.target.value as RangeDim)}
-          aria-label="Dimension des Zeitraumfilters"
+          aria-label={m.rangeForm.dimensionAria}
         >
-          <option value="acquiredYear">Erwerb</option>
-          <option value="readYear">Lektüre</option>
+          <option value="acquiredYear">{m.rangeForm.acquired}</option>
+          <option value="readYear">{m.rangeForm.read}</option>
         </select>
         <label>
-          von{' '}
+          {m.rangeForm.from}{' '}
           <input
             type="number"
             value={formFrom}
@@ -287,7 +284,7 @@ export function AcquisitionReading() {
           />
         </label>
         <label>
-          bis{' '}
+          {m.rangeForm.to}{' '}
           <input
             type="number"
             value={formTo}
@@ -296,23 +293,23 @@ export function AcquisitionReading() {
             max={2100}
           />
         </label>
-        <button type="submit">Zeitraum filtern</button>
+        <button type="submit">{m.rangeForm.submit}</button>
       </form>
 
       {hover && !drag && hoverTitles.length > 0 && (
         <Tooltip x={hover.px} y={hover.py}>
-          <strong>{hover.year}</strong>: {fmtInt(hoverTitles.length)} erworben
+          <strong>{hover.year}</strong>: {m.views.timeline.tooltipAcquired(fmtInt(hoverTitles.length))}
           <ul className={styles.tipList}>
             {hoverTitles.slice(0, 10).map((t) => (
               <li key={t}>{t}</li>
             ))}
-            {hoverTitles.length > 10 && <li>… und {fmtInt(hoverTitles.length - 10)} weitere</li>}
+            {hoverTitles.length > 10 && <li>{m.views.timeline.andMore(fmtInt(hoverTitles.length - 10))}</li>}
           </ul>
         </Tooltip>
       )}
       {unreadHover && (
         <Tooltip x={unreadHover.px} y={unreadHover.py}>
-          <strong>{unreadHover.year}</strong>: {fmtInt(unreadHover.count)} ungelesen im Bestand
+          <strong>{unreadHover.year}</strong>: {m.views.timeline.tooltipUnread(fmtInt(unreadHover.count))}
         </Tooltip>
       )}
     </div>
