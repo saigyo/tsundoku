@@ -11,7 +11,8 @@ export function CoverageNote({ covered, total, unit = 'Titeln', children }: {
 }) {
   return (
     <p className={styles.note}>
-      <span className={styles.numbers}>{fmtInt(covered)} von {fmtInt(total)}</span> {unit} {children}
+      <span className={styles.num}>{fmtInt(covered)}</span> von{' '}
+      <span className={styles.num}>{fmtInt(total)}</span> {unit} {children}
     </p>
   )
 }
