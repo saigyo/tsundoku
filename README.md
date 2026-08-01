@@ -88,3 +88,8 @@ Anwendung vollständig: Fundament (Filter-Store, URL-Sync, Shell) und alle acht
 Views aus `docs/visualisierungen.md`. Start mit `npm run dev`, statischer Build
 mit `npm run build`. Datengrundlage einmalig per
 `node scripts/normalize.mjs <export.json>` erzeugen.
+
+## Lizenz
+
+[MIT](LICENSE) — der Code ist frei verwendbar. Die Bibliotheksdaten selbst
+(der LibraryThing-Export) sind nicht Teil des Repositories.
