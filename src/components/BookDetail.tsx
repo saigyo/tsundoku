@@ -68,7 +68,13 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
         <div className={styles.bodyText}>
           <h3 className={styles.title}>{book.title}</h3>
           <p className={styles.authors}>
-            {book.authors.map((a) => {
+            {/* Anzeige-Deduplizierung: dieselbe Person kann im Export mehrfach
+                gelistet sein (etwa als Übersetzer und Herausgeber). Die Chips
+                filtern per Name — ein zweiter gleichnamiger Chip wäre redundant
+                und kollidierte als React-Key. Die Daten bleiben unverändert. */}
+            {book.authors
+              .filter((a, i, all) => all.findIndex((b) => b.name === a.name) === i)
+              .map((a) => {
               const active = filters.some((f) => f.kind === 'author' && f.value === a.name)
               return (
                 <button
@@ -130,6 +136,7 @@ function Cover({ isbn, title }: { isbn: string; title: string }) {
   const enabled = useCoversStore((s) => s.enabled)
   const setEnabled = useCoversStore((s) => s.setEnabled)
   const [failed, setFailed] = useState(false)
+  const [zoom, setZoom] = useState(false)
   if (!enabled) {
     return (
       <div className={styles.cover}>
@@ -150,12 +157,46 @@ function Cover({ isbn, title }: { isbn: string; title: string }) {
   return (
     <div className={styles.cover}>
       {/* isbn kommt bereits normalisiert vom Aufrufer, coverUrl kann nicht null sein */}
+      <button className={styles.coverZoomButton} onClick={() => setZoom(true)} aria-label={m.detail.coverZoomAria}>
+        <img
+          className={styles.coverImg}
+          src={coverUrl(isbn)!}
+          alt={m.detail.coverAlt(title)}
+          onError={() => setFailed(true)}
+        />
+      </button>
+      {zoom && <CoverZoom isbn={isbn} title={title} onClose={() => setZoom(false)} />}
+    </div>
+  )
+}
+
+/** Zoom-Overlay mit dem L-Cover — so verlinkt es auch die OpenLibrary-Seite
+ *  selbst. Esc und Klick schließen; fehlt die L-Version (404), fällt die
+ *  Anzeige auf das bereits geladene M-Cover zurück. */
+function CoverZoom({ isbn, title, onClose }: { isbn: string; title: string; onClose: () => void }) {
+  const { m } = useI18n()
+  const ref = useRef<HTMLDialogElement>(null)
+  const [failed, setFailed] = useState(false)
+  useEffect(() => ref.current?.showModal(), [])
+  return (
+    <dialog
+      ref={ref}
+      className={styles.zoomDialog}
+      onClose={(e) => {
+        // Reacts synthetisches close-Event steigt zum äußeren <dialog> auf
+        // und würde dort das ganze Buch-Popup schließen (Esc im Zoom).
+        e.stopPropagation()
+        onClose()
+      }}
+      onClick={onClose}
+      aria-label={m.detail.coverAlt(title)}
+    >
       <img
-        className={styles.coverImg}
-        src={coverUrl(isbn)!}
+        className={styles.zoomImg}
+        src={coverUrl(isbn, failed ? 'M' : 'L')!}
         alt={m.detail.coverAlt(title)}
         onError={() => setFailed(true)}
       />
-    </div>
+    </dialog>
   )
 }

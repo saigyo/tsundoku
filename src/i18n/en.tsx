@@ -187,6 +187,7 @@ export const en: Messages = {
     coverLoad: 'Load cover from OpenLibrary',
     coverNote: 'This sends the ISBN to covers.openlibrary.org. Agreeing once is enough — turn it off any time in the footer.',
     coverNone: 'No cover',
+    coverZoomAria: 'Enlarge cover',
     viewOnOl: 'View on OpenLibrary ↗',
     close: 'Close',
   },

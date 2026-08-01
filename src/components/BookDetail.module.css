@@ -144,6 +144,35 @@
   height: auto;
 }
 
+.coverZoomButton {
+  border: none;
+  background: none;
+  padding: 0;
+  display: block;
+  cursor: zoom-in;
+}
+
+.zoomDialog {
+  border: 1px solid var(--ink-15);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: var(--space-2);
+  cursor: zoom-out;
+}
+
+.zoomDialog::backdrop {
+  background: rgba(28, 27, 25, 0.45);
+}
+
+/* L-Cover in natürlicher Größe, begrenzt auf den Viewport. */
+.zoomImg {
+  display: block;
+  max-width: min(31.25rem, 90vw);
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+}
+
 .coverLoad {
   border: 1px solid var(--ink-45);
   background: none;

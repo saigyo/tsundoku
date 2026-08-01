@@ -191,6 +191,7 @@ export const es: Messages = {
     coverLoad: 'Cargar la portada desde OpenLibrary',
     coverNote: 'Esto envía el ISBN a covers.openlibrary.org. Basta con aceptar una vez — puedes desactivarlo en el pie de página.',
     coverNone: 'Sin portada',
+    coverZoomAria: 'Ampliar la portada',
     viewOnOl: 'Ver en OpenLibrary ↗',
     close: 'Cerrar',
   },
