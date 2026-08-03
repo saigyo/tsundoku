@@ -99,6 +99,16 @@ export interface Messages {
     removeAria: (label: string) => string
     clearAll: string
   }
+  filterEditor: {
+    openAria: string
+    title: string
+    status: string
+    medium: string
+    collection: string
+    read: string
+    unread: string
+    close: string
+  }
   empty: {
     title: string
     active: string

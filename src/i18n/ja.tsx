@@ -143,6 +143,16 @@ export const ja: Messages = {
     removeAria: (label) => `絞り込みを解除：${label}`,
     clearAll: 'すべての絞り込みを解除',
   },
+  filterEditor: {
+    openAria: 'フィルターを追加',
+    title: 'フィルター',
+    status: 'ステータス',
+    medium: '媒体',
+    collection: 'コレクション',
+    read: '読了',
+    unread: '未読',
+    close: '閉じる',
+  },
   empty: {
     title: '現在の絞り込みに該当するタイトルはありません',
     active: '適用中の絞り込み：',
