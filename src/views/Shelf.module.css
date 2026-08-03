@@ -67,6 +67,10 @@
 .legendBtn,
 .legendBtnActive,
 .legendPassive {
+  /* inline-block auch für den passiven span: Buttons sind es per UA-Default,
+     ein inline-span richtet sich sonst minimal höher aus (Zeilenbox ohne
+     Padding/Border). */
+  display: inline-block;
   border: 1px solid transparent;
   background: transparent;
   color: inherit;
