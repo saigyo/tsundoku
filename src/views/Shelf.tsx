@@ -59,6 +59,13 @@ export function Shelf() {
   // Kategorien aus dem Gesamtbestand der Ansicht — leere bleiben sichtbar (Spec)
   const shelfPopulation = useMemo(() => books.filter((b) => b.mediaType === 'book'), [books])
 
+  // Memoisiert: Hover-State rendert das Regal bei jeder Mausbewegung neu —
+  // die Legende über die volle Population soll dabei nicht mitrechnen.
+  const legend = useMemo(
+    () => shelfLegend(color, shelfPopulation, legendBooks, yearScale, m),
+    [color, shelfPopulation, legendBooks, yearScale, m],
+  )
+
   if (filtered.length === 0) return <EmptyState />
 
   const fill = (b: Book): string => {
@@ -73,7 +80,6 @@ export function Shelf() {
   const stroke = (b: Book) =>
     color === 'readStatus' && !b.hasRead ? 'var(--sumi)' : 'none'
 
-  const legend = shelfLegend(color, shelfPopulation, legendBooks, yearScale, m)
   const estimatedCount = layout.placed.filter((p) => p.book.physicalEstimated).length
 
   const open = (b: Book) => setSelected(b)
@@ -130,7 +136,7 @@ export function Shelf() {
             </>
           )
           return (
-            <li key={f !== null ? filterKey(f) : l.label}>
+            <li key={f !== null ? filterKey(f) : 'missing'}>
               {f !== null ? (
                 <button
                   className={isActive ? styles.legendBtnActive : styles.legendBtn}
