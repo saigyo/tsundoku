@@ -5,23 +5,22 @@ import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
 import { useI18n } from '../i18n/LocaleContext'
-import type { Messages } from '../i18n/messages'
 import { useLibraryData } from '../lib/DataContext'
 import { DDC_COLORS } from '../lib/ddc'
 import { isActivationKey } from '../lib/keyboard'
-import { langLabel, LANG_COLORS } from '../lib/languages'
+import { LANG_COLORS } from '../lib/languages'
 import type { Book } from '../lib/types'
 import { useMeasure } from '../lib/useMeasure'
 import { shelfLayout, type ShelfSort } from '../lib/viewData/shelf'
+import { LEGEND_KIND, NEUTRAL, shelfLegend, type ColorMode } from '../lib/viewData/shelfLegend'
+import { filterBooks, sameFilter, useFilterStore } from '../store/filters'
 import styles from './Shelf.module.css'
-
-type ColorMode = 'ddc' | 'language' | 'readStatus' | 'acquiredYear'
-
-const NEUTRAL = '#b9b2a5'
 
 export function Shelf() {
   const { m, fmtNum } = useI18n()
-  const { filtered } = useLibraryData()
+  const { books, filtered } = useLibraryData()
+  const filters = useFilterStore((s) => s.filters)
+  const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const [sort, setSort] = useState<ShelfSort>('acquired')
   const [color, setColor] = useState<ColorMode>('ddc')
   const [selected, setSelected] = useState<Book | null>(null)
@@ -37,10 +36,25 @@ export function Shelf() {
     const years = layout.placed
       .map((p) => p.book.acquiredYear)
       .filter((y): y is number => y !== null)
+    // clamp: Dekaden aus der Ausschlussmenge können außerhalb der Domain
+    // liegen — ohne Klemme extrapolierte Farben außerhalb der Palette.
     return scaleLinear<string>()
       .domain([Math.min(...years, 1991), Math.max(...years, 2026)])
       .range(['#cfc7b4', '#223a70'])
+      .clamp(true)
   }, [layout])
+
+  // Ausschluss-Semantik: Die Legende zählt ohne die Filter ihrer eigenen
+  // Dimension, sonst verschwänden beim Anklicken einer Kategorie alle
+  // Geschwistereinträge (s. Spec). Population = alles, was die Ansicht
+  // einfärbt: Regal plus „ohne Maße"-Block (mediaType 'book').
+  const legendBooks = useMemo(
+    () =>
+      filterBooks(books, filters.filter((f) => f.kind !== LEGEND_KIND[color])).filter(
+        (b) => b.mediaType === 'book',
+      ),
+    [books, filters, color],
+  )
 
   if (filtered.length === 0) return <EmptyState />
 
@@ -56,7 +70,7 @@ export function Shelf() {
   const stroke = (b: Book) =>
     color === 'readStatus' && !b.hasRead ? 'var(--sumi)' : 'none'
 
-  const legend = buildLegend(color, layout.placed.map((p) => p.book), yearScale, m)
+  const legend = shelfLegend(color, legendBooks, yearScale, m)
   const estimatedCount = layout.placed.filter((p) => p.book.physicalEstimated).length
 
   const open = (b: Book) => setSelected(b)
@@ -101,6 +115,34 @@ export function Shelf() {
           </select>
         </label>
       </div>
+
+      <ul className={styles.legend} aria-label={m.views.shelf.legendAria}>
+        {legend.map((l) => {
+          const f = l.filter
+          const isActive = f !== null && filters.some((g) => sameFilter(g, f))
+          const body = (
+            <>
+              <i style={{ background: l.color, borderColor: 'var(--ink-45)' }} /> {l.label}{' '}
+              <span className={styles.legendCount}>{fmtNum(l.count)}</span>
+            </>
+          )
+          return (
+            <li key={l.label}>
+              {f !== null ? (
+                <button
+                  className={isActive ? styles.legendBtnActive : styles.legendBtn}
+                  aria-pressed={isActive}
+                  onClick={() => toggleFilter(f)}
+                >
+                  {body}
+                </button>
+              ) : (
+                <span className={styles.legendPassive}>{body}</span>
+              )}
+            </li>
+          )
+        })}
+      </ul>
 
       <svg width={width} height={layout.totalHeight + 4} role="img" aria-label={m.views.shelf.svgAria(fmtNum(layout.placed.length))}>
         {layout.placed.map((p) => (
@@ -165,15 +207,6 @@ export function Shelf() {
         )
       })()}
 
-      <ul className={styles.legend} aria-label={m.views.shelf.legendAria}>
-        {legend.map((l) => (
-          <li key={l.label}>
-            <i style={{ background: l.color, borderColor: 'var(--ink-45)' }} /> {l.label}{' '}
-            <span className={styles.legendCount}>{fmtNum(l.count)}</span>
-          </li>
-        ))}
-      </ul>
-
       {hover && (
         <Tooltip x={hover.px} y={hover.py}>
           <strong>{hover.book.title}</strong>
@@ -184,43 +217,4 @@ export function Shelf() {
       <BookDetail book={selected} onClose={() => setSelected(null)} />
     </div>
   )
-}
-
-function buildLegend(
-  mode: ColorMode,
-  books: Book[],
-  yearScale: (y: number) => string,
-  m: Messages,
-): { label: string; color: string; count: number }[] {
-  const add = (dest: Map<string, { color: string; count: number }>, label: string, color: string) => {
-    const e = dest.get(label)
-    if (e) e.count += 1
-    else dest.set(label, { color, count: 1 })
-  }
-  const dest = new Map<string, { color: string; count: number }>()
-  for (const b of books) {
-    switch (mode) {
-      case 'ddc':
-        add(dest, b.ddc ? m.ddc.short[b.ddc.top] : m.views.shelf.noInfo, b.ddc ? DDC_COLORS[b.ddc.top] : NEUTRAL)
-        break
-      case 'language':
-        add(dest, b.languages[0] ? langLabel(b.languages[0], m) : m.views.shelf.noInfo, LANG_COLORS[b.languages[0] ?? ''] ?? NEUTRAL)
-        break
-      case 'readStatus':
-        add(dest, b.hasRead ? m.views.shelf.legendRead : m.views.shelf.legendUnread, b.hasRead ? '#223a70' : '#f4efe6')
-        break
-      case 'acquiredYear': {
-        // Dekaden bekommen einen Swatch aus dem tatsächlichen Jahresverlauf
-        // (Farbe am Dekaden-Mittelpunkt), sonst wäre die Legende ohne Farbwert nutzlos.
-        if (b.acquiredYear === null) {
-          add(dest, m.views.shelf.noAcqYear, NEUTRAL)
-        } else {
-          const decade = Math.floor(b.acquiredYear / 10) * 10
-          add(dest, m.views.shelf.decade(decade), yearScale(decade + 5))
-        }
-        break
-      }
-    }
-  }
-  return [...dest].map(([label, v]) => ({ label, ...v })).sort((a, b) => b.count - a.count)
 }

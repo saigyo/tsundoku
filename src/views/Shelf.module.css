@@ -61,3 +61,31 @@
   font-family: var(--font-mono);
   color: var(--ink-70);
 }
+
+/* Interaktive Legendeneinträge: Ruhe wie reiner Text, Hover/Fokus mit
+   Rahmen, aktiv mit Kon-Rahmen plus Fläche — Farbe nie alleiniger Träger. */
+.legendBtn,
+.legendBtnActive,
+.legendPassive {
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 1px var(--space-1);
+  border-radius: var(--radius);
+}
+
+.legendBtn,
+.legendBtnActive {
+  cursor: pointer;
+}
+
+.legendBtn:hover,
+.legendBtn:focus-visible {
+  border-color: var(--ink-45);
+}
+
+.legendBtnActive {
+  border-color: var(--kon);
+  background: var(--ink-08);
+}
