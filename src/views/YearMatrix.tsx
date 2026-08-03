@@ -1,4 +1,5 @@
 import { scaleLinear, scaleSqrt } from 'd3-scale'
+import { isActivationKey } from '../lib/keyboard'
 import { useEffect, useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
 import { CoverageNote } from '../components/CoverageNote'
@@ -130,9 +131,18 @@ export function YearMatrix() {
                 height={44}
                 fill="transparent"
                 className={styles.marginalHit}
+                role="button"
+                tabIndex={0}
+                aria-label={m.views.years.tooltipEdition(yr, fmtNum(n))}
                 onPointerMove={(e) => setHover({ kind: 'edYear', year: yr, count: n, ...hoverPos(e) })}
                 onPointerLeave={() => setHover(null)}
                 onClick={() => setRange('editionYear', yr, yr)}
+                onKeyDown={(e) => {
+                  if (isActivationKey(e)) {
+                    e.preventDefault()
+                    setRange('editionYear', yr, yr)
+                  }
+                }}
               />
             </g>
           ))}
@@ -152,9 +162,18 @@ export function YearMatrix() {
                 height={ch}
                 fill="transparent"
                 className={styles.marginalHit}
+                role="button"
+                tabIndex={0}
+                aria-label={m.views.years.tooltipAcquired(yr, fmtNum(n))}
                 onPointerMove={(e) => setHover({ kind: 'acqYear', year: yr, count: n, ...hoverPos(e) })}
                 onPointerLeave={() => setHover(null)}
                 onClick={() => setRange('acquiredYear', yr, yr)}
+                onKeyDown={(e) => {
+                  if (isActivationKey(e)) {
+                    e.preventDefault()
+                    setRange('acquiredYear', yr, yr)
+                  }
+                }}
               />
             </g>
           ))}
