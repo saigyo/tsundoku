@@ -39,8 +39,15 @@ Legendenkategorie einer existierenden Filterart entspricht — im Produkt
 | `acquiredYear` | Dekade | `{ kind: 'acquiredYear', from: dekade, to: dekade + 9 }` |
 
 Alles über `toggleFilter` aus dem Store — auch der Dekaden-Range togglet
-sauber (`sameFilter` vergleicht `from`/`to`); mehrere Dekaden verknüpfen
-sich als ODER innerhalb der Dimension.
+sauber (`sameFilter` vergleicht `from`/`to`).
+
+**Mehrfachauswahl ist ausdrücklich Teil des Features:** Der Store
+verknüpft seit jeher ODER innerhalb einer Dimension („Philosophie ODER
+Soziologie“, zwei Chips), aber die bisherigen Filtereingänge machten den
+zweiten Wert praktisch unerreichbar, weil er nach dem ersten Klick aus
+der Anzeige verschwand. Die Ausschluss-Semantik der Legende (unten) macht
+die vorhandene ODER-Mechanik erstmals bequem bedienbar — für
+Wissensgebiete, Sprachen und Dekaden gleichermaßen. Keine Store-Änderung.
 
 Dokumentierte Unschärfe: Die Legende gruppiert Sprachen nach `languages[0]`
 (so färbt das Regal), der Sprachfilter matcht per `languages.includes(…)`.
@@ -125,6 +132,9 @@ Ausschluss-Menge selbst ist `filterBooks`-Komposition in der Komponente
   (Ausschluss-Semantik), Zahlen passen sich fremden Filtern an.
 - Dekaden-Klick erzeugt `Erworben: 1990–1999`-Chip; zweite Dekade
   zusätzlich wählbar (ODER); Dekaden-Swatch nie außerhalb der Palette.
+- Zwei Wissensgebiete nacheinander anklickbar → zwei Chips,
+  ODER-verknüpfte Menge; jeder einzeln wieder abwählbar (per Legende oder
+  Chip).
 - „Keine Angabe“/„Ohne Erwerbsjahr“ nicht klickbar, aber sichtbar mit
   Anzahl.
 - Tastatur: Einträge per Tab erreichbar, Enter/Leertaste togglet,
