@@ -13,6 +13,10 @@
   cursor: crosshair;
 }
 
+.marginalHit {
+  cursor: pointer;
+}
+
 /* WebKit/Chromium markieren beim Ziehen sonst das SVG als Textselektion. */
 .chart {
   user-select: none;

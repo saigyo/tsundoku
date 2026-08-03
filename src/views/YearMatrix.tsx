@@ -14,15 +14,17 @@ import styles from './YearMatrix.module.css'
 const H = 520
 const M = { top: 48, right: 64, bottom: 40, left: 56 }
 
+type Hover =
+  | { kind: 'cell'; ed: number; acq: number; count: number; px: number; py: number }
+  | { kind: 'edYear' | 'acqYear'; year: number; count: number; px: number; py: number }
+
 export function YearMatrix() {
   const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
   const setRange = useFilterStore((s) => s.setRange)
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const [drag, setDrag] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)
-  const [hover, setHover] = useState<{ ed: number; acq: number; count: number; px: number; py: number } | null>(
-    null,
-  )
+  const [hover, setHover] = useState<Hover | null>(null)
   const filters = useFilterStore((s) => s.filters)
   const data = useMemo(() => yearMatrix(filtered), [filtered])
   const cellByKey = useMemo(() => {
@@ -85,6 +87,11 @@ export function YearMatrix() {
     const r = e.currentTarget.getBoundingClientRect()
     return { px: e.clientX - r.left, py: e.clientY - r.top }
   }
+  // Tooltip-Position relativ zum Wrapper (dort ist der Tooltip absolut positioniert)
+  const hoverPos = (e: React.PointerEvent) => {
+    const r = wrapRef.current?.getBoundingClientRect()
+    return { px: r ? e.clientX - r.left : 0, py: r ? e.clientY - r.top : 0 }
+  }
 
   // Diagonale nur im Überlappungsbereich beider Achsen
   const dMin = Math.max(data.edExtent[0], data.acqExtent[0])
@@ -104,25 +111,52 @@ export function YearMatrix() {
 
       <svg width={width} height={H} className={styles.chart} role="img" aria-label={m.views.years.svgAria}>
         <g transform={`translate(${M.left},${M.top})`}>
+          {/* Randbalken: die unsichtbare Trefferfläche deckt das ganze Band ab,
+              damit auch flache Balken per Maus erreichbar sind. Klick filtert
+              exakt auf das Jahr; die Tastatur-Alternative ist das Formular unten. */}
           {[...data.edMarginal].map(([yr, n]) => (
-            <rect
-              key={`em${yr}`}
-              x={x(yr - 0.5) + 0.5}
-              y={-8 - 32 * (n / edMarginalMax)}
-              width={cw}
-              height={32 * (n / edMarginalMax)}
-              fill="var(--ink-45)"
-            />
+            <g key={`em${yr}`}>
+              <rect
+                x={x(yr - 0.5) + 0.5}
+                y={-8 - 32 * (n / edMarginalMax)}
+                width={cw}
+                height={32 * (n / edMarginalMax)}
+                fill={hover?.kind === 'edYear' && hover.year === yr ? 'var(--kon)' : 'var(--ink-45)'}
+              />
+              <rect
+                x={x(yr - 0.5) + 0.5}
+                y={-44}
+                width={cw}
+                height={44}
+                fill="transparent"
+                className={styles.marginalHit}
+                onPointerMove={(e) => setHover({ kind: 'edYear', year: yr, count: n, ...hoverPos(e) })}
+                onPointerLeave={() => setHover(null)}
+                onClick={() => setRange('editionYear', yr, yr)}
+              />
+            </g>
           ))}
           {[...data.acqMarginal].map(([yr, n]) => (
-            <rect
-              key={`am${yr}`}
-              x={innerW + 8}
-              y={y(yr - 0.5) + 0.5}
-              width={44 * (n / acqMarginalMax)}
-              height={ch}
-              fill="var(--ink-45)"
-            />
+            <g key={`am${yr}`}>
+              <rect
+                x={innerW + 8}
+                y={y(yr - 0.5) + 0.5}
+                width={44 * (n / acqMarginalMax)}
+                height={ch}
+                fill={hover?.kind === 'acqYear' && hover.year === yr ? 'var(--kon)' : 'var(--ink-45)'}
+              />
+              <rect
+                x={innerW + 4}
+                y={y(yr - 0.5) + 0.5}
+                width={52}
+                height={ch}
+                fill="transparent"
+                className={styles.marginalHit}
+                onPointerMove={(e) => setHover({ kind: 'acqYear', year: yr, count: n, ...hoverPos(e) })}
+                onPointerLeave={() => setHover(null)}
+                onClick={() => setRange('acquiredYear', yr, yr)}
+              />
+            </g>
           ))}
           {data.cells.map((c) => (
             <rect
@@ -188,14 +222,7 @@ export function YearMatrix() {
                 setHover(null)
                 return
               }
-              const wrapRect = wrapRef.current?.getBoundingClientRect()
-              setHover({
-                ed,
-                acq,
-                count,
-                px: wrapRect ? e.clientX - wrapRect.left : px,
-                py: wrapRect ? e.clientY - wrapRect.top : py,
-              })
+              setHover({ kind: 'cell', ed, acq, count, ...hoverPos(e) })
             }}
             onPointerLeave={() => setHover(null)}
             onPointerUp={() => {
@@ -248,7 +275,11 @@ export function YearMatrix() {
 
       {hover && !drag && (
         <Tooltip x={hover.px} y={hover.py}>
-          {m.views.years.tooltip(hover.ed, hover.acq, fmtNum(hover.count))}
+          {hover.kind === 'cell'
+            ? m.views.years.tooltip(hover.ed, hover.acq, fmtNum(hover.count))
+            : hover.kind === 'edYear'
+              ? m.views.years.tooltipEdition(hover.year, fmtNum(hover.count))
+              : m.views.years.tooltipAcquired(hover.year, fmtNum(hover.count))}
         </Tooltip>
       )}
     </div>

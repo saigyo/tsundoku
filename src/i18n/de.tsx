@@ -328,6 +328,8 @@ export const de: Messages = {
       acqToAria: 'Erwerbsjahr bis',
       submit: 'Bereich filtern',
       tooltip: (ed, acq, countFmt) => `Ausgabe ${ed}, erworben ${acq}: ${countFmt} Titel`,
+      tooltipEdition: (year, countFmt) => `Ausgabe ${year}: ${countFmt} Titel`,
+      tooltipAcquired: (year, countFmt) => `Erworben ${year}: ${countFmt} Titel`,
     },
     pace: {
       title: 'Lesetempo',
