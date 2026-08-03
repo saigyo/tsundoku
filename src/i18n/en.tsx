@@ -259,6 +259,7 @@ export const en: Messages = {
         'To select a period, drag horizontally across the chart—above the zero line filters by acquisition year, ' +
         'below it by reading year; a click selects a single year, Esc cancels the selection.',
       tooltipAcquired: (countFmt) => `${countFmt} acquired`,
+      tooltipRead: (countFmt) => `${countFmt} read`,
       andMore: (countFmt) => `… and ${countFmt} more`,
       tooltipUnread: (countFmt) => `${countFmt} unread in the backlog`,
     },

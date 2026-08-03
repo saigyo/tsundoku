@@ -254,6 +254,7 @@ export const ja: Messages = {
         '期間の選択：グラフ上を水平にドラッグします — 基準線より上は入手年、下は読了年で絞り込みます。' +
         'クリックで単年を選択、Esc で選択を取り消します。',
       tooltipAcquired: (countFmt) => `入手 ${countFmt} 点`,
+      tooltipRead: (countFmt) => `読了 ${countFmt} 点`,
       andMore: (countFmt) => `…ほか ${countFmt} 点`,
       tooltipUnread: (countFmt) => `未読の蔵書 ${countFmt} 点`,
     },

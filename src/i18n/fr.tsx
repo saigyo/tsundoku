@@ -264,6 +264,7 @@ export const fr: Messages = {
         'ligne zéro, le filtre porte sur l’année d’acquisition, en dessous sur l’année de lecture ; ' +
         'un clic sélectionne une seule année, Échap annule la sélection.',
       tooltipAcquired: (countFmt) => `${countFmt} acquis`,
+      tooltipRead: (countFmt) => `${countFmt} lus`,
       andMore: (countFmt) => `… et ${countFmt} autres`,
       tooltipUnread: (countFmt) => `${countFmt} non lus dans la pile`,
     },

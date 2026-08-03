@@ -26,7 +26,7 @@ export function AcquisitionReading() {
   const filters = useFilterStore((s) => s.filters)
   const data = useMemo(() => timelineData(filtered), [filtered])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
-  const [hover, setHover] = useState<{ year: number; px: number; py: number } | null>(null)
+  const [hover, setHover] = useState<{ year: number; dim: 'acquired' | 'read'; px: number; py: number } | null>(null)
   const [unreadHover, setUnreadHover] = useState<{ year: number; count: number; px: number; py: number } | null>(null)
   const [drag, setDrag] = useState<{ x0: number; x1: number; dim: RangeDim } | null>(null)
 
@@ -98,10 +98,14 @@ export function AcquisitionReading() {
     .y1((u) => y2(u.count))
     .curve(curveMonotoneX)
 
+  // Halbebene wie beim Brush: oberhalb der Nulllinie die erworbenen Titel,
+  // darunter die gelesenen (datiert + Jahres-Tag, wie die Balken selbst).
   const hoverTitles =
     hover === null
       ? []
-      : filtered.filter((b) => b.acquiredYear === hover.year).map((b) => b.title)
+      : hover.dim === 'acquired'
+        ? filtered.filter((b) => b.acquiredYear === hover.year).map((b) => b.title)
+        : filtered.filter((b) => b.readYearEffective === hover.year).map((b) => b.title)
 
   const tickEvery = Math.ceil(years.length / Math.floor(innerW / 60))
   const xTicks = years
@@ -193,8 +197,10 @@ export function AcquisitionReading() {
               const px = localX(e)
               setDrag((d) => (d ? { ...d, x1: px } : d))
               const wrapRect = wrapRef.current?.getBoundingClientRect()
+              const svgY = e.clientY - e.currentTarget.getBoundingClientRect().top + M.top
               setHover({
                 year: yearAt(px),
+                dim: svgY < y(0) ? 'acquired' : 'read',
                 px: wrapRect ? e.clientX - wrapRect.left : px,
                 py: wrapRect ? e.clientY - wrapRect.top : 0,
               })
@@ -298,7 +304,10 @@ export function AcquisitionReading() {
 
       {hover && !drag && hoverTitles.length > 0 && (
         <Tooltip x={hover.px} y={hover.py}>
-          <strong>{hover.year}</strong>: {m.views.timeline.tooltipAcquired(fmtNum(hoverTitles.length))}
+          <strong>{hover.year}</strong>:{' '}
+          {hover.dim === 'acquired'
+            ? m.views.timeline.tooltipAcquired(fmtNum(hoverTitles.length))
+            : m.views.timeline.tooltipRead(fmtNum(hoverTitles.length))}
           <ul className={styles.tipList}>
             {hoverTitles.slice(0, 10).map((t) => (
               <li key={t}>{t}</li>

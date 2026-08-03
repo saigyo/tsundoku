@@ -195,6 +195,7 @@ export interface Messages {
       filterUnread: string
       hint: string
       tooltipAcquired: (countFmt: string) => string
+      tooltipRead: (countFmt: string) => string
       andMore: (countFmt: string) => string
       tooltipUnread: (countFmt: string) => string
     }
