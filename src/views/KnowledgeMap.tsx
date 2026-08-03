@@ -9,16 +9,22 @@ import { useLibraryData } from '../lib/DataContext'
 import { DDC_COLORS } from '../lib/ddc'
 import { useMeasure } from '../lib/useMeasure'
 import { ddcYearMatrix } from '../lib/viewData/knowledge'
-import { useFilterStore } from '../store/filters'
+import { filterBooks, sameFilter, useFilterStore } from '../store/filters'
 import styles from './KnowledgeMap.module.css'
 
 const H = 420
 const M = { top: 8, right: 16, bottom: 28, left: 16 }
 
+/** Feste DDC-Taxonomie: Die Legende zeigt immer alle zehn Hauptklassen,
+ *  unabhängig von Daten und Filtern (Spec) — die Ströme zeichnen weiter
+ *  nur vorhandene Klassen (data.classes). */
+const DDC_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
 export function KnowledgeMap() {
   const { m, fmtNum } = useI18n()
-  const { filtered } = useLibraryData()
+  const { books, filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
+  const filters = useFilterStore((s) => s.filters)
   const setRange = useFilterStore((s) => s.setRange)
   const [mode, setMode] = useState<'absolute' | 'share'>('absolute')
   const [smooth, setSmooth] = useState(false)
@@ -44,6 +50,21 @@ export function KnowledgeMap() {
   }, [dragging])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const data = useMemo(() => ddcYearMatrix(filtered, { smooth }), [filtered, smooth])
+
+  // Legendenzahlen mit Ausschluss der eigenen Dimension (Muster aus
+  // Filter-Editor und Regal-Legende): gezählt wird ohne ddcTop-Filter,
+  // eingeschränkt auf die Population dieser View (ddc + Erwerbsjahr,
+  // das usable-Kriterium aus ddcYearMatrix). Direkt über Bücher, nicht
+  // über die bei „geglättet" gerundeten Stromzeilen.
+  const legendCounts = useMemo(() => {
+    const counts = new Map<number, number>()
+    const base = filterBooks(books, filters.filter((f) => f.kind !== 'ddcTop'))
+    for (const b of base) {
+      if (b.ddc === null || b.acquiredYear === null) continue
+      counts.set(b.ddc.top, (counts.get(b.ddc.top) ?? 0) + 1)
+    }
+    return counts
+  }, [books, filters])
 
   if (filtered.length === 0) return <EmptyState />
   if (data.years.length === 0) {
@@ -183,20 +204,24 @@ export function KnowledgeMap() {
       <p className={styles.hint}>{m.views.knowledge.hint}</p>
 
       <ul className={styles.legend}>
-        {data.classes.map((c) => (
-          <li key={c}>
-            <button
-              className={styles.legendItem}
-              onClick={() => toggleFilter({ kind: 'ddcTop', value: c })}
-              onPointerEnter={() => setHoverClass(c)}
-              onPointerLeave={() => setHoverClass(null)}
-            >
-              <i style={{ background: DDC_COLORS[c] }} />
-              <span className={styles.legendNum}>{c}00</span> {m.ddc.labels[c]}
-              <span className={styles.legendCount}>{fmtNum(Math.round(classCounts.get(c) ?? 0))}</span>
-            </button>
-          </li>
-        ))}
+        {DDC_CLASSES.map((c) => {
+          const active = filters.some((g) => sameFilter(g, { kind: 'ddcTop', value: c }))
+          return (
+            <li key={c}>
+              <button
+                className={active ? styles.legendItemActive : styles.legendItem}
+                aria-pressed={active}
+                onClick={() => toggleFilter({ kind: 'ddcTop', value: c })}
+                onPointerEnter={() => setHoverClass(c)}
+                onPointerLeave={() => setHoverClass(null)}
+              >
+                <i style={{ background: DDC_COLORS[c] }} />
+                <span className={styles.legendNum}>{c}00</span> {m.ddc.labels[c]}
+                <span className={styles.legendCount}>{fmtNum(legendCounts.get(c) ?? 0)}</span>
+              </button>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

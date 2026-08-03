@@ -45,31 +45,57 @@
   gap: var(--space-1);
 }
 
-.legendItem {
-  border: none;
+.legendItem,
+.legendItemActive {
+  border: 1px solid transparent;
   background: none;
+  color: inherit;
+  font: inherit;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   font-size: 14px;
-  padding: 2px;
+  padding: 2px var(--space-1);
   width: 100%;
   text-align: left;
+  border-radius: var(--radius);
+  cursor: pointer;
 }
 
-.legendItem i {
+.legendItem:hover,
+.legendItem:focus-visible {
+  border-color: var(--ink-45);
+}
+
+.legendItemActive {
+  border-color: var(--kon);
+  background: var(--ink-08);
+}
+
+.legendItem i,
+.legendItemActive i {
   width: 12px;
   height: 12px;
   flex: none;
 }
 
+/* Code-Badge: Der DDC-Code liest sich als Bezeichner (wie Inline-Code),
+   die nackte Mono-Zahl dahinter als Anzahl — vorher waren beide
+   identisch gestylt und verwechselbar. */
 .legendNum {
   font-family: var(--font-mono);
+  font-size: 11px;
   color: var(--ink-70);
+  background: var(--ink-08);
+  padding: 0 3px;
+  border-radius: var(--radius);
+}
+
+.legendItemActive .legendNum {
+  background: var(--ink-15);
 }
 
 .legendCount {
-  margin-left: auto;
   font-family: var(--font-mono);
   color: var(--ink-70);
 }
