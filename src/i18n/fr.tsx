@@ -149,6 +149,16 @@ export const fr: Messages = {
     removeAria: (label) => `Retirer le filtre : ${label}`,
     clearAll: 'Effacer tous les filtres',
   },
+  filterEditor: {
+    openAria: 'Ajouter un filtre',
+    title: 'Filtres',
+    status: 'Statut',
+    medium: 'Support',
+    collection: 'Collection',
+    read: 'Lu',
+    unread: 'Non lu',
+    close: 'Fermer',
+  },
   empty: {
     title: 'Aucun titre ne correspond aux filtres actuels',
     active: 'Filtres actuellement actifs :',
