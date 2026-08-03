@@ -10,3 +10,6 @@ public/data/*
 
 # Roh-Export gehoert nicht ins Repo
 *librarything*.json
+
+# Superpowers-Arbeitsverzeichnis (SDD-Ledger, Brainstorm-Mockups)
+.superpowers/
