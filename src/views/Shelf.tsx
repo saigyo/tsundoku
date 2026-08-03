@@ -13,7 +13,7 @@ import type { Book } from '../lib/types'
 import { useMeasure } from '../lib/useMeasure'
 import { shelfLayout, type ShelfSort } from '../lib/viewData/shelf'
 import { LEGEND_KIND, NEUTRAL, shelfLegend, type ColorMode } from '../lib/viewData/shelfLegend'
-import { filterBooks, sameFilter, useFilterStore } from '../store/filters'
+import { filterBooks, filterKey, sameFilter, useFilterStore } from '../store/filters'
 import styles from './Shelf.module.css'
 
 export function Shelf() {
@@ -56,6 +56,9 @@ export function Shelf() {
     [books, filters, color],
   )
 
+  // Kategorien aus dem Gesamtbestand der Ansicht — leere bleiben sichtbar (Spec)
+  const shelfPopulation = useMemo(() => books.filter((b) => b.mediaType === 'book'), [books])
+
   if (filtered.length === 0) return <EmptyState />
 
   const fill = (b: Book): string => {
@@ -70,7 +73,7 @@ export function Shelf() {
   const stroke = (b: Book) =>
     color === 'readStatus' && !b.hasRead ? 'var(--sumi)' : 'none'
 
-  const legend = shelfLegend(color, legendBooks, yearScale, m)
+  const legend = shelfLegend(color, shelfPopulation, legendBooks, yearScale, m)
   const estimatedCount = layout.placed.filter((p) => p.book.physicalEstimated).length
 
   const open = (b: Book) => setSelected(b)
@@ -127,7 +130,7 @@ export function Shelf() {
             </>
           )
           return (
-            <li key={l.label}>
+            <li key={f !== null ? filterKey(f) : l.label}>
               {f !== null ? (
                 <button
                   className={isActive ? styles.legendBtnActive : styles.legendBtn}
