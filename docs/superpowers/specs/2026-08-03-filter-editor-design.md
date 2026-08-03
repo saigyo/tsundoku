@@ -44,9 +44,12 @@ heimatlosen Dimensionen.
 ### Popup
 
 Natives `<dialog>` per `showModal` — Muster wie `BookDetail`/`CoverZoom`
-(Esc gratis, Fokusfang nativ, barrierefrei). Per CSS oben ausgerichtet
-(unterhalb des Balkens statt bildschirmzentriert), Breite gedeckelt
-(~ 32rem), damit es sich wie ein Ausklapp-Panel anfühlt.
+(Esc gratis, Fokusfang nativ, barrierefrei). Per CSS oben **rechts**
+ausgerichtet (unterhalb des Balkens, nahe am „+“-Button, statt
+bildschirmzentriert), Breite gedeckelt (~ 32rem), damit es sich wie ein
+Ausklapp-Panel anfühlt. Gestaltung per Mock abgestimmt (2026-08-03):
+Gruppenlabels in Mono-Kapitälchen, Toggle-Chips im Stil der
+Buch-Popup-Tags, Zählungen in Mono neben dem Wert, aktiver Zustand in Kon.
 
 Inhalt: drei beschriftete Gruppen, darunter ein Schließen-Button.
 
