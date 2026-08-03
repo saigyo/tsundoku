@@ -8,6 +8,8 @@
   border-radius: var(--radius);
   box-shadow: 0 6px 24px rgba(28, 27, 25, 0.18);
   padding: 0;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
 }
 
 .dialog::backdrop {

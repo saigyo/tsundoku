@@ -19,7 +19,10 @@ export function FilterEditor({ onClose }: { onClose: () => void }) {
   const filters = useFilterStore((s) => s.filters)
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const ref = useRef<HTMLDialogElement>(null)
-  useEffect(() => ref.current?.showModal(), [])
+  useEffect(() => {
+    const el = ref.current
+    if (el && !el.open) el.showModal()
+  }, [])
   const counts = useMemo(() => facetCounts(books, filters), [books, filters])
 
   const chip = (f: Filter & { value: string | number }, label: string, count: number) => {
@@ -43,7 +46,8 @@ export function FilterEditor({ onClose }: { onClose: () => void }) {
       onClose={onClose}
       onClick={(e) => {
         // padding 0 am dialog: nur echte Backdrop-Klicks treffen das Element selbst
-        if (e.target === ref.current) onClose()
+        // dialog.close() statt onClose(), damit der Fokus nativ zurückkehrt
+        if (e.target === ref.current) ref.current?.close()
       }}
       aria-label={m.filterEditor.title}
     >
@@ -73,7 +77,7 @@ export function FilterEditor({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className={styles.foot}>
-          <button className={styles.close} onClick={onClose}>
+          <button className={styles.close} onClick={() => ref.current?.close()}>
             {m.filterEditor.close}
           </button>
         </div>
