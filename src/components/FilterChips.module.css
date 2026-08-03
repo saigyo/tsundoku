@@ -28,3 +28,24 @@
   text-decoration: underline;
   font-size: 14px;
 }
+
+.add {
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--ink-45);
+  background: transparent;
+  color: var(--ink-70);
+  font-size: 17px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.add:hover {
+  border-color: var(--kon);
+  color: var(--kon);
+}
