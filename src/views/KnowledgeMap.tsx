@@ -51,6 +51,13 @@ export function KnowledgeMap() {
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
   const data = useMemo(() => ddcYearMatrix(filtered, { smooth }), [filtered, smooth])
 
+  // Verwaister Hover: Wählt ein Klick die gehoverte Klasse ab, verschwindet
+  // ihr Strom aus dem DOM und sein onPointerLeave feuert nie — hoverClass
+  // bliebe stehen und dimmte alle übrigen Ströme dauerhaft.
+  useEffect(() => {
+    if (hoverClass !== null && !data.classes.includes(hoverClass)) setHoverClass(null)
+  }, [data.classes, hoverClass])
+
   // Legendenzahlen mit Ausschluss der eigenen Dimension (Muster aus
   // Filter-Editor und Regal-Legende): gezählt wird ohne ddcTop-Filter,
   // eingeschränkt auf die Population dieser View (ddc + Erwerbsjahr,
