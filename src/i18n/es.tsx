@@ -333,6 +333,8 @@ export const es: Messages = {
       acqToAria: 'Año de adquisición hasta',
       submit: 'Filtrar el rango',
       tooltip: (ed, acq, countFmt) => `Edición ${ed}, adquisición ${acq}: ${countFmt} títulos`,
+      tooltipEdition: (year, countFmt) => `Edición ${year}: ${countFmt} títulos`,
+      tooltipAcquired: (year, countFmt) => `Adquisición ${year}: ${countFmt} títulos`,
     },
     pace: {
       title: 'Ritmo de lectura',

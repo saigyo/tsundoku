@@ -242,6 +242,8 @@ export interface Messages {
       acqToAria: string
       submit: string
       tooltip: (ed: number, acq: number, countFmt: string) => string
+      tooltipEdition: (year: number, countFmt: string) => string
+      tooltipAcquired: (year: number, countFmt: string) => string
     }
     pace: {
       title: string

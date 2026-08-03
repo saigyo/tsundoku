@@ -318,6 +318,8 @@ export const ja: Messages = {
       acqToAria: '入手年（終了）',
       submit: '範囲で絞り込む',
       tooltip: (ed, acq, countFmt) => `${ed}年の版を ${acq}年に入手：${countFmt} 点`,
+      tooltipEdition: (year, countFmt) => `${year}年の版：${countFmt} 点`,
+      tooltipAcquired: (year, countFmt) => `${year}年に入手：${countFmt} 点`,
     },
     pace: {
       title: '読書ペース',

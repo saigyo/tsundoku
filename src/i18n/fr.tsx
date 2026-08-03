@@ -332,6 +332,8 @@ export const fr: Messages = {
       acqToAria: 'Année d’acquisition à',
       submit: 'Filtrer la plage',
       tooltip: (ed, acq, countFmt) => `Édition ${ed}, acquis ${acq} : ${countFmt} titres`,
+      tooltipEdition: (year, countFmt) => `Édition ${year} : ${countFmt} titres`,
+      tooltipAcquired: (year, countFmt) => `Acquis ${year} : ${countFmt} titres`,
     },
     pace: {
       title: 'Rythme de lecture',
