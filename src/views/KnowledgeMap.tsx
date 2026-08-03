@@ -212,7 +212,11 @@ export function KnowledgeMap() {
                 className={active ? styles.legendItemActive : styles.legendItem}
                 aria-pressed={active}
                 onClick={() => toggleFilter({ kind: 'ddcTop', value: c })}
-                onPointerEnter={() => setHoverClass(c)}
+                onPointerEnter={() => {
+                  // Klassen ohne gezeichneten Strom heben nichts hervor —
+                  // sonst dimmte der Hover alle Ströme (Spec: passiert nichts).
+                  if (data.classes.includes(c)) setHoverClass(c)
+                }}
                 onPointerLeave={() => setHoverClass(null)}
               >
                 <i style={{ background: DDC_COLORS[c] }} />
