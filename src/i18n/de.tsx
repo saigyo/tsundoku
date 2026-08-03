@@ -261,6 +261,7 @@ export const de: Messages = {
         'Zeitraum wählen: im Diagramm horizontal ziehen — über der Nulllinie filtert nach Erwerbsjahr, ' +
         'darunter nach Lesejahr; ein Klick wählt ein einzelnes Jahr, Esc bricht die Auswahl ab.',
       tooltipAcquired: (countFmt) => `${countFmt} erworben`,
+      tooltipRead: (countFmt) => `${countFmt} gelesen`,
       andMore: (countFmt) => `… und ${countFmt} weitere`,
       tooltipUnread: (countFmt) => `${countFmt} ungelesen im Bestand`,
     },
