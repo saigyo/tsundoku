@@ -68,7 +68,7 @@ export const ja: Messages = {
     media: '媒体',
     read: '読了',
     readValue: (readFmt, knownFmt, datedFmt, minYear) =>
-      `${readFmt}（読了年判明 ${knownFmt} 点、うち ${datedFmt} 点は日付まで判明${minYear !== null ? `、${minYear}年以降` : ''}）`,
+      `${readFmt}（読了年判明 ${knownFmt} 冊、うち ${datedFmt} 冊は日付まで判明${minYear !== null ? `、${minYear}年以降` : ''}）`,
     pagesTotal: '総ページ数',
     readDays: '読書期間',
     readDaysValue: (median, p90, max) => `通常 ${median} 日、${p90} 日を超えることはまれ、最長 ${max} 日`,
@@ -236,7 +236,7 @@ export const ja: Messages = {
       title: '入手と読書',
       coverage: (readKnownFmt, taggedOnlyFmt) => (
         <>
-          入手年がわかっています。読了年があるのは {readKnownFmt} 点、うち {taggedOnlyFmt} 点は年タグによるものです。
+          入手年がわかっています。読了年があるのは {readKnownFmt} 冊、うち {taggedOnlyFmt} 冊は年タグによるものです。
         </>
       ),
       noYears: '現在の絞り込みで入手年か読了年を持っています。',
@@ -254,7 +254,7 @@ export const ja: Messages = {
         '期間の選択：グラフ上を水平にドラッグします — 基準線より上は入手年、下は読了年で絞り込みます。' +
         'クリックで単年を選択、Esc で選択を取り消します。',
       tooltipAcquired: (countFmt) => `入手 ${countFmt} 点`,
-      tooltipRead: (countFmt) => `読了 ${countFmt} 点`,
+      tooltipRead: (countFmt) => `読了 ${countFmt} 冊`,
       andMore: (countFmt) => `…ほか ${countFmt} 点`,
       tooltipUnread: (countFmt) => `未読の蔵書 ${countFmt} 点`,
     },
@@ -337,7 +337,7 @@ export const ja: Messages = {
       coverage: '読書期間とページ数の両方がわかっています — 意識して記録したものに偏っています。',
       discarded: (countFmt) => <>期間が負の {countFmt} 件は破棄しました。</>,
       noData: (pointsFmt) => (
-        <>現在の絞り込みで開始日と終了日を持っています（うち {pointsFmt} 点はページ数もあり）。</>
+        <>現在の絞り込みで開始日と終了日を持っています（うち {pointsFmt} 冊はページ数もあり）。</>
       ),
       facetToggle: '言語別に表示',
       svgAria: (langLabel) => `ページ数と読書期間${langLabel ? `（${langLabel}）` : ''}`,
