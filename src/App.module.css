@@ -58,8 +58,7 @@
   padding: var(--space-1) var(--space-3);
   color: var(--ink-70);
   border-bottom: 2px solid transparent;
-  /* Fest wie .brand (28px) und .replaceLibrary (13px): die JA-Grundgröße
-     (93,75 %) soll die Tab-Höhe nicht verändern. */
+  /* Fest wie .brand (28px): die JA-Grundgröße (93,75 %) soll die Tab-Höhe nicht verändern. */
   font-size: 16px;
 }
 
