@@ -15,6 +15,7 @@ export const fr: Messages = {
     shelf: 'Étagère',
     timeline: 'Acquisitions & lectures',
     knowledge: 'Carte des savoirs',
+    tagTrends: 'Tendances des tags',
     network: 'Réseau de tags',
     languages: 'Flux des langues',
     years: 'Édition × acquisition',
@@ -284,6 +285,46 @@ export const fr: Messages = {
         'Pour choisir une période, faites glisser horizontalement sur le graphique : le filtre porte ' +
         'sur l’année d’acquisition, Échap annule la sélection ; un clic sur un flux filtre par domaine.',
     },
+    tagTrends: {
+      title: 'Tendances des tags',
+      coverageAcquired: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          ont une année d'acquisition — l'axe temporel de cette vue ; sans année : {missingFmt}.
+          Masqués comme tags : {yearTagsFmt} tags d'année, {statusFmt} marqueurs de statut,{' '}
+          {seriesFmt} sigles de série.
+        </>
+      ),
+      coverageRead: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          ont une année de lecture — l'axe temporel de cette vue ; sans année : {missingFmt}.
+          Masqués comme tags : {yearTagsFmt} tags d'année, {statusFmt} marqueurs de statut,{' '}
+          {seriesFmt} sigles de série.
+        </>
+      ),
+      noData: 'Aucun titre de la sélection actuelle n\'a d\'année sur cet axe temporel.',
+      axisAria: 'Axe temporel',
+      axisAcquired: 'Acquisition',
+      axisRead: 'Lecture',
+      modeAria: 'Affichage',
+      modeLines: 'Courbes',
+      modeHeatmap: 'Carte thermique',
+      svgAria: 'Fréquence des tags au fil du temps',
+      labelsAria: 'Tags du panneau de tendances',
+      tagButtonTitle: (tag, countFmt) => `${tag} : ${countFmt} titres — cliquer pour filtrer`,
+      rankingTitle: (from, to) =>
+        from === to ? `Particulièrement fréquents en ${from}` : `Particulièrement fréquents ${from}–${to}`,
+      rankingHint: (minFmt) => `par rapport à la sélection filtrée ; au moins ${minFmt} titres dans la période`,
+      rankingEmpty: 'Aucun tag n\'est nettement plus fréquent dans cette période qu\'à l\'accoutumée.',
+      rankingCount: (inSliceFmt, totalFmt) => `${inSliceFmt} sur ${totalFmt} titres`,
+      factor: (factorFmt) => `×${factorFmt}`,
+      pinAria: (tag) => `Ajouter « ${tag} » au panneau de tendances`,
+      unpinAria: (tag) => `Retirer « ${tag} » du panneau de tendances`,
+      pinLimitTitle: 'Au plus 8 tags ajoutés',
+      tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year} : ${countFmt} titres (×${factorFmt})`,
+      andMore: (countFmt) => `… et ${countFmt} de plus`,
+      hint: 'Glisser choisit la période du classement, cliquer une seule année — la sélection ne filtre pas.',
+    },
+
     network: {
       title: 'Réseau de tags',
       coverage: (minCount, yearTagsFmt, statusFmt, seriesFmt) => (

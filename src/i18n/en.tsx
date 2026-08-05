@@ -15,6 +15,7 @@ export const en: Messages = {
     shelf: 'Shelf',
     timeline: 'Acquisitions & Reading',
     knowledge: 'Knowledge Map',
+    tagTrends: 'Tag Trends',
     network: 'Tag Network',
     languages: 'Language Flow',
     years: 'Edition × Acquisition',
@@ -278,6 +279,42 @@ export const en: Messages = {
       hint:
         'To select a period, drag horizontally across the chart to filter by acquisition year; Esc cancels the ' +
         'selection. Clicking a stream filters by that subject area.',
+    },
+    tagTrends: {
+      title: 'Tag Trends',
+      coverageAcquired: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          have an acquisition year — this view's time axis; without a year: {missingFmt}. Hidden as
+          tags: {yearTagsFmt} year tags, {statusFmt} status markers, {seriesFmt} series abbreviations.
+        </>
+      ),
+      coverageRead: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          have a reading year — this view's time axis; without a year: {missingFmt}. Hidden as
+          tags: {yearTagsFmt} year tags, {statusFmt} status markers, {seriesFmt} series abbreviations.
+        </>
+      ),
+      noData: 'No title in the current selection has a year on this time axis.',
+      axisAria: 'Time axis',
+      axisAcquired: 'Acquired',
+      axisRead: 'Read',
+      modeAria: 'Display',
+      modeLines: 'Lines',
+      modeHeatmap: 'Heatmap',
+      svgAria: 'Tag frequencies over time',
+      labelsAria: 'Tags in the trend panel',
+      tagButtonTitle: (tag, countFmt) => `${tag}: ${countFmt} titles — click to filter`,
+      rankingTitle: (from, to) => (from === to ? `Distinctive in ${from}` : `Distinctive in ${from}–${to}`),
+      rankingHint: (minFmt) => `compared with the current filter set; at least ${minFmt} titles in the period`,
+      rankingEmpty: 'No tag is notably more frequent in this period than usual.',
+      rankingCount: (inSliceFmt, totalFmt) => `${inSliceFmt} of ${totalFmt} titles`,
+      factor: (factorFmt) => `×${factorFmt}`,
+      pinAria: (tag) => `Add "${tag}" to the trend panel`,
+      unpinAria: (tag) => `Remove "${tag}" from the trend panel`,
+      pinLimitTitle: 'At most 8 added tags',
+      tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}: ${countFmt} titles (×${factorFmt})`,
+      andMore: (countFmt) => `… and ${countFmt} more`,
+      hint: 'Drag to choose the ranking period, click for a single year — the selection does not filter.',
     },
     network: {
       title: 'Tag Network',

@@ -211,6 +211,32 @@ export interface Messages {
       streamTitle: (ddcClass: number, label: string, countFmt: string) => string
       hint: string
     }
+    tagTrends: {
+      title: string
+      coverageAcquired: (missingFmt: ReactNode, yearTagsFmt: ReactNode, statusFmt: ReactNode, seriesFmt: ReactNode) => ReactNode
+      coverageRead: (missingFmt: ReactNode, yearTagsFmt: ReactNode, statusFmt: ReactNode, seriesFmt: ReactNode) => ReactNode
+      noData: string
+      axisAria: string
+      axisAcquired: string
+      axisRead: string
+      modeAria: string
+      modeLines: string
+      modeHeatmap: string
+      svgAria: string
+      labelsAria: string
+      tagButtonTitle: (tag: string, countFmt: string) => string
+      rankingTitle: (from: number, to: number) => string
+      rankingHint: (minFmt: string) => string
+      rankingEmpty: string
+      rankingCount: (inSliceFmt: string, totalFmt: string) => string
+      factor: (factorFmt: string) => string
+      pinAria: (tag: string) => string
+      unpinAria: (tag: string) => string
+      pinLimitTitle: string
+      tooltip: (tag: string, year: number, countFmt: string, factorFmt: string) => string
+      andMore: (countFmt: string) => string
+      hint: string
+    }
     network: {
       title: string
       coverage: (minCount: number, yearTagsFmt: ReactNode, statusFmt: ReactNode, seriesFmt: ReactNode) => ReactNode

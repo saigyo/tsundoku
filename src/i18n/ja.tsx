@@ -15,6 +15,7 @@ export const ja: Messages = {
     shelf: '本棚',
     timeline: '入手と読書',
     knowledge: '知の地図',
+    tagTrends: 'タグの推移',
     network: 'タグネットワーク',
     languages: '言語の流れ',
     years: '出版年×入手年',
@@ -273,6 +274,40 @@ export const ja: Messages = {
       hint:
         '期間の選択：グラフ上を水平にドラッグすると入手年で絞り込み、Esc で取り消します。' +
         '流れをクリックすると、その分野で絞り込みます。',
+    },
+    tagTrends: {
+      title: 'タグの推移',
+      coverageAcquired: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          入手年があります — このビューの時間軸です。年のないもの：{missingFmt} 点。タグとして非表示：年タグ {yearTagsFmt} 件、状態を示すタグ {statusFmt} 件、シリーズ略号 {seriesFmt} 件。
+        </>
+      ),
+      coverageRead: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          読了年があります — このビューの時間軸です。年のないもの：{missingFmt} 点。タグとして非表示：年タグ {yearTagsFmt} 件、状態を示すタグ {statusFmt} 件、シリーズ略号 {seriesFmt} 件。
+        </>
+      ),
+      noData: '現在の絞り込みには、この時間軸の年を持つタイトルがありません。',
+      axisAria: '時間軸',
+      axisAcquired: '入手',
+      axisRead: '読書',
+      modeAria: '表示形式',
+      modeLines: '折れ線',
+      modeHeatmap: 'ヒートマップ',
+      svgAria: 'タグの出現数の推移',
+      labelsAria: 'トレンドパネルのタグ',
+      tagButtonTitle: (tag, countFmt) => `${tag}：${countFmt} 点 — クリックで絞り込み`,
+      rankingTitle: (from, to) => (from === to ? `${from}年に特に多いタグ` : `${from}–${to}年に特に多いタグ`),
+      rankingHint: (minFmt) => `現在の絞り込みとの比較。期間内 ${minFmt} 点以上`,
+      rankingEmpty: 'この期間に目立って多いタグはありません。',
+      rankingCount: (inSliceFmt, totalFmt) => `${totalFmt} 点中 ${inSliceFmt} 点`,
+      factor: (factorFmt) => `×${factorFmt}`,
+      pinAria: (tag) => `「${tag}」をトレンドパネルに追加`,
+      unpinAria: (tag) => `「${tag}」をトレンドパネルから外す`,
+      pinLimitTitle: '追加できるタグは 8 件まで',
+      tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}年：${countFmt} 点（×${factorFmt}）`,
+      andMore: (countFmt) => `…ほか ${countFmt} 点`,
+      hint: 'ドラッグでランキングの期間を、クリックで単年を選択します。この選択は絞り込みではありません。',
     },
     network: {
       title: 'タグネットワーク',

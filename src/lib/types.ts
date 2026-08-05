@@ -131,6 +131,7 @@ export type RangeKind = 'acquiredYear' | 'readYear' | 'editionYear'
 export const VIEW_IDS = [
   'timeline',
   'knowledge',
+  'tagTrends',
   'network',
   'languages',
   'years',
