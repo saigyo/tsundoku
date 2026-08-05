@@ -75,11 +75,16 @@ export function TagTrends() {
   )
 
   // Verwaister Hover: Moduswechsel, Pin-Entfernung oder Filterwechsel können
-  // die gehoverte Zeile entfernen, ohne dass ihr pointerleave feuert.
+  // die gehoverte Zeile entfernen — und ein Achsen-/Filterwechsel das Jahr —
+  // ohne dass ihr pointerleave feuert.
   useEffect(() => {
-    if (hover !== null && !visible.some((r) => r.tag === hover.tag)) setHover(null)
+    if (
+      hover !== null &&
+      (!visible.some((r) => r.tag === hover.tag) || !data.years.includes(hover.year))
+    )
+      setHover(null)
     if (hoverTag !== null && !visible.some((r) => r.tag === hoverTag)) setHoverTag(null)
-  }, [visible, hover, hoverTag])
+  }, [visible, data.years, hover, hoverTag])
 
   // Während des Brushs: Textselektion global aus, Escape bricht ab
   // (Muster aus Timeline/Wissenslandkarte).
@@ -160,6 +165,10 @@ export function TagTrends() {
   const cellFill = (row: TagRow, i: number): string | null => {
     if (row.counts[i] === 0) return null
     const clamped = Math.max(-1, Math.min(1, Math.log2(factorAt(row, i)) / 2))
+    // Neutralzone: nahe lift 1,0 weder Enji noch Kon — belegte Zellen bleiben
+    // durch den neutralen Tusche-Ton von leeren unterscheidbar (Spec: Papier
+    // = neutral; der Deckkraft-Floor der Farbseiten markiert echte Abweichung).
+    if (Math.abs(clamped) < 0.05) return 'rgba(28, 27, 25, 0.08)'
     // Enji = überrepräsentiert, Kon = unterrepräsentiert; |t| skaliert die Deckkraft.
     return clamped >= 0
       ? `rgba(158, 61, 59, ${0.12 + 0.68 * clamped})`
@@ -426,11 +435,12 @@ export function TagTrends() {
                     className={isPinned ? styles.pinActive : styles.pin}
                     aria-pressed={isPinned}
                     aria-label={isPinned ? t.unpinAria(r.tag) : t.pinAria(r.tag)}
-                    disabled={pinFull}
+                    aria-disabled={pinFull || undefined}
                     title={pinFull ? t.pinLimitTitle : undefined}
-                    onClick={() =>
+                    onClick={() => {
+                      if (pinFull) return
                       setPinned((p) => (isPinned ? p.filter((x) => x !== r.tag) : [...p, r.tag]))
-                    }
+                    }}
                   >
                     📌
                   </button>
