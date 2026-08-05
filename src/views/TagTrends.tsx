@@ -290,8 +290,10 @@ export function TagTrends() {
                 </button>
                 {/* Unpin direkt am Marker: Die Rangliste ist flüchtig (Abschnitt,
                     Filter) — fällt ein gepinntes Tag dort heraus, bleibt der Pin
-                    sonst unlösbar. Eigener Button, weil Buttons nicht schachteln. */}
-                {pinned.includes(r.tag) && (
+                    sonst unlösbar. Eigener Button, weil Buttons nicht schachteln;
+                    ungepinnte Zeilen tragen einen Platzhalter gleicher Breite,
+                    damit die Anzahlen aller Zeilen fluchten. */}
+                {pinned.includes(r.tag) ? (
                   <button
                     className={styles.labelUnpin}
                     aria-label={t.unpinAria(r.tag)}
@@ -302,6 +304,8 @@ export function TagTrends() {
                   >
                     📌
                   </button>
+                ) : (
+                  <span className={styles.pinSlot} aria-hidden="true" />
                 )}
               </li>
             )

@@ -110,16 +110,24 @@
   flex: none;
 }
 
+/* Feste Pin-Spalte: Button und Platzhalter sind gleich breit, damit die
+   rechtsbündigen Anzahlen aller Zeilen fluchten — gepinnt wie ungepinnt. */
+.labelUnpin,
+.pinSlot {
+  flex: none;
+  width: 18px;
+}
+
 .labelUnpin {
   border: 1px solid transparent;
   background: none;
   color: inherit;
   font: inherit;
   font-size: 11px;
-  padding: 0 2px;
+  padding: 0;
+  text-align: center;
   border-radius: var(--radius);
   cursor: pointer;
-  flex: none;
 }
 
 .labelUnpin:hover,
