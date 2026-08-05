@@ -1,0 +1,71 @@
+.pop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--sumi);
+  color: var(--shironeri);
+  padding: var(--space-2) 0 var(--space-1);
+  border-radius: var(--radius);
+  font-size: 13px;
+  max-width: 26rem;
+  z-index: 10;
+  box-shadow: 0 6px 24px rgba(28, 27, 25, 0.35);
+}
+
+.header {
+  padding: 0 var(--space-3) var(--space-2);
+  border-bottom: 1px solid rgba(238, 232, 220, 0.18);
+}
+
+.list {
+  list-style: none;
+  margin: var(--space-1) 0 0;
+  padding: 0 var(--space-1);
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.row:hover,
+.row:focus-visible {
+  background: rgba(238, 232, 220, 0.14);
+}
+
+/* Der globale Kon-Fokusring ist auf der Sumi-Fläche fast unsichtbar. */
+.row:focus-visible {
+  outline-color: var(--shironeri);
+}
+
+.date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(238, 232, 220, 0.55);
+  flex: none;
+  width: 4.5em;
+}
+
+.rowTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.foot {
+  padding: var(--space-1) var(--space-3) 0;
+  font-size: 11px;
+  color: rgba(238, 232, 220, 0.45);
+}
