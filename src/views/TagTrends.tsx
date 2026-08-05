@@ -286,9 +286,23 @@ export function TagTrends() {
                     <i style={{ background: TREND_COLORS[i % TREND_COLORS.length] }} />
                   )}
                   <span className={styles.labelText}>{r.tag}</span>
-                  {pinned.includes(r.tag) && <span aria-hidden="true">📌</span>}
                   <span className={styles.labelCount}>{fmtNum(r.total)}</span>
                 </button>
+                {/* Unpin direkt am Marker: Die Rangliste ist flüchtig (Abschnitt,
+                    Filter) — fällt ein gepinntes Tag dort heraus, bleibt der Pin
+                    sonst unlösbar. Eigener Button, weil Buttons nicht schachteln. */}
+                {pinned.includes(r.tag) && (
+                  <button
+                    className={styles.labelUnpin}
+                    aria-label={t.unpinAria(r.tag)}
+                    title={t.unpinAria(r.tag)}
+                    onClick={() => setPinned((p) => p.filter((x) => x !== r.tag))}
+                    onPointerEnter={() => setHoverTag(r.tag)}
+                    onPointerLeave={() => setHoverTag(null)}
+                  >
+                    📌
+                  </button>
+                )}
               </li>
             )
           })}
