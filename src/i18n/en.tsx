@@ -266,7 +266,6 @@ export const en: Messages = {
         'below it by reading year; a click selects a single year, Esc cancels the selection.',
       tooltipAcquired: (countFmt) => `${countFmt} acquired`,
       tooltipRead: (countFmt) => `${countFmt} read`,
-      andMore: (countFmt) => `… and ${countFmt} more`,
       tooltipUnread: (countFmt) => `${countFmt} unread in the backlog`,
     },
     knowledge: {

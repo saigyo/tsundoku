@@ -271,7 +271,6 @@ export const fr: Messages = {
         'un clic sélectionne une seule année, Échap annule la sélection.',
       tooltipAcquired: (countFmt) => `${countFmt} acquis`,
       tooltipRead: (countFmt) => `${countFmt} lus`,
-      andMore: (countFmt) => `… et ${countFmt} autres`,
       tooltipUnread: (countFmt) => `${countFmt} non lus dans la pile`,
     },
     knowledge: {
