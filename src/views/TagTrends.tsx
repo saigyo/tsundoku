@@ -75,14 +75,16 @@ export function TagTrends() {
   )
 
   // Verwaister Hover: Moduswechsel, Pin-Entfernung oder Filterwechsel können
-  // die gehoverte Zeile entfernen — und ein Achsen-/Filterwechsel das Jahr —
-  // ohne dass ihr pointerleave feuert.
+  // die gehoverte Zeile entfernen — und ein Achsen-/Filterwechsel das Jahr
+  // oder dessen Zählung — ohne dass ihr pointerleave feuert. Auch eine auf
+  // 0 gefallene Kombination löst den Hover: leere Zellen tragen keinen
+  // Tooltip (Spec), das gilt ebenso für stehengebliebene.
   useEffect(() => {
-    if (
-      hover !== null &&
-      (!visible.some((r) => r.tag === hover.tag) || !data.years.includes(hover.year))
-    )
-      setHover(null)
+    if (hover !== null) {
+      const row = visible.find((r) => r.tag === hover.tag)
+      if (!row || !data.years.includes(hover.year) || row.counts[hover.year - data.years[0]] === 0)
+        setHover(null)
+    }
     if (hoverTag !== null && !visible.some((r) => r.tag === hoverTag)) setHoverTag(null)
   }, [visible, data.years, hover, hoverTag])
 
