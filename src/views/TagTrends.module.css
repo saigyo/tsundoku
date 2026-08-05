@@ -24,6 +24,11 @@
   display: flex;
   gap: var(--space-3);
   align-items: flex-start;
+  /* Ganzes Panel statt nur SVG: WebKit dehnt eine im Chart gestartete
+     Selektion sonst auf die Label-Spalte daneben aus. Die Labels sind
+     Buttons (Klick = Filter), Textselektion ist dort keine Interaktion. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .labels {
