@@ -113,6 +113,7 @@
 .labelUnpin {
   border: 1px solid transparent;
   background: none;
+  color: inherit;
   font: inherit;
   font-size: 11px;
   padding: 0 2px;
