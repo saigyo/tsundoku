@@ -118,6 +118,23 @@ export function TagTrends() {
     if (hoverTag !== null && !visible.some((r) => r.tag === hoverTag)) setHoverTag(null)
   }, [visible, data.years, popup, hoverTag, close])
 
+  // Memoisiert, nicht nur wegen der Sortierkosten: BookListPopup setzt den
+  // Listen-Scroll zurück, wenn sich die books-Identität ändert — ein frisches
+  // Array pro Render (z. B. bei hoverTag-Wechseln über der Label-Spalte)
+  // risse die Liste beim Scrollen an den Anfang.
+  const popupBooks = useMemo(
+    () =>
+      popup === null
+        ? []
+        : sortBooksByDate(
+            filtered.filter(
+              (b) => axisYear(b, axis) === popup.anchor.year && b.tagsNorm.includes(popup.anchor.tag),
+            ),
+            axis === 'acquired' ? (b) => b.acquiredDate : (b) => b.readDate,
+          ),
+    [popup, filtered, axis],
+  )
+
   // Während des Brushs: Textselektion global aus, Escape bricht ab
   // (Muster aus Timeline/Wissenslandkarte).
   const dragging = drag !== null
@@ -174,15 +191,6 @@ export function TagTrends() {
   }
 
   const effHover = popup?.anchor.tag ?? hoverTag
-  const popupBooks =
-    popup === null
-      ? []
-      : sortBooksByDate(
-          filtered.filter(
-            (b) => axisYear(b, axis) === popup.anchor.year && b.tagsNorm.includes(popup.anchor.tag),
-          ),
-          axis === 'acquired' ? (b) => b.acquiredDate : (b) => b.readDate,
-        )
   const popupRow = popup === null ? null : (visible.find((r) => r.tag === popup.anchor.tag) ?? null)
 
   const tickEvery = Math.max(1, Math.ceil(data.years.length / Math.floor(innerW / 60)))
