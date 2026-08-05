@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const GRACE_MS = 250
 
-export type PopupState<A> = { anchor: A; x: number; y: number }
+type PopupState<A> = { anchor: A; x: number; y: number }
 
 /**
  * Zustandsautomat des Titel-Popups (Spec „Interaktives Titel-Popup"):

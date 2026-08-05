@@ -236,10 +236,20 @@ export function AcquisitionReading() {
               const wrapRect = wrapRef.current?.getBoundingClientRect()
               const svgY = e.clientY - e.currentTarget.getBoundingClientRect().top + M.top
               const year = yearAt(px)
+              const dim = svgY < y(0) ? 'acquired' : 'read'
+              // Nur auslösen, wenn die Halbebene des Jahres tatsächlich
+              // Titel enthält (Spec „Chart-Hover (Jahr/Zelle mit Titeln)"):
+              // sonst öffnet das Popup kurz für ein leeres Jahr und wird vom
+              // Leerlauf-Effekt (popupBooks.length === 0) sofort wieder
+              // geschlossen — Zustands-Churn ohne sichtbaren Nutzen.
+              const p = data.points.find((pt) => pt.year === year)
+              const hasBooks =
+                p !== undefined && (dim === 'acquired' ? p.acquired > 0 : p.readDated + p.readTagged > 0)
+              if (!hasBooks) return
               // Anker: x an der Bandmitte des Jahres, y am Zeiger der ersten
               // Meldung in diesem Jahr (Spec, Entscheidung 3).
               hoverAnchor(
-                { dim: svgY < y(0) ? 'acquired' : 'read', year },
+                { dim, year },
                 M.left + (x(year) ?? 0) + bw / 2,
                 wrapRect ? e.clientY - wrapRect.top : 0,
               )
