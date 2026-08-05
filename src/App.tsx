@@ -16,6 +16,7 @@ import { KnowledgeMap } from './views/KnowledgeMap'
 import { LanguageFlow } from './views/LanguageFlow'
 import { ReadingPace } from './views/ReadingPace'
 import { Shelf } from './views/Shelf'
+import { TagTrends } from './views/TagTrends'
 import { TagNetwork } from './views/TagNetwork'
 import { YearMatrix } from './views/YearMatrix'
 
@@ -24,6 +25,7 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, ComponentType>> = {
   shelf: Shelf,
   timeline: AcquisitionReading,
   knowledge: KnowledgeMap,
+  tagTrends: TagTrends,
   network: TagNetwork,
   languages: LanguageFlow,
   years: YearMatrix,
@@ -33,7 +35,7 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, ComponentType>> = {
 
 /** Navigationsreihenfolge; Regal steht als Signature-Ansicht zuerst. */
 export const VIEW_ORDER: ViewId[] = [
-  'shelf', 'timeline', 'knowledge', 'network', 'languages', 'years', 'pace', 'canon',
+  'shelf', 'timeline', 'knowledge', 'tagTrends', 'network', 'languages', 'years', 'pace', 'canon',
 ]
 
 type LoadState =
