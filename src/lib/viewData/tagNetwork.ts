@@ -6,7 +6,7 @@ export const STATUS_TAGS = new Set(['gelesen', 'ungelesen', 'angelesen', 'have r
 /** Verlags-/Reihenkürzel; bei Bedarf erweitern (Fund im Netz melden statt raten). */
 export const SERIES_MARKER_TAGS = new Set(['RUB', 'stw', 'ltfa', 'ultb'])
 
-const YEAR_TAG = /^(19|20)\d{2}$/
+export const YEAR_TAG = /^(19|20)\d{2}$/
 
 /**
  * Trennzeichen für Paar-Schlüssel beim Aufbau der Kanten. Die Referenz im
