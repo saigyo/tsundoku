@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { useI18n } from '../i18n/LocaleContext'
 import type { Book } from '../lib/types'
 import styles from './BookListPopup.module.css'
@@ -53,13 +53,24 @@ export function BookListPopup({
     // die Klemmung wird danach einmal neu gemessen.
   }, [x, y, books, overflows, popupRef])
 
+  // Eigener Effekt nur für den Scroll-Reset: Der Anker wechselt (z. B.
+  // Nachbarjahr), die <ul> bleibt aber gemountet — ohne Reset startet die
+  // neue Liste mitten in der alten Scrollposition. Bewusst nicht im Effekt
+  // oben: dessen Deps laufen auch beim reinen overflows-Nachmessen, das
+  // würde die Liste beim Scrollen an den Anfang zurückspringen lassen.
+  useLayoutEffect(() => {
+    if (listRef.current !== null) listRef.current.scrollTop = 0
+  }, [x, y, books])
+
   // ISO-Datum lokal parsen — new Date('YYYY-MM-DD') wäre UTC-Mitternacht
   // und kippte in Zeitzonen westlich von UTC auf den Vortag.
+  const dayFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit' }),
+    [locale],
+  )
   const fmtDay = (iso: string) => {
     const [yy, mm, dd] = iso.split('-').map(Number)
-    return new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit' }).format(
-      new Date(yy, mm - 1, dd),
-    )
+    return dayFormatter.format(new Date(yy, mm - 1, dd))
   }
 
   return (
@@ -67,7 +78,7 @@ export function BookListPopup({
       ref={popupRef}
       className={styles.pop}
       style={{ transform: `translate(${x + shift.dx}px, ${y + shift.dy}px)` }}
-      role="dialog"
+      role="region"
       aria-label={m.bookListPopup.listAria(ariaContext)}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
