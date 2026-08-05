@@ -289,15 +289,15 @@ export const fr: Messages = {
       title: 'Tendances des tags',
       coverageAcquired: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
         <>
-          ont une année d'acquisition — l'axe temporel de cette vue ; sans année : {missingFmt}.
-          Masqués comme tags : {yearTagsFmt} tags d'année, {statusFmt} marqueurs de statut,{' '}
+          ont une année d’acquisition — l’axe temporel de cette vue ; sans année : {missingFmt}.
+          Masqués comme tags : {yearTagsFmt} tags d’année, {statusFmt} marqueurs de statut,{' '}
           {seriesFmt} sigles de série.
         </>
       ),
       coverageRead: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
         <>
-          ont une année de lecture — l'axe temporel de cette vue ; sans année : {missingFmt}.
-          Masqués comme tags : {yearTagsFmt} tags d'année, {statusFmt} marqueurs de statut,{' '}
+          ont une année de lecture — l’axe temporel de cette vue ; sans année : {missingFmt}.
+          Masqués comme tags : {yearTagsFmt} tags d’année, {statusFmt} marqueurs de statut,{' '}
           {seriesFmt} sigles de série.
         </>
       ),
