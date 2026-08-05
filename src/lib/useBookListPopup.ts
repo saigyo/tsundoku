@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const GRACE_MS = 250
+// Wechsel-Verzögerung: Auf dem Weg ins Popup überstreicht der Zeiger in
+// dichten Regionen fremde Fangpfade (Linien) bzw. Nachbarzellen (Heatmap).
+// Ein anderer Anker ersetzt das Popup deshalb erst, wenn der Zeiger kurz
+// auf dem neuen Ziel verweilt — das erste Öffnen bleibt sofort.
+const REPLACE_MS = 180
 
 type PopupState<A> = { anchor: A; x: number; y: number }
 
@@ -15,34 +20,76 @@ type PopupState<A> = { anchor: A; x: number; y: number }
  */
 export function useBookListPopup<A>(sameAnchor: (a: A, b: A) => boolean, suspended: boolean) {
   const [popup, setPopup] = useState<PopupState<A> | null>(null)
+  // Spiegel des States für Handler-Logik ohne Setter-Seiteneffekte
+  // (React-Updater müssen pur bleiben, Timer gehören nicht hinein).
+  const current = useRef<PopupState<A> | null>(null)
   const phase = useRef<'armed' | 'grace' | 'pinned'>('armed')
-  const timer = useRef<number | null>(null)
+  const graceTimer = useRef<number | null>(null)
+  const replaceTimer = useRef<number | null>(null)
+  const pending = useRef<PopupState<A> | null>(null)
   const popupRef = useRef<HTMLDivElement | null>(null)
 
-  const cancelTimer = useCallback(() => {
-    if (timer.current !== null) {
-      window.clearTimeout(timer.current)
-      timer.current = null
+  const show = useCallback((p: PopupState<A> | null) => {
+    current.current = p
+    setPopup(p)
+  }, [])
+
+  const cancelGrace = useCallback(() => {
+    if (graceTimer.current !== null) {
+      window.clearTimeout(graceTimer.current)
+      graceTimer.current = null
     }
   }, [])
 
+  const cancelReplace = useCallback(() => {
+    if (replaceTimer.current !== null) {
+      window.clearTimeout(replaceTimer.current)
+      replaceTimer.current = null
+    }
+    pending.current = null
+  }, [])
+
   const close = useCallback(() => {
-    cancelTimer()
+    cancelGrace()
+    cancelReplace()
     phase.current = 'armed'
-    setPopup(null)
-  }, [cancelTimer])
+    show(null)
+  }, [cancelGrace, cancelReplace, show])
 
   /** Chart-Pointermove über einem Jahr / einer Zelle mit Inhalt. */
   const hoverAnchor = useCallback(
     (anchor: A, x: number, y: number) => {
       if (phase.current === 'pinned') return
-      cancelTimer()
+      cancelGrace()
       phase.current = 'armed'
-      // Gleicher Anker: Position der ersten Meldung behalten — das Popup
-      // steht fest und folgt nicht dem Zeiger (sonst wäre es unbetretbar).
-      setPopup((p) => (p !== null && sameAnchor(p.anchor, anchor) ? p : { anchor, x, y }))
+      const cur = current.current
+      if (cur === null) {
+        // Erstes Öffnen: sofort, ohne Verweildauer.
+        cancelReplace()
+        show({ anchor, x, y })
+        return
+      }
+      if (sameAnchor(cur.anchor, anchor)) {
+        // Zurück auf dem aktuellen Anker: schwebenden Wechsel verwerfen;
+        // Position der ersten Meldung behalten — das Popup steht fest und
+        // folgt nicht dem Zeiger (sonst wäre es unbetretbar).
+        cancelReplace()
+        return
+      }
+      // Anderes Ziel: Wechsel erst nach Verweilzeit. Läuft für dasselbe
+      // Kandidaten-Ziel schon ein Timer, weiterlaufen lassen — sonst würde
+      // jede Bewegung innerhalb des neuen Ziels den Wechsel ewig aufschieben.
+      if (pending.current !== null && sameAnchor(pending.current.anchor, anchor)) return
+      cancelReplace()
+      pending.current = { anchor, x, y }
+      replaceTimer.current = window.setTimeout(() => {
+        const cand = pending.current
+        pending.current = null
+        replaceTimer.current = null
+        if (cand !== null && phase.current !== 'pinned') show(cand)
+      }, REPLACE_MS)
     },
-    [cancelTimer, sameAnchor],
+    [cancelGrace, cancelReplace, sameAnchor, show],
   )
 
   /** Zeiger verlässt Chartfläche oder Popup: Gnadenfrist überbrückt den
@@ -50,22 +97,27 @@ export function useBookListPopup<A>(sameAnchor: (a: A, b: A) => boolean, suspend
   const beginGrace = useCallback(() => {
     if (phase.current === 'pinned') return
     phase.current = 'grace'
-    cancelTimer()
-    timer.current = window.setTimeout(close, GRACE_MS)
-  }, [cancelTimer, close])
+    cancelGrace()
+    cancelReplace()
+    graceTimer.current = window.setTimeout(close, GRACE_MS)
+  }, [cancelGrace, cancelReplace, close])
 
   const popupEnter = useCallback(() => {
-    cancelTimer()
+    cancelGrace()
+    // Angekommen: ein noch schwebender Wechsel wäre jetzt ein Diebstahl
+    // des Popups unter dem Zeiger — verwerfen.
+    cancelReplace()
     // Betreten macht die Hover-Regel wieder scharf — auch aus pinned.
     phase.current = 'armed'
-  }, [cancelTimer])
+  }, [cancelGrace, cancelReplace])
 
   /** Beim Titelklick: das Popup überlebt den BookDetail-Dialog und den
    *  zufälligen Zeigerstand nach dessen Schließen. */
   const pin = useCallback(() => {
-    cancelTimer()
+    cancelGrace()
+    cancelReplace()
     phase.current = 'pinned'
-  }, [cancelTimer])
+  }, [cancelGrace, cancelReplace])
 
   // Esc und Pointer-Down außerhalb schließen in jedem Zustand (auch pinned:
   // Nav-Tabs, Filter-Chips, freie Fläche) — außer suspended.
@@ -87,8 +139,14 @@ export function useBookListPopup<A>(sameAnchor: (a: A, b: A) => boolean, suspend
     }
   }, [popup, suspended, close])
 
-  // Aufräumen beim Unmount (View-Wechsel bei laufender Gnadenfrist).
-  useEffect(() => cancelTimer, [cancelTimer])
+  // Aufräumen beim Unmount (View-Wechsel bei laufenden Timern).
+  useEffect(
+    () => () => {
+      cancelGrace()
+      cancelReplace()
+    },
+    [cancelGrace, cancelReplace],
+  )
 
   return { popup, popupRef, hoverAnchor, leaveChart: beginGrace, popupEnter, popupLeave: beginGrace, pin, close }
 }

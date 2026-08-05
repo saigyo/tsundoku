@@ -429,7 +429,11 @@ export function TagTrends() {
                           fill={fill}
                           onPointerMove={(e) => {
                             if (drag) return
-                            hoverAnchor({ tag: r.tag, year: yr }, M.left + xc(i), tipPos(e).py)
+                            // Anker am Zeiger statt an der Zellmitte: die Zellen
+                            // sind nur 18 px hoch — jeder unnötige Abstand zwingt
+                            // den Weg ins Popup über eine Nachbarzelle.
+                            const p = tipPos(e)
+                            hoverAnchor({ tag: r.tag, year: yr }, p.px, p.py)
                           }}
                           onPointerLeave={leaveChart}
                         />
