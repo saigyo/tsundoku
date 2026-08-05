@@ -6,8 +6,9 @@ import styles from './Footer.module.css'
 const REPO = 'https://github.com/saigyo/tsundoku'
 
 /** Fußzeile auf jeder Seite: Repo-Link, Lizenz, Verweis auf die
- *  Lizenzübersicht der eingebetteten Schriften und Bibliotheken, Sprachumschalter. */
-export function Footer() {
+ *  Lizenzübersicht der eingebetteten Schriften und Bibliotheken, Sprachumschalter,
+ *  optional auch der Bibliothek-wechseln-Knopf. */
+export function Footer({ onReplaceLibrary }: { onReplaceLibrary?: () => void }) {
   const { locale, m, setLocale } = useI18n()
   const coversEnabled = useCoversStore((s) => s.enabled)
   const setCoversEnabled = useCoversStore((s) => s.setEnabled)
@@ -28,6 +29,14 @@ export function Footer() {
       <a href={`${REPO}#license`} target="_blank" rel="noopener noreferrer">
         {m.footer.embedded}
       </a>
+      {onReplaceLibrary && (
+        <>
+          <span className={styles.sep} aria-hidden="true">·</span>
+          <button className={styles.replaceLibrary} onClick={onReplaceLibrary}>
+            {m.app.replaceLibrary}
+          </button>
+        </>
+      )}
       <span className={styles.sep} aria-hidden="true">·</span>
       <label className={styles.covers}>
         <input

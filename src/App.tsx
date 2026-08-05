@@ -103,7 +103,7 @@ export default function App() {
   } else {
     content = (
       <DataProvider library={load.library}>
-        <Shell onReplaceLibrary={load.source === 'browser' ? () => setReplacing(true) : undefined} />
+        <Shell />
       </DataProvider>
     )
   }
@@ -111,12 +111,18 @@ export default function App() {
   return (
     <div className={styles.app}>
       {content}
-      <Footer />
+      <Footer
+        onReplaceLibrary={
+          load.state === 'ready' && load.source === 'browser' && !replacing
+            ? () => setReplacing(true)
+            : undefined
+        }
+      />
     </div>
   )
 }
 
-function Shell({ onReplaceLibrary }: { onReplaceLibrary?: () => void }) {
+function Shell() {
   const { m } = useI18n()
   const view = useFilterStore((s) => s.view)
   const setView = useFilterStore((s) => s.setView)
@@ -139,11 +145,6 @@ function Shell({ onReplaceLibrary }: { onReplaceLibrary?: () => void }) {
             </button>
           ))}
         </nav>
-        {onReplaceLibrary && (
-          <button className={styles.replaceLibrary} onClick={onReplaceLibrary}>
-            {m.app.replaceLibrary}
-          </button>
-        )}
       </header>
       <FilterChips />
       <main className={styles.main}>

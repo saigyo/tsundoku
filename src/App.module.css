@@ -39,33 +39,9 @@
   flex-wrap: wrap;
 }
 
-.replaceLibrary {
-  margin-left: auto;
-  border: 1px solid var(--ink-45);
-  background: none;
-  color: var(--ink-70);
-  border-radius: var(--radius);
-  padding: 2px var(--space-2);
-  font-size: 13px;
-  text-align: center;
-  line-height: 1.3;
-  /* Unterkante des Buttons deterministisch auf der Tab-Unterkante — in jeder
-     Sprache, ein- wie zweizeilig, unabhängig von Baseline-Gruppen-Details
-     der Browser. Zweizeilig wächst der Button nach oben. */
-  align-self: flex-end;
-}
-
-/* FR/ES-Labels sind zu breit für die Kopfzeile: im Button zweizeilig umbrechen
-   statt die ganze Zeile zu sprengen. Bewusst je Sprache statt über eine
-   Breitenschwelle, die auch DE („Bibliothek wechseln") oder JA treffen könnte. */
-.replaceLibrary:lang(fr),
-.replaceLibrary:lang(es) {
-  max-width: 9em;
-}
-
-/* Zweiter Hebel für die breiten FR/ES-Labels: engere Tab-Abstände und
-   Header-Gaps. Budget bei 1440 px Fensterbreite (ES, der breiteste Fall):
-   Marke 231 + Nav ~1003 + Button 117 + 2 Gaps = ~1383 von 1392 px Inhalt. */
+/* Engere Tab-Abstände für die breiten FR/ES-Labels: neun Tabs plus Marke
+   müssen bei 1440 px Fensterbreite einzeilig bleiben (der Wechseln-Knopf
+   wohnt seit dem neunten Tab in der Fußzeile). */
 .navItem:lang(fr),
 .navItem:lang(es) {
   padding: var(--space-1) 6px;
