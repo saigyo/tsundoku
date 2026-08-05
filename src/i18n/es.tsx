@@ -326,7 +326,6 @@ export const es: Messages = {
       unpinAria: (tag) => `Quitar «${tag}» del panel de tendencias`,
       pinLimitTitle: 'Como máximo 8 etiquetas añadidas',
       tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}: ${countFmt} títulos (×${factorFmt})`,
-      andMore: (countFmt) => `… y ${countFmt} más`,
       hint: 'Arrastrar elige el periodo de la clasificación; clic, un solo año — la selección no filtra.',
     },
     network: {

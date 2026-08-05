@@ -238,7 +238,6 @@ export interface Messages {
       unpinAria: (tag: string) => string
       pinLimitTitle: string
       tooltip: (tag: string, year: number, countFmt: string, factorFmt: string) => string
-      andMore: (countFmt: string) => string
       hint: string
     }
     network: {

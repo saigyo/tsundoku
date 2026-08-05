@@ -163,12 +163,6 @@
   margin: var(--space-2) 0 0;
 }
 
-.tipList {
-  margin: var(--space-1) 0 0;
-  padding-left: var(--space-4);
-  max-width: 24rem;
-}
-
 .ranking {
   margin-top: var(--space-4);
   max-width: 52rem;

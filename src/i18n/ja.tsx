@@ -310,7 +310,6 @@ export const ja: Messages = {
       unpinAria: (tag) => `「${tag}」をトレンドパネルから外す`,
       pinLimitTitle: '追加できるタグは 8 件まで',
       tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}年：${countFmt} 点（×${factorFmt}）`,
-      andMore: (countFmt) => `…ほか ${countFmt} 点`,
       hint: 'ドラッグでランキングの期間を、クリックで単年を選択します。この選択は絞り込みではありません。',
     },
     network: {
