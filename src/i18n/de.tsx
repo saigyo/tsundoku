@@ -15,6 +15,7 @@ export const de: Messages = {
     shelf: 'Regal',
     timeline: 'Erwerb & Lektüre',
     knowledge: 'Wissenslandkarte',
+    tagTrends: 'Tag-Trends',
     network: 'Tag-Netzwerk',
     languages: 'Sprachfluss',
     years: 'Ausgabe × Erwerb',
@@ -280,6 +281,42 @@ export const de: Messages = {
       hint:
         'Zeitraum wählen: horizontal über das Diagramm ziehen filtert nach Erwerbsjahr, Esc bricht die ' +
         'Auswahl ab; ein Klick auf einen Strom filtert nach dem Wissensgebiet.',
+    },
+    tagTrends: {
+      title: 'Tag-Trends',
+      coverageAcquired: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          haben ein Erwerbsjahr — die Zeitachse dieser Ansicht; ohne Jahr: {missingFmt}. Als Tags
+          ausgeblendet: {yearTagsFmt} Jahres-Tags, {statusFmt} Statusmarker, {seriesFmt} Reihenkürzel.
+        </>
+      ),
+      coverageRead: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          haben ein Lesejahr — die Zeitachse dieser Ansicht; ohne Jahr: {missingFmt}. Als Tags
+          ausgeblendet: {yearTagsFmt} Jahres-Tags, {statusFmt} Statusmarker, {seriesFmt} Reihenkürzel.
+        </>
+      ),
+      noData: 'Kein Titel der aktuellen Auswahl trägt ein Jahr auf dieser Zeitachse.',
+      axisAria: 'Zeitachse',
+      axisAcquired: 'Erwerb',
+      axisRead: 'Lektüre',
+      modeAria: 'Darstellung',
+      modeLines: 'Linien',
+      modeHeatmap: 'Heatmap',
+      svgAria: 'Tag-Häufigkeiten über die Zeit',
+      labelsAria: 'Tags im Trend-Panel',
+      tagButtonTitle: (tag, countFmt) => `${tag}: ${countFmt} Titel — Klick filtert`,
+      rankingTitle: (from, to) => (from === to ? `Besonders häufig ${from}` : `Besonders häufig ${from}–${to}`),
+      rankingHint: (minFmt) => `gegenüber der aktuellen Filtermenge; mindestens ${minFmt} Titel im Abschnitt`,
+      rankingEmpty: 'Kein Tag ist in diesem Abschnitt auffällig häufiger als sonst.',
+      rankingCount: (inSliceFmt, totalFmt) => `${inSliceFmt} von ${totalFmt} Titeln`,
+      factor: (factorFmt) => `×${factorFmt}`,
+      pinAria: (tag) => `„${tag}" ins Trend-Panel übernehmen`,
+      unpinAria: (tag) => `„${tag}" aus dem Trend-Panel entfernen`,
+      pinLimitTitle: 'Höchstens 8 zugewählte Tags',
+      tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}: ${countFmt} Titel (×${factorFmt})`,
+      andMore: (countFmt) => `… und ${countFmt} weitere`,
+      hint: 'Ziehen wählt den Zeitabschnitt der Rangliste, Klick ein Einzeljahr — die Auswahl filtert nicht.',
     },
     network: {
       title: 'Tag-Netzwerk',

@@ -15,6 +15,7 @@ export const es: Messages = {
     shelf: 'Estantería',
     timeline: 'Adquisición y lectura',
     knowledge: 'Mapa del conocimiento',
+    tagTrends: 'Tendencias de etiquetas',
     network: 'Red de etiquetas',
     languages: 'Flujo de idiomas',
     years: 'Edición × adquisición',
@@ -284,6 +285,45 @@ export const es: Messages = {
       hint:
         'Para elegir un periodo, arrastra horizontalmente sobre el gráfico: se filtra por año de ' +
         'adquisición y Esc cancela la selección; un clic en una corriente filtra por la materia.',
+    },
+    tagTrends: {
+      title: 'Tendencias de etiquetas',
+      coverageAcquired: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          tienen año de adquisición — el eje temporal de esta vista; sin año: {missingFmt}. Ocultas
+          como etiquetas: {yearTagsFmt} etiquetas de año, {statusFmt} marcadores de estado,{' '}
+          {seriesFmt} siglas de serie.
+        </>
+      ),
+      coverageRead: (missingFmt, yearTagsFmt, statusFmt, seriesFmt) => (
+        <>
+          tienen año de lectura — el eje temporal de esta vista; sin año: {missingFmt}. Ocultas
+          como etiquetas: {yearTagsFmt} etiquetas de año, {statusFmt} marcadores de estado,{' '}
+          {seriesFmt} siglas de serie.
+        </>
+      ),
+      noData: 'Ningún título de la selección actual tiene año en este eje temporal.',
+      axisAria: 'Eje temporal',
+      axisAcquired: 'Adquisición',
+      axisRead: 'Lectura',
+      modeAria: 'Representación',
+      modeLines: 'Líneas',
+      modeHeatmap: 'Mapa de calor',
+      svgAria: 'Frecuencia de las etiquetas a lo largo del tiempo',
+      labelsAria: 'Etiquetas del panel de tendencias',
+      tagButtonTitle: (tag, countFmt) => `${tag}: ${countFmt} títulos — clic para filtrar`,
+      rankingTitle: (from, to) =>
+        from === to ? `Especialmente frecuentes en ${from}` : `Especialmente frecuentes ${from}–${to}`,
+      rankingHint: (minFmt) => `frente a la selección filtrada; al menos ${minFmt} títulos en el periodo`,
+      rankingEmpty: 'Ninguna etiqueta es notablemente más frecuente en este periodo que de costumbre.',
+      rankingCount: (inSliceFmt, totalFmt) => `${inSliceFmt} de ${totalFmt} títulos`,
+      factor: (factorFmt) => `×${factorFmt}`,
+      pinAria: (tag) => `Añadir «${tag}» al panel de tendencias`,
+      unpinAria: (tag) => `Quitar «${tag}» del panel de tendencias`,
+      pinLimitTitle: 'Como máximo 8 etiquetas añadidas',
+      tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}: ${countFmt} títulos (×${factorFmt})`,
+      andMore: (countFmt) => `… y ${countFmt} más`,
+      hint: 'Arrastrar elige el periodo de la clasificación; clic, un solo año — la selección no filtra.',
     },
     network: {
       title: 'Red de etiquetas',
