@@ -319,7 +319,6 @@ export const de: Messages = {
       unpinAria: (tag) => `„${tag}“ aus dem Trend-Panel entfernen`,
       pinLimitTitle: 'Höchstens 8 zugewählte Tags',
       tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}: ${countFmt} Titel (×${factorFmt})`,
-      andMore: (countFmt) => `… und ${countFmt} weitere`,
       hint: 'Ziehen wählt den Zeitabschnitt der Rangliste, Klick ein Einzeljahr — die Auswahl filtert nicht.',
     },
     network: {

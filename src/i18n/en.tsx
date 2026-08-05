@@ -317,7 +317,6 @@ export const en: Messages = {
       unpinAria: (tag) => `Remove "${tag}" from the trend panel`,
       pinLimitTitle: 'At most 8 added tags',
       tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year}: ${countFmt} titles (×${factorFmt})`,
-      andMore: (countFmt) => `… and ${countFmt} more`,
       hint: 'Drag to choose the ranking period, click for a single year — the selection does not filter.',
     },
     network: {

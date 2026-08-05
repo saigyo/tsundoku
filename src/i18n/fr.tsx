@@ -325,7 +325,6 @@ export const fr: Messages = {
       unpinAria: (tag) => `Retirer « ${tag} » du panneau de tendances`,
       pinLimitTitle: 'Au plus 8 tags ajoutés',
       tooltip: (tag, year, countFmt, factorFmt) => `${tag} — ${year} : ${countFmt} titres (×${factorFmt})`,
-      andMore: (countFmt) => `… et ${countFmt} de plus`,
       hint: 'Glisser choisit la période du classement, cliquer une seule année — la sélection ne filtre pas.',
     },
     network: {

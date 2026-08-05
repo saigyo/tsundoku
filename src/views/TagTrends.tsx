@@ -2,14 +2,17 @@ import { scaleLinear } from 'd3-scale'
 import { curveMonotoneX, line } from 'd3-shape'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
+import { BookDetail } from '../components/BookDetail'
+import { BookListPopup } from '../components/BookListPopup'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { ToggleSwitch } from '../components/ToggleSwitch'
-import { Tooltip } from '../components/Tooltip'
 import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
+import { sortBooksByDate } from '../lib/bookListPopup'
+import { useBookListPopup } from '../lib/useBookListPopup'
 import { useMeasure } from '../lib/useMeasure'
-import type { RangeKind } from '../lib/types'
+import type { Book, RangeKind } from '../lib/types'
 import { axisYear, tagRanking, tagTrendRows, type TagRow, type TrendAxis } from '../lib/viewData/tagTrends'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './TagTrends.module.css'
@@ -42,7 +45,14 @@ export function TagTrends() {
   const [formFrom, setFormFrom] = useState(0)
   const [formTo, setFormTo] = useState(0)
   const [pinned, setPinned] = useState<string[]>([])
-  const [hover, setHover] = useState<{ tag: string; year: number; px: number; py: number } | null>(null)
+  const [selected, setSelected] = useState<Book | null>(null)
+  // Interaktives Titel-Popup statt passivem Tooltip (Spec „Interaktives
+  // Titel-Popup"); suspended, solange der Detail-Dialog offen ist.
+  const { popup, popupRef, hoverAnchor, leaveChart, popupEnter, popupLeave, pin, close } =
+    useBookListPopup<{ tag: string; year: number }>(
+      (a, b) => a.tag === b.tag && a.year === b.year,
+      selected !== null,
+    )
   const [hoverTag, setHoverTag] = useState<string | null>(null)
   const [selRaw, setSelRaw] = useState<{ from: number; to: number } | null>(null)
   const [drag, setDrag] = useState<{ x0: number; x1: number } | null>(null)
@@ -97,16 +107,16 @@ export function TagTrends() {
   // Verwaister Hover: Moduswechsel, Pin-Entfernung oder Filterwechsel können
   // die gehoverte Zeile entfernen — und ein Achsen-/Filterwechsel das Jahr
   // oder dessen Zählung — ohne dass ihr pointerleave feuert. Auch eine auf
-  // 0 gefallene Kombination löst den Hover: leere Zellen tragen keinen
-  // Tooltip (Spec), das gilt ebenso für stehengebliebene.
+  // 0 gefallene Kombination löst den Hover: leere Zellen tragen kein
+  // Popup (Spec), das gilt ebenso für stehengebliebene.
   useEffect(() => {
-    if (hover !== null) {
-      const row = visible.find((r) => r.tag === hover.tag)
-      if (!row || !data.years.includes(hover.year) || row.counts[hover.year - data.years[0]] === 0)
-        setHover(null)
+    if (popup !== null) {
+      const row = visible.find((r) => r.tag === popup.anchor.tag)
+      if (!row || !data.years.includes(popup.anchor.year) || row.counts[popup.anchor.year - data.years[0]] === 0)
+        close()
     }
     if (hoverTag !== null && !visible.some((r) => r.tag === hoverTag)) setHoverTag(null)
-  }, [visible, data.years, hover, hoverTag])
+  }, [visible, data.years, popup, hoverTag, close])
 
   // Während des Brushs: Textselektion global aus, Escape bricht ab
   // (Muster aus Timeline/Wissenslandkarte).
@@ -163,14 +173,17 @@ export function TagTrends() {
     return { px: e.clientX - (rect?.left ?? 0), py: e.clientY - (rect?.top ?? 0) }
   }
 
-  const effHover = hover?.tag ?? hoverTag
-  const hoverBooks =
-    hover === null
+  const effHover = popup?.anchor.tag ?? hoverTag
+  const popupBooks =
+    popup === null
       ? []
-      : filtered
-          .filter((b) => axisYear(b, axis) === hover.year && b.tagsNorm.includes(hover.tag))
-          .map((b) => b.title)
-  const hoverRow = hover === null ? null : (visible.find((r) => r.tag === hover.tag) ?? null)
+      : sortBooksByDate(
+          filtered.filter(
+            (b) => axisYear(b, axis) === popup.anchor.year && b.tagsNorm.includes(popup.anchor.tag),
+          ),
+          axis === 'acquired' ? (b) => b.acquiredDate : (b) => b.readDate,
+        )
+  const popupRow = popup === null ? null : (visible.find((r) => r.tag === popup.anchor.tag) ?? null)
 
   const tickEvery = Math.max(1, Math.ceil(data.years.length / Math.floor(innerW / 60)))
   const xTicks = data.years
@@ -376,10 +389,15 @@ export function TagTrends() {
                           stroke="transparent"
                           strokeWidth={12}
                           onPointerMove={(e) => {
+                            if (drag) return
                             const yr = yearAt(localX(e.clientX))
-                            setHover({ tag: r.tag, year: yr, ...tipPos(e) })
+                            hoverAnchor(
+                              { tag: r.tag, year: yr },
+                              M.left + xc(data.years.indexOf(yr)),
+                              tipPos(e).py,
+                            )
                           }}
-                          onPointerLeave={() => setHover(null)}
+                          onPointerLeave={leaveChart}
                         />
                       </g>
                     )
@@ -409,8 +427,11 @@ export function TagTrends() {
                           width={Math.max(0.5, cellW - 1)}
                           height={ROW_H - 2}
                           fill={fill}
-                          onPointerMove={(e) => setHover({ tag: r.tag, year: yr, ...tipPos(e) })}
-                          onPointerLeave={() => setHover(null)}
+                          onPointerMove={(e) => {
+                            if (drag) return
+                            hoverAnchor({ tag: r.tag, year: yr }, M.left + xc(i), tipPos(e).py)
+                          }}
+                          onPointerLeave={leaveChart}
                         />
                       )
                     })}
@@ -448,27 +469,31 @@ export function TagTrends() {
               <AxisBottom ticks={xTicks} y={height - M.bottom + 2} />
             </g>
           </svg>
-          {hover && !drag && hoverRow && (
-            <Tooltip x={hover.px} y={hover.py}>
-              {t.tooltip(
-                hover.tag,
-                hover.year,
-                fmtNum(hoverBooks.length),
-                fmtFactor(factorAt(hoverRow, hover.year - data.years[0])),
-              )}
-              {hoverBooks.length > 0 && (
-                <ul className={styles.tipList}>
-                  {/* Index als Key: derselbe Titel kann doppelt vorkommen
-                      (z. B. Buch + E-Book), die Liste wird je Hover neu
-                      aufgebaut und nie umsortiert. */}
-                  {hoverBooks.slice(0, 10).map((title, i) => (
-                    <li key={i}>{title}</li>
-                  ))}
-                  {hoverBooks.length > 10 && <li>{t.andMore(fmtNum(hoverBooks.length - 10))}</li>}
-                </ul>
-              )}
-            </Tooltip>
-          )}
+          {popup && popupRow && popupBooks.length > 0 && (() => {
+            const headline = t.tooltip(
+              popup.anchor.tag,
+              popup.anchor.year,
+              fmtNum(popupBooks.length),
+              fmtFactor(factorAt(popupRow, popup.anchor.year - data.years[0])),
+            )
+            return (
+              <BookListPopup
+                x={popup.x}
+                y={popup.y}
+                popupRef={popupRef}
+                header={headline}
+                ariaContext={headline}
+                books={popupBooks}
+                dateOf={axis === 'acquired' ? (b) => b.acquiredDate : (b) => b.readDate}
+                onSelect={(b) => {
+                  pin()
+                  setSelected(b)
+                }}
+                onPointerEnter={popupEnter}
+                onPointerLeave={popupLeave}
+              />
+            )
+          })()}
         </div>
       </div>
       <p className={styles.hint}>{t.hint}</p>
@@ -522,6 +547,7 @@ export function TagTrends() {
           </ol>
         )}
       </section>
+      <BookDetail book={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }
