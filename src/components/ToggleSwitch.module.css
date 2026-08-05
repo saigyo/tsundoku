@@ -1,0 +1,60 @@
+.switch {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--ink-45);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.switch:focus-within {
+  outline: var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.thumb {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 1px;
+  width: calc(50% - 2px);
+  border-radius: 999px;
+  background: var(--kon);
+  transition: transform 160ms ease;
+}
+
+.switch[data-side='b'] .thumb {
+  /* Eigene Breite (50 % − 2 px) plus die 2 px Versatz beider Ränder. */
+  transform: translateX(calc(100% + 2px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb {
+    transition: none;
+  }
+}
+
+.option,
+.optionChecked {
+  position: relative;
+  z-index: 1;
+  padding: 2px 12px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--ink-70);
+}
+
+.optionChecked {
+  color: var(--shironeri);
+}
+
+.option input,
+.optionChecked input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
