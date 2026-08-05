@@ -301,7 +301,7 @@ export const fr: Messages = {
           {seriesFmt} sigles de série.
         </>
       ),
-      noData: 'Aucun titre de la sélection actuelle n\'a d\'année sur cet axe temporel.',
+      noData: 'Aucun titre de la sélection actuelle n’a d’année sur cet axe temporel.',
       axisAria: 'Axe temporel',
       axisAcquired: 'Acquisition',
       axisRead: 'Lecture',
@@ -314,7 +314,7 @@ export const fr: Messages = {
       rankingTitle: (from, to) =>
         from === to ? `Particulièrement fréquents en ${from}` : `Particulièrement fréquents ${from}–${to}`,
       rankingHint: (minFmt) => `par rapport à la sélection filtrée ; au moins ${minFmt} titres dans la période`,
-      rankingEmpty: 'Aucun tag n\'est nettement plus fréquent dans cette période qu\'à l\'accoutumée.',
+      rankingEmpty: 'Aucun tag n’est nettement plus fréquent dans cette période qu’à l’accoutumée.',
       rankingCount: (inSliceFmt, totalFmt) => `${inSliceFmt} sur ${totalFmt} titres`,
       factor: (factorFmt) => `×${factorFmt}`,
       pinAria: (tag) => `Ajouter « ${tag} » au panneau de tendances`,
@@ -324,7 +324,6 @@ export const fr: Messages = {
       andMore: (countFmt) => `… et ${countFmt} de plus`,
       hint: 'Glisser choisit la période du classement, cliquer une seule année — la sélection ne filtre pas.',
     },
-
     network: {
       title: 'Réseau de tags',
       coverage: (minCount, yearTagsFmt, statusFmt, seriesFmt) => (
