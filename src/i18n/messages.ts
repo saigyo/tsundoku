@@ -201,7 +201,6 @@ export interface Messages {
       hint: string
       tooltipAcquired: (countFmt: string) => string
       tooltipRead: (countFmt: string) => string
-      andMore: (countFmt: string) => string
       tooltipUnread: (countFmt: string) => string
     }
     knowledge: {

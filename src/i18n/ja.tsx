@@ -261,7 +261,6 @@ export const ja: Messages = {
         'クリックで単年を選択、Esc で選択を取り消します。',
       tooltipAcquired: (countFmt) => `入手 ${countFmt} 点`,
       tooltipRead: (countFmt) => `読了 ${countFmt} 冊`,
-      andMore: (countFmt) => `…ほか ${countFmt} 点`,
       tooltipUnread: (countFmt) => `未読の蔵書 ${countFmt} 点`,
     },
     knowledge: {

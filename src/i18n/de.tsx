@@ -268,7 +268,6 @@ export const de: Messages = {
         'darunter nach Lesejahr; ein Klick wählt ein einzelnes Jahr, Esc bricht die Auswahl ab.',
       tooltipAcquired: (countFmt) => `${countFmt} erworben`,
       tooltipRead: (countFmt) => `${countFmt} gelesen`,
-      andMore: (countFmt) => `… und ${countFmt} weitere`,
       tooltipUnread: (countFmt) => `${countFmt} ungelesen im Bestand`,
     },
     knowledge: {

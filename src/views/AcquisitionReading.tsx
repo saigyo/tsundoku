@@ -2,11 +2,16 @@ import { area, curveMonotoneX } from 'd3-shape'
 import { scaleBand, scaleLinear } from 'd3-scale'
 import { useEffect, useMemo, useState } from 'react'
 import { AxisBottom, AxisLeft } from '../components/Axis'
+import { BookDetail } from '../components/BookDetail'
+import { BookListPopup } from '../components/BookListPopup'
 import { CoverageNote, Num } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { Tooltip } from '../components/Tooltip'
 import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
+import { sortBooksByDate } from '../lib/bookListPopup'
+import type { Book } from '../lib/types'
+import { useBookListPopup } from '../lib/useBookListPopup'
 import { useMeasure } from '../lib/useMeasure'
 import { timelineData } from '../lib/viewData/timeline'
 import { useFilterStore } from '../store/filters'
@@ -26,7 +31,15 @@ export function AcquisitionReading() {
   const filters = useFilterStore((s) => s.filters)
   const data = useMemo(() => timelineData(filtered), [filtered])
   const [wrapRef, width] = useMeasure<HTMLDivElement>()
-  const [hover, setHover] = useState<{ year: number; dim: 'acquired' | 'read'; px: number; py: number } | null>(null)
+  const [selected, setSelected] = useState<Book | null>(null)
+  // Interaktives Titel-Popup statt passivem Tooltip (Spec „Interaktives
+  // Titel-Popup"); solange der Detail-Dialog offen ist, sind Esc/Außenklick
+  // des Popups ausgesetzt.
+  const { popup, popupRef, hoverAnchor, leaveChart, popupEnter, popupLeave, pin, close } =
+    useBookListPopup<{ dim: 'acquired' | 'read'; year: number }>(
+      (a, b) => a.dim === b.dim && a.year === b.year,
+      selected !== null,
+    )
   const [unreadHover, setUnreadHover] = useState<{ year: number; count: number; px: number; py: number } | null>(null)
   const [drag, setDrag] = useState<{ x0: number; x1: number; dim: RangeDim } | null>(null)
 
@@ -61,6 +74,29 @@ export function AcquisitionReading() {
       window.removeEventListener('keydown', onKey)
     }
   }, [dragging])
+
+  // Popup-Inhalt: Bücher des Anker-Jahres der jeweiligen Halbebene,
+  // chronologisch nach dem Achsendatum (Spec, Entscheidung 7). Vor den
+  // Early-Returns, weil der Leerlauf-Effekt darauf aufbaut (Rules of Hooks).
+  const popupBooks = useMemo(() => {
+    if (popup === null) return []
+    const dateOf =
+      popup.anchor.dim === 'acquired' ? (b: Book) => b.acquiredDate : (b: Book) => b.readDate
+    return sortBooksByDate(
+      filtered.filter((b) =>
+        popup.anchor.dim === 'acquired'
+          ? b.acquiredYear === popup.anchor.year
+          : b.readYearEffective === popup.anchor.year,
+      ),
+      dateOf,
+    )
+  }, [popup, filtered])
+
+  // Filterwechsel kann das Anker-Jahr leeren, ohne dass ein pointerleave
+  // feuert — ein leeres Popup (auch ein stehengebliebenes) schließt.
+  useEffect(() => {
+    if (popup !== null && popupBooks.length === 0) close()
+  }, [popup, popupBooks, close])
 
   if (filtered.length === 0) return <EmptyState />
   if (data.points.length === 0) {
@@ -100,12 +136,12 @@ export function AcquisitionReading() {
 
   // Halbebene wie beim Brush: oberhalb der Nulllinie die erworbenen Titel,
   // darunter die gelesenen (datiert + Jahres-Tag, wie die Balken selbst).
-  const hoverTitles =
-    hover === null
-      ? []
-      : hover.dim === 'acquired'
-        ? filtered.filter((b) => b.acquiredYear === hover.year).map((b) => b.title)
-        : filtered.filter((b) => b.readYearEffective === hover.year).map((b) => b.title)
+  const popupHeadline =
+    popup === null
+      ? ''
+      : popup.anchor.dim === 'acquired'
+        ? m.views.timeline.tooltipAcquired(fmtNum(popupBooks.length))
+        : m.views.timeline.tooltipRead(fmtNum(popupBooks.length))
 
   const tickEvery = Math.ceil(years.length / Math.floor(innerW / 60))
   const xTicks = years
@@ -196,14 +232,17 @@ export function AcquisitionReading() {
             onPointerMove={(e) => {
               const px = localX(e)
               setDrag((d) => (d ? { ...d, x1: px } : d))
+              if (drag) return // während des Brushs kein Popup (Spec)
               const wrapRect = wrapRef.current?.getBoundingClientRect()
               const svgY = e.clientY - e.currentTarget.getBoundingClientRect().top + M.top
-              setHover({
-                year: yearAt(px),
-                dim: svgY < y(0) ? 'acquired' : 'read',
-                px: wrapRect ? e.clientX - wrapRect.left : px,
-                py: wrapRect ? e.clientY - wrapRect.top : 0,
-              })
+              const year = yearAt(px)
+              // Anker: x an der Bandmitte des Jahres, y am Zeiger der ersten
+              // Meldung in diesem Jahr (Spec, Entscheidung 3).
+              hoverAnchor(
+                { dim: svgY < y(0) ? 'acquired' : 'read', year },
+                M.left + (x(year) ?? 0) + bw / 2,
+                wrapRect ? e.clientY - wrapRect.top : 0,
+              )
             }}
             onPointerUp={() => {
               if (drag) {
@@ -214,7 +253,7 @@ export function AcquisitionReading() {
               }
               setDrag(null)
             }}
-            onPointerLeave={() => setHover(null)}
+            onPointerLeave={leaveChart}
           />
         </g>
       </svg>
@@ -302,25 +341,33 @@ export function AcquisitionReading() {
         <button type="submit">{m.rangeForm.submit}</button>
       </form>
 
-      {hover && !drag && hoverTitles.length > 0 && (
-        <Tooltip x={hover.px} y={hover.py}>
-          <strong>{hover.year}</strong>:{' '}
-          {hover.dim === 'acquired'
-            ? m.views.timeline.tooltipAcquired(fmtNum(hoverTitles.length))
-            : m.views.timeline.tooltipRead(fmtNum(hoverTitles.length))}
-          <ul className={styles.tipList}>
-            {hoverTitles.slice(0, 10).map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-            {hoverTitles.length > 10 && <li>{m.views.timeline.andMore(fmtNum(hoverTitles.length - 10))}</li>}
-          </ul>
-        </Tooltip>
+      {popup && popupBooks.length > 0 && (
+        <BookListPopup
+          x={popup.x}
+          y={popup.y}
+          popupRef={popupRef}
+          header={
+            <>
+              <strong>{popup.anchor.year}</strong>: {popupHeadline}
+            </>
+          }
+          ariaContext={`${popup.anchor.year}: ${popupHeadline}`}
+          books={popupBooks}
+          dateOf={(b) => (popup.anchor.dim === 'acquired' ? b.acquiredDate : b.readDate)}
+          onSelect={(b) => {
+            pin()
+            setSelected(b)
+          }}
+          onPointerEnter={popupEnter}
+          onPointerLeave={popupLeave}
+        />
       )}
       {unreadHover && (
         <Tooltip x={unreadHover.px} y={unreadHover.py}>
           <strong>{unreadHover.year}</strong>: {m.views.timeline.tooltipUnread(fmtNum(unreadHover.count))}
         </Tooltip>
       )}
+      <BookDetail book={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }

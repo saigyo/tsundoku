@@ -272,7 +272,6 @@ export const es: Messages = {
         'un solo año y Esc cancela la selección.',
       tooltipAcquired: (countFmt) => `${countFmt} adquiridos`,
       tooltipRead: (countFmt) => `${countFmt} leídos`,
-      andMore: (countFmt) => `… y ${countFmt} más`,
       tooltipUnread: (countFmt) => `${countFmt} pendientes de lectura`,
     },
     knowledge: {
