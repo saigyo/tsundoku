@@ -52,6 +52,23 @@ Sammlung, die in absoluten Zahlen unter den Dauerbrennern verschwinden).
    visuell zwei beschriftete Segmente mit gleitendem Daumen, technisch
    zwei visually-hidden Radio-Inputs (Tastatur-/Screenreader-Semantik
    gratis); Gleit-Animation respektiert `prefers-reduced-motion`.
+9. **Nav-Position: nach der Wissenslandkarte, vor dem Tag-Netzwerk.**
+   Die Zeitverlaufs-Views (Erwerb & Lektüre, Wissenslandkarte,
+   Tag-Trends) bleiben beisammen, und Tag-Trends steht direkt neben dem
+   thematisch verwandten Tag-Netzwerk. Reihenfolge also: `shelf`,
+   `timeline`, `knowledge`, `tagTrends`, `network`, `languages`,
+   `years`, `pace`, `canon`.
+10. **„Bibliothek wechseln" wandert aus der Kopf- in die Fußzeile**
+    (früher diskutiert, jetzt fällig): Mit dem neunten Nav-Eintrag würde
+    der Knopf in den langen Lokalisierungen (« Changer de
+    bibliothèque », «Cambiar de biblioteca») schon bei normaler
+    Bildschirmbreite umbrechen. Er wird ein punktgetrennter Eintrag der
+    bestehenden Fußzeile (zwischen Lizenz-Verweisen und Cover-Schalter),
+    weiterhin nur bei `source === 'browser'` sichtbar: `App` reicht der
+    `Footer`-Komponente eine optionale `onReplaceLibrary`-Prop (nur im
+    Zustand `ready`/`browser` gesetzt); die Kopfzeile verliert den
+    Knopf ersatzlos. Der i18n-Key `app.replaceLibrary` bleibt, wo er
+    ist.
 
 ## Maß
 
@@ -128,8 +145,9 @@ Coverage-Hinweis der View ausgewiesen (Muster Tag-Netzwerk).
 | `src/lib/viewData/tagTrends.test.ts` | neu: Ausschlüsse, Sortierung (Anzahl desc, dann alphabetisch), Jahres-Alignment, Lift-Berechnung, Mindest-Support, Limit, leere Achse |
 | `src/components/ToggleSwitch.tsx` + `.module.css` | neu: zweiwertiges Schiebe-Widget (visually-hidden Radios, `prefers-reduced-motion`) |
 | `src/views/TagTrends.tsx` + `.module.css` | neu: View (Label-Spalte, Linien-/Heatmap-Renderer, Brush, Rangliste, Pins) |
-| `src/lib/types.ts` | `VIEW_IDS` um `'tagTrends'` erweitert (nach `'network'`) |
-| `src/App.tsx` | View in Nav-Reihenfolge (Zeile 36) und View-Switch registrieren |
+| `src/lib/types.ts` | `VIEW_IDS` um `'tagTrends'` erweitert (nach `'knowledge'`, vor `'network'`) |
+| `src/App.tsx` | View in `VIEW_REGISTRY` und `VIEW_ORDER` (nach `'knowledge'`) registrieren; Wechseln-Knopf aus dem Header entfernen, `onReplaceLibrary` an `Footer` durchreichen |
+| `src/components/Footer.tsx` + `.module.css` | optionale `onReplaceLibrary`-Prop, punktgetrennter Knopf zwischen Lizenz-Verweisen und Cover-Schalter |
 | `src/lib/viewData/tagNetwork.ts` | `YEAR_TAG` exportieren (sonst unverändert) |
 | `src/i18n/messages.ts` + 5 Bundles | Nav-Label (de „Tag-Trends", ja „タグの推移") + Namespace `views.tagTrends` (Titel, Achsen-/Modus-Beschriftungen, Ranglisten-Überschrift mit Zeitraum, Tooltip, Coverage, Pin-Aria) |
 | Store, URL-Sync | unverändert (View liest `filtered`, ruft `toggleFilter`) |
@@ -162,5 +180,10 @@ Bücher × ~3 Tags sind im Speicher trivial; memoisiert über
   Tooltip-Faktor = Zellfarben-Faktor.
 - Jahres-Tags, Statusmarker und Reihenkürzel tauchen nirgends als Tag
   auf; ausgeschlossene Kategorien im Coverage-Hinweis beziffert.
+- Nav zeigt „Tag-Trends" zwischen Wissenslandkarte und Tag-Netzwerk;
+  „Bibliothek wechseln" steht in der Fußzeile (nur bei
+  Browser-Bibliothek, öffnet den Upload-Dialog wie bisher) und fehlt in
+  der Kopfzeile; die Kopfzeile bricht in FR/ES bei 1280 px Breite nicht
+  um.
 - `tsc` sauber, alle Tests grün (`tagTrends.test.ts` neu), `vite build`
   fehlerfrei; Tastaturpfade und `prefers-reduced-motion` verifiziert.
