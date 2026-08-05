@@ -41,3 +41,19 @@
   align-items: center;
   gap: var(--space-1);
 }
+
+/* Knopf im Link-Gewand: gehört optisch zur Fußzeilen-Reihe, bleibt aber
+   semantisch ein Button (öffnet den Upload-Dialog, navigiert nicht). */
+.replaceLibrary {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-70);
+  cursor: pointer;
+}
+
+.replaceLibrary:hover {
+  color: var(--sumi);
+}
