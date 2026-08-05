@@ -44,8 +44,10 @@ export function BookListPopup({
     const left = (parent?.left ?? 0) + x
     const top = (parent?.top ?? 0) + y
     const dx = left + 12 + el.offsetWidth > window.innerWidth - 8 ? -el.offsetWidth - 12 : 12
-    // Vertikal klemmen statt abschneiden: notfalls über den Anker schieben.
-    const dy = Math.min(12, window.innerHeight - 8 - top - el.offsetHeight)
+    // Vertikal klemmen statt abschneiden: notfalls über den Anker schieben —
+    // aber nie über den oberen Rand hinaus (Anker nahe der Oberkante,
+    // gescrollte Seite): die Oberkante gewinnt, die Kopfzeile bleibt lesbar.
+    const dy = Math.max(Math.min(12, window.innerHeight - 8 - top - el.offsetHeight), 8 - top)
     setShift({ dx, dy })
     const list = listRef.current
     if (list !== null) setOverflows(list.scrollHeight > list.clientHeight)
