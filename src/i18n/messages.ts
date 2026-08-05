@@ -151,6 +151,11 @@ export interface Messages {
     viewOnOl: string
     close: string
   }
+  bookListPopup: {
+    listAria: (context: string) => string
+    scrollHint: (countFmt: string) => string
+    openDetailAria: (title: string) => string
+  }
   rangeForm: {
     dimensionAria: string
     acquired: string

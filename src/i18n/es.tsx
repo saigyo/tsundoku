@@ -206,6 +206,11 @@ export const es: Messages = {
     viewOnOl: 'Ver en OpenLibrary ↗',
     close: 'Cerrar',
   },
+  bookListPopup: {
+    listAria: (context) => `Lista de títulos: ${context}`,
+    scrollHint: (countFmt) => `↕ ${countFmt} títulos — desplázate para ver más`,
+    openDetailAria: (title) => `Abrir los detalles de «${title}»`,
+  },
   rangeForm: {
     dimensionAria: 'Dimensión del filtro temporal',
     acquired: 'Adquisición',

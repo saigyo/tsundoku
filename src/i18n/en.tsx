@@ -202,6 +202,11 @@ export const en: Messages = {
     viewOnOl: 'View on OpenLibrary ↗',
     close: 'Close',
   },
+  bookListPopup: {
+    listAria: (context) => `Title list: ${context}`,
+    scrollHint: (countFmt) => `↕ ${countFmt} titles — scroll for more`,
+    openDetailAria: (title) => `Open details for "${title}"`,
+  },
   rangeForm: {
     dimensionAria: 'Dimension of the time-range filter',
     acquired: 'Acquisition',

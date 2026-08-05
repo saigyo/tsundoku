@@ -200,6 +200,11 @@ export const ja: Messages = {
     viewOnOl: 'OpenLibrary で見る ↗',
     close: '閉じる',
   },
+  bookListPopup: {
+    listAria: (context) => `タイトル一覧：${context}`,
+    scrollHint: (countFmt) => `↕ 全${countFmt}件 — スクロールで続きを表示`,
+    openDetailAria: (title) => `「${title}」の詳細を開く`,
+  },
   rangeForm: {
     dimensionAria: '期間フィルターの対象',
     acquired: '入手',

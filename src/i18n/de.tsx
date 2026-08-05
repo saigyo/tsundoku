@@ -204,6 +204,11 @@ export const de: Messages = {
     viewOnOl: 'Bei OpenLibrary ansehen ↗',
     close: 'Schließen',
   },
+  bookListPopup: {
+    listAria: (context) => `Titelliste: ${context}`,
+    scrollHint: (countFmt) => `↕ ${countFmt} Titel — scrollen für mehr`,
+    openDetailAria: (title) => `Details zu „${title}“ öffnen`,
+  },
   rangeForm: {
     dimensionAria: 'Dimension des Zeitraumfilters',
     acquired: 'Erwerb',
