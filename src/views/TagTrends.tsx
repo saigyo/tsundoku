@@ -9,6 +9,7 @@ import { Tooltip } from '../components/Tooltip'
 import { useI18n } from '../i18n/LocaleContext'
 import { useLibraryData } from '../lib/DataContext'
 import { useMeasure } from '../lib/useMeasure'
+import type { RangeKind } from '../lib/types'
 import { axisYear, tagRanking, tagTrendRows, type TagRow, type TrendAxis } from '../lib/viewData/tagTrends'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './TagTrends.module.css'
@@ -35,8 +36,11 @@ export function TagTrends() {
   const { filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
+  const setRange = useFilterStore((s) => s.setRange)
   const [axis, setAxis] = useState<TrendAxis>('acquired')
   const [mode, setMode] = useState<Mode>('lines')
+  const [formFrom, setFormFrom] = useState(0)
+  const [formTo, setFormTo] = useState(0)
   const [pinned, setPinned] = useState<string[]>([])
   const [hover, setHover] = useState<{ tag: string; year: number; px: number; py: number } | null>(null)
   const [hoverTag, setHoverTag] = useState<string | null>(null)
@@ -60,6 +64,22 @@ export function TagTrends() {
     const to = Math.min(last, selRaw.to)
     return from > to ? fallback : { from, to }
   }, [data.years, selRaw])
+
+  // Das von/bis-Formular ist der globale Gegenspieler zum view-lokalen
+  // Abschnitt: Es filtert wirklich (setRange auf der Achsen-Dimension).
+  // Aktiver Filter belegt die Felder vor, sonst die volle Achsenspanne
+  // (Muster aus AcquisitionReading).
+  const axisKind: RangeKind = axis === 'acquired' ? 'acquiredYear' : 'readYear'
+  useEffect(() => {
+    const r = filters.find((f) => f.kind === axisKind)
+    if (r && 'from' in r) {
+      setFormFrom(r.from)
+      setFormTo(r.to)
+    } else if (data.years.length > 0) {
+      setFormFrom(data.years[0])
+      setFormTo(data.years[data.years.length - 1])
+    }
+  }, [axisKind, filters, data.years])
 
   // Sichtbare Zeilen: Top-N des Modus plus gepinnte, in der Sortierung des
   // Gesamtrankings (total desc, dann alphabetisch) — beide Modi identisch.
@@ -216,6 +236,35 @@ export function TagTrends() {
             ariaLabel={t.modeAria}
           />
         </span>
+        <form
+          className={styles.rangeForm}
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (formFrom >= 1900 && formTo >= formFrom) setRange(axisKind, formFrom, formTo)
+          }}
+        >
+          <label>
+            {m.rangeForm.from}{' '}
+            <input
+              type="number"
+              value={formFrom}
+              onChange={(e) => setFormFrom(Number(e.target.value))}
+              min={1900}
+              max={2100}
+            />
+          </label>
+          <label>
+            {m.rangeForm.to}{' '}
+            <input
+              type="number"
+              value={formTo}
+              onChange={(e) => setFormTo(Number(e.target.value))}
+              min={1900}
+              max={2100}
+            />
+          </label>
+          <button type="submit">{m.rangeForm.submit}</button>
+        </form>
       </div>
 
       <div className={styles.panel}>
