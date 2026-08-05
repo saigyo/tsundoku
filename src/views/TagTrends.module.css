@@ -1,0 +1,239 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.panel {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.labels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 14rem;
+  flex: none;
+}
+
+.labels li {
+  height: 18px; /* = ROW_H: Heatmap-Zeilen liegen exakt neben den Labels */
+  display: flex;
+}
+
+/* Ruhe wie Text, Hover mit Rahmen, aktiv Kon-Rahmen plus Fläche —
+   dasselbe Muster wie Regal- und Wissenslandkarten-Legende. */
+.labelBtn,
+.labelBtnHover,
+.labelBtnActive {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.labelBtn:hover,
+.labelBtn:focus-visible,
+.labelBtnHover {
+  border-color: var(--ink-45);
+}
+
+.labelBtnActive {
+  border-color: var(--kon);
+  background: var(--ink-08);
+}
+
+.labelBtn i,
+.labelBtnHover i,
+.labelBtnActive i {
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
+
+.labelText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.labelCount {
+  font-family: var(--font-mono);
+  color: var(--ink-70);
+  flex: none;
+}
+
+.chartWrap {
+  flex: 1;
+  min-width: 0;
+  position: relative; /* Bezugssystem für den Tooltip */
+}
+
+.brushArea {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.annotation {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  fill: var(--ink-70);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ink-45);
+  margin: var(--space-2) 0 0;
+}
+
+.tipList {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-4);
+  max-width: 24rem;
+}
+
+.ranking {
+  margin-top: var(--space-4);
+  max-width: 52rem;
+}
+
+.ranking h3 {
+  font-size: 15px;
+  margin: 0 0 var(--space-2);
+}
+
+.rankingHint {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--ink-45);
+  margin-left: var(--space-2);
+}
+
+.rankingEmpty {
+  font-size: 13px;
+  color: var(--ink-70);
+}
+
+.rankingList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rankingList li {
+  display: grid;
+  grid-template-columns: minmax(8rem, 13rem) 8rem 3.5rem 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: 13px;
+}
+
+.rankTag,
+.rankTagActive {
+  border: 1px solid transparent;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  padding: 1px var(--space-1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankTag:hover,
+.rankTag:focus-visible {
+  border-color: var(--ink-45);
+}
+
+.rankTagActive {
+  border-color: var(--kon);
+  background: var(--ink-08);
+}
+
+.barTrack {
+  display: block;
+  height: 9px;
+  background: var(--ink-08);
+  border-radius: var(--radius);
+}
+
+.bar {
+  display: block;
+  height: 100%;
+  background: var(--enji);
+  border-radius: var(--radius);
+}
+
+.factor {
+  font-family: var(--font-mono);
+}
+
+.rankCount {
+  color: var(--ink-70);
+  font-size: 12px;
+}
+
+.pin,
+.pinActive {
+  border: 1px solid transparent;
+  background: none;
+  font: inherit;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+.pinActive {
+  opacity: 1;
+  border-color: var(--kon);
+  background: var(--ink-08);
+}
+
+.pin:hover,
+.pin:focus-visible {
+  opacity: 1;
+  border-color: var(--ink-45);
+}
+
+.pin:disabled {
+  cursor: not-allowed;
+  opacity: 0.25;
+}
