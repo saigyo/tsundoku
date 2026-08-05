@@ -102,6 +102,11 @@
 .brushArea {
   cursor: crosshair;
   touch-action: none;
+  /* WebKit/Chromium markieren beim Ziehen sonst das SVG als Textselektion
+     (Muster aller Brush-Views; preventDefault auf pointerdown reicht in
+     WebKit nicht). */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .annotation {
