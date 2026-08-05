@@ -21,9 +21,12 @@ den bestehenden modalen `BookDetail`-Dialog.
    Light-Dismiss; modal ist nur der `BookDetail`-Dialog darüber.
 3. **Anker pro Jahr/Zelle.** Das Popup folgt nicht dem Zeiger. Es wird beim
    Betreten eines Jahres (bzw. einer Heatmap-Zelle/Linienposition) einmal
-   positioniert: x an der Bandmitte des Jahres, y an der Zeigerposition des
-   ersten Events in diesem Jahr. Bewegung innerhalb desselben Jahres lässt es
-   stehen; Wechsel zum Nachbarjahr ersetzt Anker und Inhalt.
+   positioniert: x an der Bandmitte des Jahres (Heatmap: an der Zeigerposition —
+   die Zellen sind nur 18 px hoch, jeder unnötige Abstand zwingt den Weg ins
+   Popup über eine Nachbarzelle), y an der Zeigerposition des ersten Events in
+   diesem Jahr. Bewegung innerhalb desselben Jahres lässt es stehen; Wechsel
+   zum Nachbarjahr ersetzt Anker und Inhalt — aber erst nach kurzem Verweilen
+   (Nachtrag unten).
 4. **Sofortiges Erscheinen, keine Verweildauer.** Hover ist im Chart die
    Leseinteraktion (anders als im Code-Editor); der Tooltip erscheint heute
    auch sofort. Nachrüsten einer kurzen Frist (~150 ms) bleibt möglich, falls
@@ -74,6 +77,15 @@ Anmerkungen:
 
 - Der 12-px-Versatz zwischen Anker und Popup wird von der 250-ms-Gnadenfrist
   überbrückt; ein geometrischer Safe-Korridor ist nicht nötig.
+- **Wechsel-Verzögerung (Nachtrag nach interaktivem Test):** Das *erste*
+  Öffnen bleibt sofort, aber ein *anderer* Anker ersetzt ein stehendes Popup
+  erst, wenn der Zeiger ~180 ms auf dem neuen Ziel verweilt. Grund: Auf dem
+  Weg ins Popup überstreicht der Zeiger in dichten Linienregionen fremde
+  Fangpfade bzw. in der Heatmap Nachbarzellen — jedes transiente Überstreichen
+  ersetzte sonst das Popup. Betreten des Popups oder Rückkehr auf den
+  aktuellen Anker verwirft einen schwebenden Wechsel; Bewegung innerhalb des
+  Kandidaten-Ziels lässt dessen Timer weiterlaufen (sonst käme der Wechsel bei
+  bewusstem Verweilen nie).
 - Während eines Brushs (`drag !== null`) wird kein Popup gezeigt (wie heute).
 - Solange `BookDetail` offen ist, blockiert der modale Dialog ohnehin alle
   Pointer-Events; Esc schließt dann nur den Dialog (natives `<dialog>`-
