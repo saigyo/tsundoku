@@ -391,8 +391,11 @@ export function TagTrends() {
               )}
               {hoverBooks.length > 0 && (
                 <ul className={styles.tipList}>
-                  {hoverBooks.slice(0, 10).map((title) => (
-                    <li key={title}>{title}</li>
+                  {/* Index als Key: derselbe Titel kann doppelt vorkommen
+                      (z. B. Buch + E-Book), die Liste wird je Hover neu
+                      aufgebaut und nie umsortiert. */}
+                  {hoverBooks.slice(0, 10).map((title, i) => (
+                    <li key={i}>{title}</li>
                   ))}
                   {hoverBooks.length > 10 && <li>{t.andMore(fmtNum(hoverBooks.length - 10))}</li>}
                 </ul>
