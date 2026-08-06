@@ -189,3 +189,16 @@ Playwright mit realen Daten (eigener Server, nie Port 5174):
 6. Locale-Wechsel: Balkenliste, Chips und Popup-Kopfzeile zeigen die
    übersetzten Namen (Stichprobe JA: 哲学 für Philosophy).
 7. Abdeckungsnotiz nennt 4.460 von 4.865 und den Vinyl/Film-Befund.
+
+## Nachtrag: gemessene Kennzahlen (2026-08-07)
+
+Die Playwright-DoD gegen den realen Datenbestand ergab drei Abweichungen zu
+den Analysezahlen oben — alle definitionsbedingt, keine Datenfehler:
+
+- **Achse 1.395 / 2.750** (statt 1.390 / 2.744): `genreMatches` zählt per
+  Design die General-only-Bücher zur Achse (5 bzw. 6 Titel).
+- **covered 4.506** (statt 4.865 − 405 = 4.460): 46 Titel tragen „No Genre"
+  *zusammen mit* echten Genres — sie zählen zur Abdeckung und zugleich zur
+  „Ohne Genre"-Zeile.
+- **Achsenlücke 365** (statt 373): auch hier schließen die General-Werte
+  einige Titel an die Achse an.
