@@ -10,6 +10,7 @@ export const es: Messages = {
       'y ya no puede leerse — vuelve a cargar tu exportación.',
     replaceLibrary: 'Cambiar de biblioteca',
     navAria: 'Vistas',
+    moreMenu: 'Más',
   },
   nav: {
     shelf: 'Estantería',

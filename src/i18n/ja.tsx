@@ -10,6 +10,7 @@ export const ja: Messages = {
       '読み込めなくなりました。お手数ですが、エクスポートをもう一度アップロードしてください。',
     replaceLibrary: '蔵書を切り替える',
     navAria: 'ビュー',
+    moreMenu: 'その他',
   },
   nav: {
     shelf: '本棚',
