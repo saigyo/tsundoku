@@ -138,6 +138,7 @@ export const VIEW_IDS = [
   'shelf',
   'pace',
   'canon',
+  'genres',
 ] as const
 export type ViewId = (typeof VIEW_IDS)[number]
 
