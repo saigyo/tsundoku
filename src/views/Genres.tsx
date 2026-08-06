@@ -89,7 +89,8 @@ export function Genres() {
           </span>
         </span>
         <span className={styles.counts}>
-          {m.views.genres.counts(fmtNum(r.owned), fmtNum(r.read), fmtNum(pct(r)))}
+          {/* 0/0 ist keine Quote — ohne Prozentteil (Spec, Entscheidung 6) */}
+          {r.owned === 0 ? m.views.canon.counts(fmtNum(r.owned), fmtNum(r.read)) : m.views.genres.counts(fmtNum(r.owned), fmtNum(r.read), fmtNum(pct(r)))}
         </span>
       </button>
     </li>

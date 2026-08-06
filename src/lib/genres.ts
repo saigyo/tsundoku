@@ -42,7 +42,7 @@ export function displayGenres(b: Book): string[] {
 /** Übersetztes Label mit Fallback auf den Rohwert (unbekannte künftige
  *  Genres bleiben lesbar statt zu verschwinden). */
 export function genreLabel(value: string, m: Messages): string {
-  return (m as { genreNames?: Record<string, string> }).genreNames?.[value] ?? value
+  return (m.genreNames as Record<string, string>)[value] ?? value
 }
 
 /** Vollständiges LibraryThing-Vokabular des Exports (2026-08-06) —
