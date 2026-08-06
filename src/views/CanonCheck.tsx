@@ -13,6 +13,12 @@ import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
 
+// Nur per Jahres-Tag als gelesen markierte Titel haben kein readDate — ihr
+// Jahr ist trotzdem bekannt und zählt; das nackte „YYYY" sortiert per
+// ISO-Stringvergleich vor die datierten Titel desselben Jahres.
+const readDateOrTagYear = (b: Book) =>
+  b.readDate ?? (b.readYearEffective !== null ? String(b.readYearEffective) : null)
+
 export function CanonCheck() {
   const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
@@ -29,14 +35,14 @@ export function CanonCheck() {
   const { popup, popupRef, hoverAnchor, leaveChart, popupEnter, popupLeave, pin, close } =
     useBookListPopup<{ list: string }>((a, b) => a.list === b.list, selected !== null)
 
-  // Datumsspalte = Lesedatum: die View fragt „besessen vs. gelesen", also
+  // Datumsspalte = Lesejahr: die View fragt „besessen vs. gelesen", also
   // stehen die gelesenen Titel chronologisch vorn, Ungelesene („—") folgen
   // alphabetisch. Vor den Early-Returns (Rules of Hooks).
   const popupBooks = useMemo(() => {
     if (popup === null) return []
     return sortBooksByDate(
       filtered.filter((b) => b.awards.some((a) => canonicalAward(a) === popup.anchor.list)),
-      (b) => b.readDate,
+      readDateOrTagYear,
     )
   }, [popup, filtered])
 
@@ -140,7 +146,7 @@ export function CanonCheck() {
           }
           ariaContext={`${popup.anchor.list}: ${popupCounts}`}
           books={popupBooks}
-          dateOf={(b) => b.readDate}
+          dateOf={readDateOrTagYear}
           dateGranularity="year"
           onSelect={(b) => {
             pin()
