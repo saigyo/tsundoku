@@ -103,7 +103,6 @@ export function CanonCheck() {
               className={styles.row}
               aria-pressed={isActive(r.list)}
               onClick={() => toggleFilter({ kind: 'award', value: r.list })}
-              title={r.list}
               onPointerMove={(e) => {
                 // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach,
                 // eine Zeilenmitte läge zu weit vom Zeiger entfernt.
