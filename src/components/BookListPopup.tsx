@@ -56,8 +56,10 @@ export function BookListPopup({
     const list = listRef.current
     if (list !== null) setOverflows(list.scrollHeight > list.clientHeight)
     // overflows in den Deps: die nachgerückte Fußzeile ändert die Höhe,
-    // die Klemmung wird danach einmal neu gemessen.
-  }, [x, y, books, overflows, popupRef])
+    // die Klemmung wird danach einmal neu gemessen. dateGranularity ändert
+    // die Spaltenbreite — praktisch pro View konstant, aber als Prop
+    // gehört es in die Messung.
+  }, [x, y, books, overflows, popupRef, dateGranularity])
 
   // Eigener Effekt nur für den Scroll-Reset: Der Anker wechselt (z. B.
   // Nachbarjahr), die <ul> bleibt aber gemountet — ohne Reset startet die
