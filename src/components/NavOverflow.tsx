@@ -24,8 +24,14 @@ export function NavOverflow({
   const navRef = useRef<HTMLElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
   const menuWrapRef = useRef<HTMLSpanElement>(null)
+  const toggleRef = useRef<HTMLButtonElement>(null)
   const [visibleCount, setVisibleCount] = useState(views.length)
   const [open, setOpen] = useState(false)
+
+  // Stabiler Schlüssel statt der Array-Referenz: `views` kommt bei App als
+  // `VIEW_ORDER.filter(...)` bei jedem Render neu, sonst liefe der Effekt
+  // unten bei jedem Render neu statt nur bei tatsächlich geänderter Menge.
+  const viewsKey = views.join(',')
 
   // Messzeile: alle Tab-Labels plus alle möglichen Knopf-Zustände
   // (unsichtbar, nicht umbrechend). fitCount rechnet mit der maximalen
@@ -39,17 +45,28 @@ export function NavOverflow({
       const tabs = [...meas.querySelectorAll<HTMLElement>('[data-tab]')]
       const buttons = [...meas.querySelectorAll<HTMLElement>('[data-btn]')]
       const gap = parseFloat(getComputedStyle(nav).columnGap) || 0
-      const buttonWidth = Math.max(...buttons.map((el) => el.offsetWidth), 0)
+      const buttonWidth = Math.max(...buttons.map((el) => el.getBoundingClientRect().width), 0)
       setVisibleCount(
-        fitCount(tabs.map((el) => el.offsetWidth), buttonWidth, gap, nav.clientWidth),
+        fitCount(
+          tabs.map((el) => el.getBoundingClientRect().width),
+          buttonWidth,
+          gap,
+          nav.getBoundingClientRect().width,
+        ),
       )
     }
     compute()
     const ro = new ResizeObserver(compute)
     ro.observe(nav)
+    // Auch die Messzeile beobachten: Ein Font-Swap (FOUT → Webfont fertig
+    // geladen) ändert die Breite von `nav` nicht, wohl aber die der
+    // Messzeile — sie ist absolut positioniert und schmiegt sich an ihren
+    // Inhalt. Ohne diese zweite Beobachtung bliebe `visibleCount` auf Basis
+    // der Fallback-Font-Breiten stehen.
+    ro.observe(meas)
     return () => ro.disconnect()
     // locale in den Deps: neue Labels ⇒ neue Breiten messen.
-  }, [views, locale])
+  }, [viewsKey, locale])
 
   // View-Wechsel schließt das Menü (auch programmatisch, z. B. Back-Button).
   useEffect(() => {
@@ -60,7 +77,13 @@ export function NavOverflow({
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      // Esc gibt den Fokus explizit an den Knopf zurück, sonst unmountet das
+      // Menü das fokussierte Element und der Fokus fällt auf <body>.
+      // Außenklick behält sein Standardverhalten (Fokus bleibt beim Klickziel).
+      if (e.key === 'Escape') {
+        setOpen(false)
+        toggleRef.current?.focus()
+      }
     }
     const onDown = (e: PointerEvent) => {
       const el = menuWrapRef.current
@@ -78,7 +101,10 @@ export function NavOverflow({
   const visible = views.slice(0, visibleCount)
   const hidden = views.slice(visibleCount)
   const activeHidden = hidden.includes(active)
-  const buttonLabel = `${activeHidden ? m.nav[active] : m.app.moreMenu} ▾`
+  // Nur der Text ist Teil des zugänglichen Namens; das ▾-Glyph wird unten in
+  // einem eigenen `aria-hidden`-Span gerendert (Screenreader lesen sonst
+  // "Pfeil nach unten zeigend" als Teil des Buttonnamens mit vor).
+  const buttonLabel = activeHidden ? m.nav[active] : m.app.moreMenu
 
   const tab = (id: ViewId) => (
     <button
@@ -97,12 +123,13 @@ export function NavOverflow({
       {hidden.length > 0 && (
         <span className={styles.menuWrap} ref={menuWrapRef}>
           <button
+            ref={toggleRef}
             className={styles.navItem}
             aria-current={activeHidden ? 'page' : undefined}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
           >
-            {buttonLabel}
+            {buttonLabel} <span aria-hidden="true">▾</span>
           </button>
           {open && (
             <div className={styles.menu}>
@@ -114,6 +141,9 @@ export function NavOverflow({
                   onClick={() => {
                     onSelect(id)
                     setOpen(false)
+                    // Fokus zurück zum Knopf: sonst unmountet das Menü das
+                    // fokussierte Item und der Fokus fällt auf <body>.
+                    toggleRef.current?.focus()
                   }}
                 >
                   {m.nav[id]}
