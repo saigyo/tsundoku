@@ -5,19 +5,13 @@ import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useI18n } from '../i18n/LocaleContext'
 import { canonicalAward } from '../lib/awards'
-import { sortBooksByDate } from '../lib/bookListPopup'
+import { readDateOrTagYear, sortBooksByDate } from '../lib/bookListPopup'
 import type { Book } from '../lib/types'
 import { useBookListPopup } from '../lib/useBookListPopup'
 import { useLibraryData } from '../lib/DataContext'
 import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
-
-// Nur per Jahres-Tag als gelesen markierte Titel haben kein readDate — ihr
-// Jahr ist trotzdem bekannt und zählt; das nackte „YYYY" sortiert per
-// ISO-Stringvergleich vor die datierten Titel desselben Jahres.
-const readDateOrTagYear = (b: Book) =>
-  b.readDate ?? (b.readYearEffective !== null ? String(b.readYearEffective) : null)
 
 export function CanonCheck() {
   const { m, fmtNum } = useI18n()

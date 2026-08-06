@@ -1,5 +1,11 @@
 import type { Book } from './types'
 
+// Nur per Jahres-Tag als gelesen markierte Titel haben kein readDate — ihr
+// Jahr ist trotzdem bekannt und zählt; das nackte „YYYY" sortiert per
+// ISO-Stringvergleich vor die datierten Titel desselben Jahres.
+export const readDateOrTagYear = (b: Book): string | null =>
+  b.readDate ?? (b.readYearEffective !== null ? String(b.readYearEffective) : null)
+
 /**
  * Chronologisch nach Achsendatum (ISO-Strings `YYYY-MM-DD`, Stringvergleich
  * genügt); Titel ohne Tagesdatum ans Ende, untereinander alphabetisch
