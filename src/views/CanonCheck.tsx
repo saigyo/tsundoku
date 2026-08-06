@@ -1,7 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { BookDetail } from '../components/BookDetail'
+import { BookListPopup } from '../components/BookListPopup'
 import { CoverageNote } from '../components/CoverageNote'
 import { EmptyState } from '../components/EmptyState'
 import { useI18n } from '../i18n/LocaleContext'
+import { canonicalAward } from '../lib/awards'
+import { sortBooksByDate } from '../lib/bookListPopup'
+import type { Book } from '../lib/types'
+import { useBookListPopup } from '../lib/useBookListPopup'
 import { useLibraryData } from '../lib/DataContext'
 import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
@@ -15,6 +21,29 @@ export function CanonCheck() {
   const addFilter = useFilterStore((s) => s.addFilter)
   const [topN, setTopN] = useState(20)
   const data = useMemo(() => canonRows(filtered, topN), [filtered, topN])
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [selected, setSelected] = useState<Book | null>(null)
+  // Interaktives Titel-Popup wie in Erwerb & Lektüre / Tag-Trends (Spec
+  // „Interaktives Titel-Popup"): Hover über einer Kanon-Zeile listet deren
+  // Titel; der Zeilen-Klick bleibt der Award-Filter.
+  const { popup, popupRef, hoverAnchor, leaveChart, popupEnter, popupLeave, pin, close } =
+    useBookListPopup<{ list: string }>((a, b) => a.list === b.list, selected !== null)
+
+  // Datumsspalte = Lesedatum: die View fragt „besessen vs. gelesen", also
+  // stehen die gelesenen Titel chronologisch vorn, Ungelesene („—") folgen
+  // alphabetisch. Vor den Early-Returns (Rules of Hooks).
+  const popupBooks = useMemo(() => {
+    if (popup === null) return []
+    return sortBooksByDate(
+      filtered.filter((b) => b.awards.some((a) => canonicalAward(a) === popup.anchor.list)),
+      (b) => b.readDate,
+    )
+  }, [popup, filtered])
+
+  // Filterwechsel kann die Liste leeren, ohne dass ein pointerleave feuert.
+  useEffect(() => {
+    if (popup !== null && popupBooks.length === 0) close()
+  }, [popup, popupBooks, close])
 
   if (filtered.length === 0) return <EmptyState />
   if (data.rows.length === 0) {
@@ -29,8 +58,16 @@ export function CanonCheck() {
   const hasUnreadFilter = filters.some((f) => sameFilter(f, { kind: 'readStatus', value: 'unread' }))
   const isActive = (list: string) => filters.some((f) => sameFilter(f, { kind: 'award', value: list }))
 
+  // Kopfzeile aus dem Popup-Inhalt selbst statt aus data.rows: nach einem
+  // topN- oder Filterwechsel kann die Zeile verschwunden sein, die Bücher
+  // des stehenden Popups aber nicht.
+  const popupCounts = m.views.canon.counts(
+    fmtNum(popupBooks.length),
+    fmtNum(popupBooks.filter((b) => b.hasRead).length),
+  )
+
   return (
-    <div>
+    <div ref={wrapRef} className={styles.wrap}>
       <header className={styles.head}>
         <h2>{m.views.canon.title}</h2>
         <CoverageNote covered={data.withAwards} total={filtered.length}>
@@ -59,7 +96,7 @@ export function CanonCheck() {
         )}
       </div>
 
-      <ol className={styles.rows}>
+      <ol className={styles.rows} onPointerLeave={leaveChart}>
         {data.rows.map((r) => (
           <li key={r.list}>
             <button
@@ -67,6 +104,13 @@ export function CanonCheck() {
               aria-pressed={isActive(r.list)}
               onClick={() => toggleFilter({ kind: 'award', value: r.list })}
               title={r.list}
+              onPointerMove={(e) => {
+                // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach,
+                // eine Zeilenmitte läge zu weit vom Zeiger entfernt.
+                const rect = wrapRef.current?.getBoundingClientRect()
+                if (rect === undefined) return
+                hoverAnchor({ list: r.list }, e.clientX - rect.left, e.clientY - rect.top)
+              }}
             >
               <span className={styles.listName}>{r.list}</span>
               <span className={styles.barTrack}>
@@ -84,6 +128,30 @@ export function CanonCheck() {
           </li>
         ))}
       </ol>
+
+      {popup && popupBooks.length > 0 && (
+        <BookListPopup
+          x={popup.x}
+          y={popup.y}
+          popupRef={popupRef}
+          header={
+            <>
+              <strong>{popup.anchor.list}</strong>: {popupCounts}
+            </>
+          }
+          ariaContext={`${popup.anchor.list}: ${popupCounts}`}
+          books={popupBooks}
+          dateOf={(b) => b.readDate}
+          dateGranularity="year"
+          onSelect={(b) => {
+            pin()
+            setSelected(b)
+          }}
+          onPointerEnter={popupEnter}
+          onPointerLeave={popupLeave}
+        />
+      )}
+      <BookDetail book={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }

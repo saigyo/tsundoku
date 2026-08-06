@@ -16,6 +16,7 @@ export function BookListPopup({
   ariaContext,
   books,
   dateOf,
+  dateGranularity = 'dayMonth',
   onSelect,
   onPointerEnter,
   onPointerLeave,
@@ -27,6 +28,9 @@ export function BookListPopup({
   ariaContext: string
   books: Book[] // bereits sortiert (sortBooksByDate)
   dateOf: (b: Book) => string | null
+  // Jahres-Views zeigen TT.MM. (das Jahr steht im Anker); Views ohne
+  // Jahreskontext (Kanon) zeigen stattdessen das Jahr selbst.
+  dateGranularity?: 'dayMonth' | 'year'
   onSelect: (b: Book) => void
   onPointerEnter: () => void
   onPointerLeave: () => void
@@ -71,6 +75,9 @@ export function BookListPopup({
     [locale],
   )
   const fmtDay = (iso: string) => {
+    // Jahresgranularität ohne Intl: reine Ziffern lesen sich in allen fünf
+    // Sprachen, und „2019年" sprengte die feste Spaltenbreite.
+    if (dateGranularity === 'year') return iso.slice(0, 4)
     const [yy, mm, dd] = iso.split('-').map(Number)
     return dayFormatter.format(new Date(yy, mm - 1, dd))
   }
