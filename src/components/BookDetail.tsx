@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useI18n } from '../i18n/LocaleContext'
+import { displayGenres, genreLabel } from '../lib/genres'
 import { langLabel } from '../lib/languages'
 import { bookUrl, coverUrl, normalizeIsbn } from '../lib/openlibrary'
 import type { Book, Filter } from '../lib/types'
@@ -60,6 +61,10 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
     [m.detail.series, book.series.join(', ') || null],
     [m.detail.isbn, book.isbn],
     [m.detail.tags, chips(book.tagsNorm.map((t) => chip({ kind: 'tag', value: t }, t)))],
+    [
+      m.detail.genres,
+      chips(displayGenres(book).map((g) => chip({ kind: 'genre', value: g }, genreLabel(g, m)))),
+    ],
   ]
 
   return (
