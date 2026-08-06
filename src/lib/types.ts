@@ -121,6 +121,7 @@ export type Filter =
   | { kind: 'collection'; value: string }
   | { kind: 'author'; value: string }
   | { kind: 'award'; value: string }
+  | { kind: 'genre'; value: string }
   | { kind: 'acquiredYear'; from: number; to: number }
   | { kind: 'readYear'; from: number; to: number }
   | { kind: 'editionYear'; from: number; to: number }

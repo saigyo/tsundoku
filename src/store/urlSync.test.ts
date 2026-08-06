@@ -32,6 +32,13 @@ describe('Roundtrip', () => {
   })
 })
 
+describe('Genre-Filter', () => {
+  it('genre überlebt die URL-Runde', () => {
+    const q = stateToQuery('shelf', [{ kind: 'genre', value: 'Comics' }])
+    expect(queryToState(q).filters).toEqual([{ kind: 'genre', value: 'Comics' }])
+  })
+})
+
 describe('Defekte Query-Strings degradieren stumm', () => {
   it('unbekannte Parameter und kaputte Werte werden ignoriert', () => {
     const st = queryToState('?view=nope&bogus=1&ddc=zwölf&acq=abc&read=2020-1988&status=maybe&tag=Japan')
