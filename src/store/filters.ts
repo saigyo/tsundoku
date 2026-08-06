@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Messages } from '../i18n/messages'
 import { canonicalAward } from '../lib/awards'
+import { genreLabel, genreMatches } from '../lib/genres'
 import { langLabel } from '../lib/languages'
 import { DEFAULT_VIEW, type Book, type Filter, type RangeKind, type ViewId } from '../lib/types'
 
@@ -22,6 +23,8 @@ function matches(b: Book, f: Filter): boolean {
       return b.authors.some((a) => a.name === f.value) || b.primaryAuthor === f.value
     case 'award':
       return b.awards.some((a) => canonicalAward(a) === f.value)
+    case 'genre':
+      return genreMatches(b, f.value)
     case 'acquiredYear':
       return b.acquiredYear !== null && b.acquiredYear >= f.from && b.acquiredYear <= f.to
     case 'readYear':
@@ -34,9 +37,10 @@ function matches(b: Book, f: Filter): boolean {
 }
 
 /** UND über Dimensionen (kind), ODER innerhalb einer Dimension.
- *  Ausnahme Tags: UND auch innerhalb der Dimension — ein Buch trägt viele
- *  Tags, mehrere gewählte sollen die Menge verengen, nicht erweitern.
- *  Bei einwertigen Dimensionen (Sprache, Medium …) wäre UND fast immer leer. */
+ *  Ausnahme Tags und Genres: UND auch innerhalb der Dimension — ein Buch
+ *  trägt viele Tags bzw. mehrere Genres, mehrere gewählte sollen die Menge
+ *  verengen, nicht erweitern. Bei einwertigen Dimensionen (Sprache, Medium …)
+ *  wäre UND fast immer leer. */
 export function filterBooks(books: Book[], filters: Filter[]): Book[] {
   if (filters.length === 0) return books
   const groups = new Map<Filter['kind'], Filter[]>()
@@ -48,7 +52,7 @@ export function filterBooks(books: Book[], filters: Filter[]): Book[] {
   const groupList = [...groups.entries()]
   return books.filter((b) =>
     groupList.every(([kind, g]) =>
-      kind === 'tag' ? g.every((f) => matches(b, f)) : g.some((f) => matches(b, f)),
+      kind === 'tag' || kind === 'genre' ? g.every((f) => matches(b, f)) : g.some((f) => matches(b, f)),
     ),
   )
 }
@@ -84,6 +88,8 @@ export function filterLabel(f: Filter, m: Messages): string {
       return m.filter.author(f.value)
     case 'award':
       return m.filter.award(f.value)
+    case 'genre':
+      return m.filter.genre(genreLabel(f.value, m))
     case 'acquiredYear':
       return m.filter.acquired(f.from, f.to)
     case 'readYear':

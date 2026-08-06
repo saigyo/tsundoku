@@ -22,6 +22,9 @@ const roman = mkBook({
 })
 const all = [japan, philo, roman]
 
+const comic = mkBook({ genres: ['Nonfiction', 'Comics'], hasRead: true })
+const novel = mkBook({ genres: ['General Fiction'] })
+
 describe('filterBooks', () => {
   it('leere Filtermenge liefert dieselbe Referenz', () => {
     expect(filterBooks(all, [])).toBe(all)
@@ -101,6 +104,31 @@ describe('filterBooks', () => {
     } finally {
       delete AWARD_SYNONYMS['Hugo Award (Übersetzung)']
     }
+  })
+})
+
+describe('filterBooks: genre', () => {
+  const genreBooks = [comic, novel]
+  it('Achsenwert trifft auch General-only (Zusammenlegung)', () => {
+    expect(filterBooks(genreBooks, [{ kind: 'genre', value: 'Fiction' }])).toEqual([novel])
+  })
+  it('UND innerhalb der Dimension wie bei Tags', () => {
+    expect(
+      filterBooks(genreBooks, [
+        { kind: 'genre', value: 'Nonfiction' },
+        { kind: 'genre', value: 'Comics' },
+      ]),
+    ).toEqual([comic])
+    expect(
+      filterBooks(genreBooks, [
+        { kind: 'genre', value: 'Fiction' },
+        { kind: 'genre', value: 'Comics' },
+      ]),
+    ).toEqual([])
+  })
+  it('Chip-Label nutzt die Übersetzung', () => {
+    expect(filterLabel({ kind: 'genre', value: 'Comics' }, de)).toBe('Genre: Comics')
+    expect(filterLabel({ kind: 'genre', value: 'Mystery' }, de)).toBe('Genre: Krimi')
   })
 })
 

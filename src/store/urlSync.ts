@@ -10,6 +10,7 @@ const PARAMS: [param: string, kind: Filter['kind']][] = [
   ['coll', 'collection'],
   ['author', 'author'],
   ['award', 'award'],
+  ['genre', 'genre'],
   ['acq', 'acquiredYear'],
   ['read', 'readYear'],
   ['ed', 'editionYear'],
