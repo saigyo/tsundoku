@@ -407,7 +407,7 @@ export const ja: Messages = {
         `件が「ジャンルなし」以外のジャンルを持つ。ジャンルなしの${noGenreFmt}件はほぼ` +
         `レコード盤と映画。さらに${noAxisFmt}件はフィクション／ノンフィクションの` +
         `区分なしに固有ジャンルのみを持つ。`,
-      counts: (ownedFmt, readFmt, pctFmt) => `所蔵 ${ownedFmt} 冊 · 読了 ${readFmt} 冊・${pctFmt}%`,
+      counts: (ownedFmt, readFmt, pctFmt) => `所蔵 ${ownedFmt} 冊 · 読了 ${readFmt} 冊 · ${pctFmt}%`,
       sortLabel: '並べ替え：',
       sortByOwned: '蔵書数',
       sortByRate: '既読率',

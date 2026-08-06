@@ -428,7 +428,7 @@ export const fr: Messages = {
       title: 'Genres',
       coverage: (noGenreFmt, noAxisFmt) =>
         `portent un genre au-delà de « sans genre ». Les ${noGenreFmt} titres sans genre ` +
-        `sont presque exclusivement des vinyles et des films ; ${noAxisFmt} autres ne portent ` +
+        `sont presque exclusivement des vinyles et des films ; ${noAxisFmt} autres ne portent ` +
         `que des genres spécifiques, sans classement fiction/non-fiction.`,
       counts: (ownedFmt, readFmt, pctFmt) => `${ownedFmt} dans la collection · ${readFmt} lus · ${pctFmt} %`,
       sortLabel: 'Tri :',
