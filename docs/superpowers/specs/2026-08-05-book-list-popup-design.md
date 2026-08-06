@@ -238,7 +238,10 @@ hatte. Abweichungen gegenüber den Jahres-Views:
   Intl — reine Ziffern lesen sich in allen fünf Sprachen, und „2019年"
   sprengte die feste Spaltenbreite. Gelesene chronologisch vorn, Ungelesene
   („—") alphabetisch am Ende — passend zur Frage der View („besessen vs.
-  gelesen").
+  gelesen"). Titel, die nur per Jahres-Tag als gelesen gelten, zeigen dieses
+  Jahr (`readYearEffective` als Fallback für fehlendes `readDate`); „—"
+  bleibt den Ungelesenen und den Gelesenen ganz ohne bekanntes Jahr
+  vorbehalten.
 - **Kopfzeile** = Listenname + vorhandener `views.canon.counts`-String,
   berechnet aus dem Popup-Inhalt selbst (nicht aus `data.rows`, die Zeile
   kann nach topN-/Filterwechsel verschwunden sein). Keine neuen i18n-Strings.
