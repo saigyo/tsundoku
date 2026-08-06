@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { MediaType, ViewId } from '../lib/types'
+import type { GenreKey } from '../lib/genres'
 
 export const SUPPORTED_LOCALES = ['de', 'en', 'fr', 'es', 'ja'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
@@ -89,6 +90,7 @@ export interface Messages {
     collection: (v: string) => string
     author: (v: string) => string
     award: (v: string) => string
+    genre: (label: string) => string
     acquired: (from: number, to: number) => string
     read: (from: number, to: number) => string
     edition: (from: number, to: number) => string
@@ -141,6 +143,7 @@ export interface Messages {
     series: string
     isbn: string
     tags: string
+    genres: string
     toggleFilterAria: (label: string) => string
     filterByAuthorAria: (name: string) => string
     viewOnLt: string
@@ -308,7 +311,16 @@ export interface Messages {
       onlyUnread: string
       counts: (ownedFmt: string, readFmt: string) => string
     }
+    genres: {
+      title: string
+      coverage: (noGenreFmt: string, noAxisFmt: string) => string
+      counts: (ownedFmt: string, readFmt: string, pctFmt: string) => string
+      sortLabel: string
+      sortByOwned: string
+      sortByRate: string
+    }
   }
+  genreNames: Record<GenreKey, string>
   footer: {
     license: string
     embedded: string
