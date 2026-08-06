@@ -10,6 +10,7 @@ export const fr: Messages = {
       'l’application et ne peut plus être lue — merci de charger votre export une nouvelle fois.',
     replaceLibrary: 'Changer de bibliothèque',
     navAria: 'Vues',
+    moreMenu: 'Plus',
   },
   nav: {
     shelf: 'Étagère',

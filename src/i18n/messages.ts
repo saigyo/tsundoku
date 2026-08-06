@@ -28,6 +28,7 @@ export interface Messages {
     incompatibleNotice: string
     replaceLibrary: string
     navAria: string
+    moreMenu: string
   }
   nav: Record<ViewId, string>
   upload: {

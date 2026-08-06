@@ -10,6 +10,7 @@ export const en: Messages = {
       'and can no longer be read—please upload your export once more.',
     replaceLibrary: 'Switch library',
     navAria: 'Views',
+    moreMenu: 'More',
   },
   nav: {
     shelf: 'Shelf',

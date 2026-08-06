@@ -10,6 +10,7 @@ export const de: Messages = {
       'und kann nicht mehr gelesen werden — bitte den Export einmal neu hochladen.',
     replaceLibrary: 'Bibliothek wechseln',
     navAria: 'Ansichten',
+    moreMenu: 'Mehr',
   },
   nav: {
     shelf: 'Regal',
