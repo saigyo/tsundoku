@@ -219,3 +219,26 @@ Playwright mit realen Daten (eigener Server, nie Port 5174):
 8. Anker am rechten Fensterrand (letztes Jahr): Popup springt auf die linke
    Seite und bleibt vollständig im Viewport; ebenso wird ein hohes Popup
    vertikal geklemmt statt unten abgeschnitten.
+
+## Nachtrag: Kanon-View (2026-08-06)
+
+Das Popup gilt auch für den Kanonabgleich, der bisher gar keine Buchliste
+hatte. Abweichungen gegenüber den Jahres-Views:
+
+- **Anker** ist die Kanon-Zeile (`{ list }`), Position am Zeiger wie in der
+  Heatmap — die Zeilen sind flach, eine Zeilenmitte läge zu weit weg.
+  `pointerleave` der `<ol>` startet die Gnadenfrist; die Wechsel-Verzögerung
+  fängt das Überstreichen dicht gestapelter Zeilen ab.
+- **Zeilen-Klick bleibt der Award-Filter** (unveränderte Klick-Semantik,
+  analog Brush/Ein-Jahres-Klick).
+- **Datumsspalte = Lesedatum mit Jahresgranularität**: Ohne Jahres-Anker wäre
+  „TT.MM." über eine 1988–2026 spannende Lesehistorie mehrdeutig. Neues
+  optionales Prop `dateGranularity: 'dayMonth' | 'year'` an `BookListPopup`
+  (Default `dayMonth`); die Jahreszahl kommt als `iso.slice(0, 4)` ohne
+  Intl — reine Ziffern lesen sich in allen fünf Sprachen, und „2019年"
+  sprengte die feste Spaltenbreite. Gelesene chronologisch vorn, Ungelesene
+  („—") alphabetisch am Ende — passend zur Frage der View („besessen vs.
+  gelesen").
+- **Kopfzeile** = Listenname + vorhandener `views.canon.counts`-String,
+  berechnet aus dem Popup-Inhalt selbst (nicht aus `data.rows`, die Zeile
+  kann nach topN-/Filterwechsel verschwunden sein). Keine neuen i18n-Strings.
