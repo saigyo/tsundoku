@@ -33,38 +33,9 @@
   font-weight: 500;
 }
 
-.nav {
-  display: flex;
-  gap: var(--space-1);
-  flex-wrap: wrap;
-}
-
-/* Engere Tab-Abstände für die breiten FR/ES-Labels: neun Tabs plus Marke
-   müssen bei 1440 px Fensterbreite einzeilig bleiben (der Wechseln-Knopf
-   wohnt seit dem neunten Tab in der Fußzeile). */
-.navItem:lang(fr),
-.navItem:lang(es) {
-  padding: var(--space-1) 6px;
-}
-
 .header:lang(fr),
 .header:lang(es) {
   gap: var(--space-4);
-}
-
-.navItem {
-  border: none;
-  background: none;
-  padding: var(--space-1) var(--space-3);
-  color: var(--ink-70);
-  border-bottom: 2px solid transparent;
-  /* Fest wie .brand (28px): die JA-Grundgröße (93,75 %) soll die Tab-Höhe nicht verändern. */
-  font-size: 16px;
-}
-
-.navItem[aria-current='page'] {
-  color: var(--sumi);
-  border-bottom-color: var(--enji);
 }
 
 .main {

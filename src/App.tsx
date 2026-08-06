@@ -4,6 +4,7 @@ import { DataSummary } from './components/DataSummary'
 import { DataUpload } from './components/DataUpload'
 import { FilterChips } from './components/FilterChips'
 import { Footer } from './components/Footer'
+import { NavOverflow } from './components/NavOverflow'
 import { useI18n } from './i18n/LocaleContext'
 import { DataProvider } from './lib/DataContext'
 import { clearStoredLibrary, loadStoredLibrary } from './lib/libraryStore'
@@ -33,9 +34,10 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, ComponentType>> = {
   canon: CanonCheck,
 }
 
-/** Navigationsreihenfolge; Regal steht als Signature-Ansicht zuerst. */
+/** Navigationsreihenfolge nach Erkenntniswert (Spec „Kopfzeile mit
+ *  Überlaufmenü"): die hinteren Views überlaufen zuerst ins Mehr-Menü. */
 export const VIEW_ORDER: ViewId[] = [
-  'shelf', 'timeline', 'knowledge', 'tagTrends', 'network', 'languages', 'years', 'pace', 'canon',
+  'shelf', 'timeline', 'knowledge', 'tagTrends', 'network', 'languages', 'canon', 'years', 'pace',
 ]
 
 type LoadState =
@@ -123,7 +125,6 @@ export default function App() {
 }
 
 function Shell() {
-  const { m } = useI18n()
   const view = useFilterStore((s) => s.view)
   const setView = useFilterStore((s) => s.setView)
   const Active = VIEW_REGISTRY[view] ?? DataSummary
@@ -133,18 +134,11 @@ function Shell() {
         <h1 className={styles.brand}>
           Tsundoku <span lang="ja">積ん読</span>
         </h1>
-        <nav aria-label={m.app.navAria} className={styles.nav}>
-          {VIEW_ORDER.filter((id) => VIEW_REGISTRY[id]).map((id) => (
-            <button
-              key={id}
-              className={styles.navItem}
-              aria-current={view === id ? 'page' : undefined}
-              onClick={() => setView(id)}
-            >
-              {m.nav[id]}
-            </button>
-          ))}
-        </nav>
+        <NavOverflow
+          views={VIEW_ORDER.filter((id) => VIEW_REGISTRY[id])}
+          active={view}
+          onSelect={setView}
+        />
       </header>
       <FilterChips />
       <main className={styles.main}>

@@ -1,0 +1,89 @@
+.nav {
+  display: flex;
+  gap: var(--space-1);
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  overflow: hidden; /* Sicherheitsnetz gegen Subpixel-Überstand, nie sichtbar */
+}
+
+.navItem {
+  border: none;
+  background: none;
+  padding: var(--space-1) var(--space-3);
+  color: var(--ink-70);
+  border-bottom: 2px solid transparent;
+  /* Fest wie .brand (28px): die JA-Grundgröße (93,75 %) soll die Tab-Höhe nicht verändern. */
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* Engere Tab-Abstände für die breiten FR/ES-Labels (Bestand aus App.module.css). */
+.navItem:lang(fr),
+.navItem:lang(es) {
+  padding: var(--space-1) 6px;
+}
+
+.navItem[aria-current='page'] {
+  color: var(--sumi);
+  border-bottom-color: var(--enji);
+}
+
+.menuWrap {
+  position: relative;
+}
+
+/* Sumi-Panel wie das Titel-Popup; rechtsbündig am Knopf, damit es am
+   rechten Fensterrand nach links ausweicht (Spec, Entscheidung 4). */
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--sumi);
+  color: var(--shironeri);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(28, 27, 25, 0.35);
+  padding: 4px 0;
+  min-width: max-content;
+  z-index: 20;
+}
+
+.item,
+.itemActive {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 14px;
+  padding: 6px 16px;
+  border-left: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.itemActive {
+  border-left-color: var(--enji);
+}
+
+.item:hover,
+.itemActive:hover {
+  background: rgba(238, 232, 220, 0.14);
+}
+
+.item:focus-visible,
+.itemActive:focus-visible {
+  outline: 2px solid var(--shironeri);
+  outline-offset: -2px;
+}
+
+.measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: var(--space-1);
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
