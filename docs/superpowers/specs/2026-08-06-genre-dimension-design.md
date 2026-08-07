@@ -219,3 +219,20 @@ Popups oder Rückkehr auf Inhalt bricht sie ab; Angeheftetes bleibt
 unberührt). Der **Filter-Klick** gilt dagegen auf der ganzen Zeile; den
 optischen Zusammenhang bei kurzen Balken stellt eine leichte
 Hover-Tönung der Zeile her (`--ink-08`, auch bei Tastaturfokus).
+
+## Nachtrag: Ruhe-Erkennung (2026-08-07)
+
+Nutzerbefund: Das sofortige Öffnen und das Verweil-Wechseln fühlten sich
+beim Überstreichen der Balken „nervös" an — flackernde bzw. durchblätternde
+Popups. Im Ruhe-Modus (nur Genres-View und Kanonabgleich, Hook-Parameter
+`openDelayMs = 180`; die Jahres-Charts behalten ihr Sofort-Öffnen) gilt:
+
+- **Erst-Öffnen und Wechsel warten auf Stillstand** (180 ms wie die
+  Wechsel-Verzögerung): jede Bewegung startet den Timer neu, das Popup
+  erscheint bzw. wechselt an der Ruheposition.
+- **Verfallsfrist:** Verlässt der Zeiger den Anker Richtung fremder Zeilen,
+  verfällt das alte Popup nach 250 ms — die Frist startet einmal und läuft
+  auch bei fortgesetzter Bewegung durch. Sie lässt schwebende Wechsel-/
+  Öffnen-Timer unberührt (wer zur Ruhe kommt, bekommt nahtlos sein neues
+  Popup); Betreten des Popups, Rückkehr auf den eigenen Anker, vollzogener
+  Wechsel und Anheften brechen sie ab.

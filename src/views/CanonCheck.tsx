@@ -23,6 +23,11 @@ import styles from './CanonCheck.module.css'
 // wie in der Genres-View.)
 const PROXIMITY_PX = 32
 
+// Ruhe-Erkennung fürs Erst-Öffnen: Beim Überstreichen der Balken flackerte
+// das sofort erscheinende Popup — es öffnet erst, wenn der Zeiger so lange
+// stillsteht. (Wert in Abstimmung; Wechsel und Gnadenfrist unverändert.)
+const POPUP_OPEN_DELAY_MS = 180
+
 function within(rect: DOMRect | undefined, x: number, tol: number): boolean {
   return rect !== undefined && x >= rect.left - tol && x <= rect.right + tol
 }
@@ -57,7 +62,11 @@ export function CanonCheck() {
   // „Interaktives Titel-Popup"): Hover über einer Kanon-Zeile listet deren
   // Titel; der Zeilen-Klick bleibt der Award-Filter.
   const { popup, popupRef, hoverAnchor, leaveChart, popupEnter, popupLeave, pin, close } =
-    useBookListPopup<{ list: string }>((a, b) => a.list === b.list, selected !== null)
+    useBookListPopup<{ list: string }>(
+      (a, b) => a.list === b.list,
+      selected !== null,
+      POPUP_OPEN_DELAY_MS,
+    )
 
   // Datumsspalte = Lesejahr: die View fragt „besessen vs. gelesen", also
   // stehen die gelesenen Titel chronologisch vorn, Ungelesene („—") folgen
@@ -139,11 +148,12 @@ export function CanonCheck() {
                 const rect = wrapRef.current?.getBoundingClientRect()
                 if (rect === undefined) return
                 if (!nearRowContent(e)) {
-                  // Totzone hält kein stehendes Popup fest: dieselbe
-                  // Gnadenfrist wie beim Verlassen der Liste — sie
-                  // überbrückt weiter den Weg ins Popup (Betreten bricht
-                  // sie ab) und lässt Angeheftetes in Ruhe.
-                  if (popup !== null) leaveChart()
+                  // Totzone hält kein stehendes Popup fest und verwirft
+                  // auch ein schwebendes Erst-Öffnen: dieselbe Gnadenfrist
+                  // wie beim Verlassen der Liste — sie überbrückt weiter
+                  // den Weg ins Popup (Betreten bricht sie ab) und lässt
+                  // Angeheftetes in Ruhe.
+                  leaveChart()
                   return
                 }
                 hoverAnchor({ list: r.list }, e.clientX - rect.left, e.clientY - rect.top)
