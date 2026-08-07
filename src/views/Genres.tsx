@@ -15,6 +15,21 @@ import styles from './Genres.module.css'
 
 type SortMode = 'owned' | 'rate'
 
+// Popup nur „in der Nähe" von Inhalt auslösen: Label und Zählung treffen
+// direkt; am Balken gilt eine seitliche Toleranz, weil kurze Balken sonst
+// kaum treffbar wären. Der übrige Leerraum der 1fr-Spur bleibt still —
+// sonst erschiene beim Überfahren der Seite ständig ein Popup ohne
+// erkennbaren Zeilenbezug.
+const BAR_PROXIMITY_PX = 32
+function nearRowContent(e: React.PointerEvent<HTMLButtonElement>): boolean {
+  const target = e.target instanceof Element ? e.target : null
+  if (target !== null && target.closest(`.${styles.listName}, .${styles.counts}`) !== null) return true
+  const bar = e.currentTarget.querySelector(`.${styles.barOwned}`)
+  if (bar === null) return false
+  const r = bar.getBoundingClientRect()
+  return e.clientX >= r.left - BAR_PROXIMITY_PX && e.clientX <= r.right + BAR_PROXIMITY_PX
+}
+
 export function Genres() {
   const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
@@ -75,7 +90,7 @@ export function Genres() {
         onPointerMove={(e) => {
           // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach.
           const rect = wrapRef.current?.getBoundingClientRect()
-          if (rect === undefined || r.owned === 0) return
+          if (rect === undefined || r.owned === 0 || !nearRowContent(e)) return
           hoverAnchor({ genre: r.genre }, e.clientX - rect.left, e.clientY - rect.top)
         }}
       >

@@ -202,3 +202,13 @@ den Analysezahlen oben — alle definitionsbedingt, keine Datenfehler:
   „Ohne Genre"-Zeile.
 - **Achsenlücke 365** (statt 373): auch hier schließen die General-Werte
   einige Titel an die Achse an.
+
+## Nachtrag: Hover-Nähe (2026-08-07)
+
+Nutzerbefund: Der Zeilen-Button spannt die volle Breite — die 1fr-Balkenspur
+ist bei kurzen Balken fast komplett Leerraum, und beim Überfahren der Seite
+erschien ständig ein Popup ohne erkennbaren Zeilenbezug. Regel seitdem
+(Genres-View **und** Kanonabgleich, identische Zeilenstruktur): Das Popup
+löst nur „in der Nähe" von Inhalt aus — Label und Zählung treffen direkt,
+am Balken gilt eine seitliche Toleranz von 32 px (kurze Balken wären sonst
+kaum treffbar); der übrige Leerraum bleibt still.
