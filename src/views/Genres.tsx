@@ -6,6 +6,7 @@ import { EmptyState } from '../components/EmptyState'
 import { useI18n } from '../i18n/LocaleContext'
 import { readDateOrTagYear, sortBooksByDate } from '../lib/bookListPopup'
 import { GENRE_FICTION, GENRE_NONFICTION, genreLabel, genreMatches, NO_GENRE } from '../lib/genres'
+import { nearRowContent } from '../lib/popupProximity'
 import type { Book } from '../lib/types'
 import { useBookListPopup } from '../lib/useBookListPopup'
 import { useLibraryData } from '../lib/DataContext'
@@ -15,39 +16,13 @@ import styles from './Genres.module.css'
 
 type SortMode = 'owned' | 'rate'
 
-// Popup nur „in der Nähe" von Inhalt auslösen: Zählung trifft direkt (ihre
-// Box umschließt den Text), Label und Balken mit seitlicher Toleranz —
-// kurze Balken und kurze Labels wären sonst kaum treffbar. Beim Label
-// zählt der tatsächliche Text (Range), nicht die minmax(12rem, 20rem)-
-// Spalte. Der übrige Leerraum bleibt fürs Popup still, sonst erschiene
-// beim Überfahren der Seite ständig eines. Der Filter-Klick gilt dagegen
-// auf der ganzen Zeile — die Hover-Tönung (.row:hover) zeigt den Bezug.
-const PROXIMITY_PX = 32
-
-// Ruhe-Erkennung fürs Erst-Öffnen: Beim Überstreichen der Balken flackerte
-// das sofort erscheinende Popup — es öffnet erst, wenn der Zeiger so lange
-// stillsteht. (Wert in Abstimmung; Wechsel und Gnadenfrist unverändert.)
+// Ruhe-Erkennung: Sofortiges Öffnen und Verweil-Wechseln flackerten beim
+// Überstreichen der Balken — Popup erscheint/wechselt erst nach Stillstand
+// (Wert wie die Wechsel-Verzögerung im Hook).
 const POPUP_OPEN_DELAY_MS = 180
 
-function within(rect: DOMRect | undefined, x: number, tol: number): boolean {
-  return rect !== undefined && x >= rect.left - tol && x <= rect.right + tol
-}
-
-function textRect(el: Element | null): DOMRect | undefined {
-  if (el === null) return undefined
-  const range = document.createRange()
-  range.selectNodeContents(el)
-  return range.getBoundingClientRect()
-}
-
-function nearRowContent(e: React.PointerEvent<HTMLButtonElement>): boolean {
-  const row = e.currentTarget
-  if (e.target instanceof Element && e.target.closest(`.${styles.counts}`) !== null) return true
-  return (
-    within(textRect(row.querySelector(`.${styles.listName}`)), e.clientX, PROXIMITY_PX) ||
-    within(row.querySelector(`.${styles.barOwned}`)?.getBoundingClientRect(), e.clientX, PROXIMITY_PX)
-  )
-}
+// Nähe-Regel (lib/popupProximity): Klassennamen dieser View.
+const ROW_CONTENT = { direct: styles.counts, text: styles.listName, bar: styles.barOwned }
 
 export function Genres() {
   const { m, fmtNum } = useI18n()
@@ -114,7 +89,7 @@ export function Genres() {
           // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach.
           const rect = wrapRef.current?.getBoundingClientRect()
           if (rect === undefined) return
-          if (r.owned === 0 || !nearRowContent(e)) {
+          if (r.owned === 0 || !nearRowContent(e, ROW_CONTENT)) {
             // Totzone hält kein stehendes Popup fest und verwirft auch ein
             // schwebendes Erst-Öffnen: dieselbe Gnadenfrist wie beim
             // Verlassen der Liste — sie überbrückt weiter den Weg ins Popup
@@ -142,17 +117,15 @@ export function Genres() {
     </li>
   )
 
+  // Gelesen-Anzahl einmal berechnen (Zahl und Prozent teilen sich den Wert).
+  const popupRead = popupBooks.filter((b) => b.hasRead).length
   const popupCounts =
     popup === null
       ? ''
       : m.views.genres.counts(
           fmtNum(popupBooks.length),
-          fmtNum(popupBooks.filter((b) => b.hasRead).length),
-          fmtNum(
-            popupBooks.length === 0
-              ? 0
-              : Math.round((100 * popupBooks.filter((b) => b.hasRead).length) / popupBooks.length),
-          ),
+          fmtNum(popupRead),
+          fmtNum(popupBooks.length === 0 ? 0 : Math.round((100 * popupRead) / popupBooks.length)),
         )
 
   return (
