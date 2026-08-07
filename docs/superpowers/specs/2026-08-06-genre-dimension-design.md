@@ -213,6 +213,9 @@ erschien ständig ein Popup ohne erkennbaren Zeilenbezug. Regel seitdem
 direkt (ihre Box umschließt den Text), Label und Balken mit seitlicher
 Toleranz von 32 px; beim Label zählt der tatsächliche Text (Range-
 Messung), nicht die minmax-Spalte. Der übrige Leerraum bleibt fürs Popup
-still. Der **Filter-Klick** gilt dagegen auf der ganzen Zeile; den
+still — und hält auch kein stehendes fest: Bewegung in der Totzone
+startet dieselbe Gnadenfrist wie das Verlassen der Liste (Betreten des
+Popups oder Rückkehr auf Inhalt bricht sie ab; Angeheftetes bleibt
+unberührt). Der **Filter-Klick** gilt dagegen auf der ganzen Zeile; den
 optischen Zusammenhang bei kurzen Balken stellt eine leichte
 Hover-Tönung der Zeile her (`--ink-08`, auch bei Tastaturfokus).

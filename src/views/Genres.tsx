@@ -104,7 +104,15 @@ export function Genres() {
         onPointerMove={(e) => {
           // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach.
           const rect = wrapRef.current?.getBoundingClientRect()
-          if (rect === undefined || r.owned === 0 || !nearRowContent(e)) return
+          if (rect === undefined) return
+          if (r.owned === 0 || !nearRowContent(e)) {
+            // Totzone hält kein stehendes Popup fest: dieselbe Gnadenfrist
+            // wie beim Verlassen der Liste — sie überbrückt weiter den Weg
+            // ins Popup (Betreten bricht sie ab) und lässt Angeheftetes in
+            // Ruhe (beginGrace ignoriert pinned).
+            if (popup !== null) leaveChart()
+            return
+          }
           hoverAnchor({ genre: r.genre }, e.clientX - rect.left, e.clientY - rect.top)
         }}
       >
