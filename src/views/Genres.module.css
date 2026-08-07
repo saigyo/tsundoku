@@ -66,6 +66,14 @@
   background: var(--paper);
 }
 
+/* Leichte Tönung der ganzen Zeile: stellt bei kurzen Balken den optischen
+   Zusammenhang zwischen Label, Balken und Zählung her — und macht den
+   Klickbereich (ganze Zeile) sichtbar. */
+.row:hover,
+.row:focus-visible {
+  background: var(--ink-08);
+}
+
 .listName {
   white-space: nowrap;
   overflow: hidden;

@@ -13,14 +13,14 @@ import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
 
-// Popup und Filter-Klick nur „in der Nähe" von Inhalt auslösen: Zählung
-// trifft direkt (ihre Box umschließt den Text), Label und Balken mit
-// seitlicher Toleranz — kurze Balken und kurze Labels wären sonst kaum
-// treffbar. Beim Label zählt der tatsächliche Text (Range), nicht die
-// Spaltenbreite. Der übrige Leerraum der Zeile bleibt still; sonst
-// erschiene beim Überfahren der Seite ständig ein Popup, und ein Klick
-// ins Leere setzte einen Filter ohne erkennbaren Zeilenbezug. (Gleiche
-// Regel wie in der Genres-View.)
+// Popup nur „in der Nähe" von Inhalt auslösen: Zählung trifft direkt (ihre
+// Box umschließt den Text), Label und Balken mit seitlicher Toleranz —
+// kurze Balken und kurze Labels wären sonst kaum treffbar. Beim Label
+// zählt der tatsächliche Text (Range), nicht die Spaltenbreite. Der übrige
+// Leerraum bleibt fürs Popup still, sonst erschiene beim Überfahren der
+// Seite ständig eines. Der Filter-Klick gilt dagegen auf der ganzen
+// Zeile — die Hover-Tönung (.row:hover) zeigt den Bezug. (Gleiche Regel
+// wie in der Genres-View.)
 const PROXIMITY_PX = 32
 
 function within(rect: DOMRect | undefined, x: number, tol: number): boolean {
@@ -34,9 +34,7 @@ function textRect(el: Element | null): DOMRect | undefined {
   return range.getBoundingClientRect()
 }
 
-function nearRowContent(e: React.MouseEvent<HTMLButtonElement>): boolean {
-  // Tastatur-Klicks (Enter/Space) haben keine Zeigerposition — immer zulassen.
-  if (e.detail === 0 && e.clientX === 0 && e.clientY === 0) return true
+function nearRowContent(e: React.PointerEvent<HTMLButtonElement>): boolean {
   const row = e.currentTarget
   if (e.target instanceof Element && e.target.closest(`.${styles.counts}`) !== null) return true
   return (
@@ -134,10 +132,7 @@ export function CanonCheck() {
             <button
               className={styles.row}
               aria-pressed={isActive(r.list)}
-              onClick={(e) => {
-                if (!nearRowContent(e)) return
-                toggleFilter({ kind: 'award', value: r.list })
-              }}
+              onClick={() => toggleFilter({ kind: 'award', value: r.list })}
               onPointerMove={(e) => {
                 // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach,
                 // eine Zeilenmitte läge zu weit vom Zeiger entfernt.
