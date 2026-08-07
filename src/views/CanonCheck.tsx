@@ -13,19 +13,36 @@ import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
 
-// Popup nur „in der Nähe" von Inhalt auslösen: Label und Zählung treffen
-// direkt; am Balken gilt eine seitliche Toleranz, weil kurze Balken sonst
-// kaum treffbar wären. Der übrige Leerraum der 1fr-Spur bleibt still —
-// sonst erschiene beim Überfahren der Seite ständig ein Popup ohne
-// erkennbaren Zeilenbezug. (Gleiche Regel wie in der Genres-View.)
-const BAR_PROXIMITY_PX = 32
-function nearRowContent(e: React.PointerEvent<HTMLButtonElement>): boolean {
-  const target = e.target instanceof Element ? e.target : null
-  if (target !== null && target.closest(`.${styles.listName}, .${styles.counts}`) !== null) return true
-  const bar = e.currentTarget.querySelector(`.${styles.barOwned}`)
-  if (bar === null) return false
-  const r = bar.getBoundingClientRect()
-  return e.clientX >= r.left - BAR_PROXIMITY_PX && e.clientX <= r.right + BAR_PROXIMITY_PX
+// Popup und Filter-Klick nur „in der Nähe" von Inhalt auslösen: Zählung
+// trifft direkt (ihre Box umschließt den Text), Label und Balken mit
+// seitlicher Toleranz — kurze Balken und kurze Labels wären sonst kaum
+// treffbar. Beim Label zählt der tatsächliche Text (Range), nicht die
+// Spaltenbreite. Der übrige Leerraum der Zeile bleibt still; sonst
+// erschiene beim Überfahren der Seite ständig ein Popup, und ein Klick
+// ins Leere setzte einen Filter ohne erkennbaren Zeilenbezug. (Gleiche
+// Regel wie in der Genres-View.)
+const PROXIMITY_PX = 32
+
+function within(rect: DOMRect | undefined, x: number, tol: number): boolean {
+  return rect !== undefined && x >= rect.left - tol && x <= rect.right + tol
+}
+
+function textRect(el: Element | null): DOMRect | undefined {
+  if (el === null) return undefined
+  const range = document.createRange()
+  range.selectNodeContents(el)
+  return range.getBoundingClientRect()
+}
+
+function nearRowContent(e: React.MouseEvent<HTMLButtonElement>): boolean {
+  // Tastatur-Klicks (Enter/Space) haben keine Zeigerposition — immer zulassen.
+  if (e.detail === 0 && e.clientX === 0 && e.clientY === 0) return true
+  const row = e.currentTarget
+  if (e.target instanceof Element && e.target.closest(`.${styles.counts}`) !== null) return true
+  return (
+    within(textRect(row.querySelector(`.${styles.listName}`)), e.clientX, PROXIMITY_PX) ||
+    within(row.querySelector(`.${styles.barOwned}`)?.getBoundingClientRect(), e.clientX, PROXIMITY_PX)
+  )
 }
 
 export function CanonCheck() {
@@ -117,7 +134,10 @@ export function CanonCheck() {
             <button
               className={styles.row}
               aria-pressed={isActive(r.list)}
-              onClick={() => toggleFilter({ kind: 'award', value: r.list })}
+              onClick={(e) => {
+                if (!nearRowContent(e)) return
+                toggleFilter({ kind: 'award', value: r.list })
+              }}
               onPointerMove={(e) => {
                 // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach,
                 // eine Zeilenmitte läge zu weit vom Zeiger entfernt.

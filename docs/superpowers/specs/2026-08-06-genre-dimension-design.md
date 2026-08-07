@@ -208,7 +208,10 @@ den Analysezahlen oben — alle definitionsbedingt, keine Datenfehler:
 Nutzerbefund: Der Zeilen-Button spannt die volle Breite — die 1fr-Balkenspur
 ist bei kurzen Balken fast komplett Leerraum, und beim Überfahren der Seite
 erschien ständig ein Popup ohne erkennbaren Zeilenbezug. Regel seitdem
-(Genres-View **und** Kanonabgleich, identische Zeilenstruktur): Das Popup
-löst nur „in der Nähe" von Inhalt aus — Label und Zählung treffen direkt,
-am Balken gilt eine seitliche Toleranz von 32 px (kurze Balken wären sonst
-kaum treffbar); der übrige Leerraum bleibt still.
+(Genres-View **und** Kanonabgleich, identische Zeilenstruktur): Popup
+**und Filter-Klick** lösen nur „in der Nähe" von Inhalt aus — die Zählung
+trifft direkt (ihre Box umschließt den Text), Label und Balken mit
+seitlicher Toleranz von 32 px; beim Label zählt der tatsächliche Text
+(Range-Messung), nicht die minmax-Spalte. Der übrige Leerraum der Zeile
+bleibt für Hover wie Klick still. Tastatur-Klicks (Enter/Space, ohne
+Zeigerposition) passieren das Gate immer.
