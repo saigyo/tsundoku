@@ -24,6 +24,11 @@ type SortMode = 'owned' | 'rate'
 // auf der ganzen Zeile — die Hover-Tönung (.row:hover) zeigt den Bezug.
 const PROXIMITY_PX = 32
 
+// Ruhe-Erkennung fürs Erst-Öffnen: Beim Überstreichen der Balken flackerte
+// das sofort erscheinende Popup — es öffnet erst, wenn der Zeiger so lange
+// stillsteht. (Wert in Abstimmung; Wechsel und Gnadenfrist unverändert.)
+const POPUP_OPEN_DELAY_MS = 180
+
 function within(rect: DOMRect | undefined, x: number, tol: number): boolean {
   return rect !== undefined && x >= rect.left - tol && x <= rect.right + tol
 }
@@ -56,7 +61,11 @@ export function Genres() {
   // Titel-Popup wie im Kanonabgleich (Spec „Interaktives Titel-Popup"):
   // Hover listet die Titel des Genres, der Zeilen-Klick bleibt der Filter.
   const { popup, popupRef, hoverAnchor, leaveChart, popupEnter, popupLeave, pin, close } =
-    useBookListPopup<{ genre: string }>((a, b) => a.genre === b.genre, selected !== null)
+    useBookListPopup<{ genre: string }>(
+      (a, b) => a.genre === b.genre,
+      selected !== null,
+      POPUP_OPEN_DELAY_MS,
+    )
 
   const popupBooks = useMemo(() => {
     if (popup === null) return []
@@ -106,11 +115,11 @@ export function Genres() {
           const rect = wrapRef.current?.getBoundingClientRect()
           if (rect === undefined) return
           if (r.owned === 0 || !nearRowContent(e)) {
-            // Totzone hält kein stehendes Popup fest: dieselbe Gnadenfrist
-            // wie beim Verlassen der Liste — sie überbrückt weiter den Weg
-            // ins Popup (Betreten bricht sie ab) und lässt Angeheftetes in
-            // Ruhe (beginGrace ignoriert pinned).
-            if (popup !== null) leaveChart()
+            // Totzone hält kein stehendes Popup fest und verwirft auch ein
+            // schwebendes Erst-Öffnen: dieselbe Gnadenfrist wie beim
+            // Verlassen der Liste — sie überbrückt weiter den Weg ins Popup
+            // (Betreten bricht sie ab) und lässt Angeheftetes in Ruhe.
+            leaveChart()
             return
           }
           hoverAnchor({ genre: r.genre }, e.clientX - rect.left, e.clientY - rect.top)
