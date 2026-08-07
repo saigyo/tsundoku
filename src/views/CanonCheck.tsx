@@ -13,6 +13,21 @@ import { canonRows } from '../lib/viewData/canon'
 import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './CanonCheck.module.css'
 
+// Popup nur „in der Nähe" von Inhalt auslösen: Label und Zählung treffen
+// direkt; am Balken gilt eine seitliche Toleranz, weil kurze Balken sonst
+// kaum treffbar wären. Der übrige Leerraum der 1fr-Spur bleibt still —
+// sonst erschiene beim Überfahren der Seite ständig ein Popup ohne
+// erkennbaren Zeilenbezug. (Gleiche Regel wie in der Genres-View.)
+const BAR_PROXIMITY_PX = 32
+function nearRowContent(e: React.PointerEvent<HTMLButtonElement>): boolean {
+  const target = e.target instanceof Element ? e.target : null
+  if (target !== null && target.closest(`.${styles.listName}, .${styles.counts}`) !== null) return true
+  const bar = e.currentTarget.querySelector(`.${styles.barOwned}`)
+  if (bar === null) return false
+  const r = bar.getBoundingClientRect()
+  return e.clientX >= r.left - BAR_PROXIMITY_PX && e.clientX <= r.right + BAR_PROXIMITY_PX
+}
+
 export function CanonCheck() {
   const { m, fmtNum } = useI18n()
   const { filtered } = useLibraryData()
@@ -107,7 +122,7 @@ export function CanonCheck() {
                 // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach,
                 // eine Zeilenmitte läge zu weit vom Zeiger entfernt.
                 const rect = wrapRef.current?.getBoundingClientRect()
-                if (rect === undefined) return
+                if (rect === undefined || !nearRowContent(e)) return
                 hoverAnchor({ list: r.list }, e.clientX - rect.left, e.clientY - rect.top)
               }}
             >
