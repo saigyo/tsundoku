@@ -137,7 +137,15 @@ export function CanonCheck() {
                 // Anker am Zeiger wie in der Heatmap: die Zeilen sind flach,
                 // eine Zeilenmitte läge zu weit vom Zeiger entfernt.
                 const rect = wrapRef.current?.getBoundingClientRect()
-                if (rect === undefined || !nearRowContent(e)) return
+                if (rect === undefined) return
+                if (!nearRowContent(e)) {
+                  // Totzone hält kein stehendes Popup fest: dieselbe
+                  // Gnadenfrist wie beim Verlassen der Liste — sie
+                  // überbrückt weiter den Weg ins Popup (Betreten bricht
+                  // sie ab) und lässt Angeheftetes in Ruhe.
+                  if (popup !== null) leaveChart()
+                  return
+                }
                 hoverAnchor({ list: r.list }, e.clientX - rect.left, e.clientY - rect.top)
               }}
             >
