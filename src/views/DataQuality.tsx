@@ -8,7 +8,7 @@ import { sameFilter, useFilterStore } from '../store/filters'
 import styles from './DataQuality.module.css'
 
 export function DataQuality() {
-  const { m, fmtNum } = useI18n()
+  const { m, fmtNum, locale } = useI18n()
   const { books, stats, filtered } = useLibraryData()
   const toggleFilter = useFilterStore((s) => s.toggleFilter)
   const filters = useFilterStore((s) => s.filters)
@@ -16,12 +16,25 @@ export function DataQuality() {
   // Block 4 ist global: rohe Tag-Zahl aus dem GESAMT-Bestand, wie im
   // Import-Bericht (DataUpload) — stats hält nur die normalisierte Facette.
   const rawTagCount = useMemo(() => new Set(books.flatMap((b) => b.tags)).size, [books])
+  // Kacheln (Block 1) zeigen eine Nachkommastelle (Spec: 79,6 / 97,0 / …) —
+  // fmtNum rundet auf ganze Zahlen, deshalb eigenes Format mit fixer
+  // Nachkommastelle im aktuellen Locale.
+  const fmtPct1 = useMemo(
+    () => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+    [locale],
+  )
 
   if (filtered.length === 0) return <EmptyState />
 
   const q = m.views.quality
   const t = data.tiles
+  // Balkenzeilen (Block 2/3) runden weiterhin auf ganze Prozent.
   const pctOf = (n: number, den: number) => (den === 0 ? null : Math.round((100 * n) / den))
+  // Kacheln: exakter (ungerundeter) Bruch — sowohl für die Zonen-Zuordnung
+  // als auch für die Anzeige. Ein gerundeter Wert dürfte die Zone nicht
+  // kippen (79,6 % ist kon/mid, nicht rikyū/good) — diese View darf keine
+  // bessere Datenqualität suggerieren als vorliegt.
+  const exactPctOf = (n: number, den: number) => (den === 0 ? null : (100 * n) / den)
   const ZONE_CLASS: Record<TileZone, string> = {
     good: styles.zoneGood,
     mid: styles.zoneMid,
@@ -32,11 +45,11 @@ export function DataQuality() {
   // die Zahl steht immer dabei (Farbe nie alleiniger Träger). Nenner 0
   // (z. B. keine gelesenen Titel nach Filter) -> „—" ohne Zone.
   const tile = (id: string, label: string, n: number, den: number, sub: string, inverted = false) => {
-    const pct = pctOf(n, den)
+    const pct = exactPctOf(n, den)
     const zone = pct === null ? null : tileZone(pct, inverted)
     return (
       <div key={id} className={`${styles.tile} ${zone !== null ? ZONE_CLASS[zone] : ''}`}>
-        <div className={styles.tileValue}>{pct === null ? '—' : q.pct(fmtNum(pct))}</div>
+        <div className={styles.tileValue}>{pct === null ? '—' : q.pct(fmtPct1.format(pct))}</div>
         <div className={styles.tileLabel}>{label}</div>
         <div className={styles.tileSub}>{sub}</div>
       </div>
