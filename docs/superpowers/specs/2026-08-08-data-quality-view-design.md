@@ -56,11 +56,11 @@ Datenprofil nachführen.
 
 ```ts
 export const FLAG_IDS = [
-  'bulkImport',        // b.bulkImport                          — 763
+  'bulkImport',        // b.bulkImport                          — 1.016
   'physicalEstimated', // b.physicalEstimated                   — 563
   'origLangInferred',  // b.originalLanguagesInferred           — 1.016
   'readYearTag',       // b.readYearSource === 'tag'            — 399
-  'acquiredEntry',     // b.acquiredYearSource === 'entrydate'  — 510
+  'acquiredEntry',     // b.acquiredYearSource === 'entrydate'  — 273
   'abandoned',         // b.abandoned                           — 431
 ] as const
 export type FlagId = (typeof FLAG_IDS)[number]
@@ -97,15 +97,16 @@ steht immer dabei — Farbe ist nie alleiniger Träger.
 
 | Kachel | Zähler / Nenner | ungefiltert | Untersatz |
 | --- | --- | --- | --- |
-| Erwerbssignal | `acquiredYearEffective` vorhanden / alle | 84,5 % | „3.601 direkt · 510 per Katalogisierung · 754 ohne" |
+| Erwerbssignal | `acquiredYearEffective` vorhanden / alle | 79,6 % | „3.601 direkt · 273 per Katalogisierung · 991 ohne" |
 | Lesejahr | `readYearEffective` vorhanden / gelesene (`hasRead`) | 97,0 % (1.294/1.334) | „davon 371 nur per Jahres-Tag" |
-| Massenimport | `bulkImport` / alle — **invertierte Skala** | 15,7 % (763) | „Katalogisierungs-Sessions, kein Erwerbsverhalten" |
+| Massenimport | `bulkImport` / alle — **invertierte Skala** | 20,9 % (1.016) | „Katalogisierungs-Sessions, kein Erwerbsverhalten" |
 | Maße | vermessen (`!physicalEstimated && heightMm ≠ null`) / alle | 78,8 % (3.834) | „563 geschätzt · 468 ohne" |
 | Rating | `rating ≠ null` / alle | 25,1 % (1.220) | „1.220 bewertet" |
 
 Schwellwerte (Abdeckung): **≥ 80 %** rikyū-Tönung, **50–79 %** kon-Tönung,
 **< 50 %** enji-Tönung. Massenimport invertiert: **≤ 5 %** rikyū,
-**5–20 %** kon, **> 20 %** enji. Tönungen als `color-mix`/rgba über
+**5–20 %** kon, **> 20 %** enji — der ungefilterte Bestand landet mit
+20,9 % also ehrlich in der enji-Zone. Tönungen als `color-mix`/rgba über
 `--paper`, Textfarbe bleibt `--sumi` (Kontrast). Nenner 0 (leerer
 Teilbestand nach Filter, z. B. keine gelesenen) → Kachel zeigt „—" ohne
 Färbung statt 0 %.
@@ -141,8 +142,9 @@ die Feld-Ids, damit das Typsystem Vollständigkeit erzwingt).
 Balkenzeilen wie Block 2, aber klickbar wie Genre-Zeilen: Klick togglet
 `{ kind: 'flag', value }`, `aria-pressed` bei aktivem Filter, Hover-Tönung
 `--ink-08` auf ganzer Zeile. Reihenfolge absteigend nach Trefferzahl
-(ungefiltert: origLangInferred 1.016 · bulkImport 763 · physicalEstimated
-563 · acquiredEntry 510 · abandoned 431 · readYearTag 399). Flag-Namen
+(ungefiltert: bulkImport 1.016 · origLangInferred 1.016 ·
+physicalEstimated 563 · abandoned 431 · readYearTag 399 ·
+acquiredEntry 273; bei Gleichstand entscheidet die FLAG_IDS-Reihenfolge). Flag-Namen
 fünfsprachig (`m.flagNames`), z. B. de:
 
 - `origLangInferred`: „Originalsprache abgeleitet"
@@ -204,7 +206,7 @@ betrifft diese View nicht (keine Animationen).
 
 ## Definition of Done
 
-1. Ungefilterte Kacheln zeigen 84,5 / 97,0 / 15,7 / 78,8 / 25,1 % mit den
+1. Ungefilterte Kacheln zeigen 79,6 / 97,0 / 20,9 / 78,8 / 25,1 % mit den
    dokumentierten Untersätzen; Abweichungen werden geklärt und im Spec
    nachgetragen, nicht weggecastet.
 2. Flag-Klick „Angefangen, nicht abgeschlossen" → Chip erscheint, Regal
