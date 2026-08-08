@@ -121,8 +121,11 @@ Färbung statt 0 %.
 
 Balkenzeilen in der Zeilen-Optik der Genres-View (Label · Balken
 vorhanden/gesamt · „N von M · P %"), absteigend nach Abdeckung sortiert.
-Keine Klick-, keine Popup-Interaktion; keine Hover-Tönung (die Tönung
-signalisiert sonst Klickbarkeit).
+Keine Klick-, keine Popup-Interaktion. *Nachtrag (Nutzerbefund nach dem
+ersten Stand):* Die Hover-Tönung (`--ink-08`) bekommen auch diese Zeilen —
+sie hält Label, Balken und Zählung bei kurzen Balken optisch zusammen,
+wie in den übrigen Balken-Views; Klickbarkeit signalisiert sie hier
+nicht (kein `button`, kein Fokus-Stopp).
 
 | Feld | Prädikat | ungefiltert |
 | --- | --- | --- |
