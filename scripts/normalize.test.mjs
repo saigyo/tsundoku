@@ -365,6 +365,13 @@ describe('abandoned (Regel 14: angefangen, nicht abgeschlossen)', () => {
     ])
     expect(normalize(raw).stats.abandoned).toBe(1)
   })
+  it('unfinished-Tag wirkt schreibungsunabhängig (Fremdexporte)', () => {
+    const raw = records_to_raw([
+      { books_id: '1', title: 'B1', collections: ['Have read'], tags: ['Unfinished'] },
+      { books_id: '2', title: 'B2', collections: ['Your library'] },
+    ])
+    expect(normalize(raw).books.find((b) => b.id === '1').abandoned).toBe(true)
+  })
 })
 
 describe('feindliche Eingaben (öffentlicher Upload-Pfad)', () => {
