@@ -12,6 +12,7 @@ import {
   decodeEntities,
   estimateMissingDimensions,
   inferOriginalLanguages,
+  bulkPhaseMonths,
   normalize,
 } from './normalize.mjs'
 
@@ -217,6 +218,52 @@ describe('mediaType (Regel 5)', () => {
   })
 })
 
+/** normalize() erwartet den Rohexport als Objekt { books_id: record }. */
+const records_to_raw = (records) => Object.fromEntries(records.map((r) => [r.books_id, r]))
+
+describe('bulkPhaseMonths (Regel 1: Erstkatalogisierungsphase)', () => {
+  // Records brauchen nur entrydate/dateacquired; books_id/title für normalize().
+  const rec = (id, entrydate, dateacquired) => ({ books_id: String(id), title: `B${id}`, entrydate, dateacquired })
+
+  it('zusammenhängende Monate ab Kontostart mit >= 2/3 ohne dateacquired', () => {
+    const records = [
+      // 2020-01: 3 Einträge, 3 ohne dateacquired -> Phase
+      rec(1, '2020-01-05'), rec(2, '2020-01-06'), rec(3, '2020-01-07'),
+      // 2020-02: 3 Einträge, 2 ohne (2/3 erfüllt) -> Phase
+      rec(4, '2020-02-01'), rec(5, '2020-02-02'), rec(6, '2020-02-03', '2020-02-03'),
+      // 2020-03: 3 Einträge, 1 ohne (< 2/3) -> Ende der Phase
+      rec(7, '2020-03-01'), rec(8, '2020-03-02', '2020-03-02'), rec(9, '2020-03-03', '2020-03-03'),
+      // 2020-04: wieder 100 % ohne — bleibt trotzdem draußen (Phase ist zusammenhängend)
+      rec(10, '2020-04-01'), rec(11, '2020-04-02'),
+    ]
+    expect(bulkPhaseMonths(records)).toEqual(new Set(['2020-01', '2020-02']))
+  })
+
+  it('leere/kaputte entrydates zählen nicht mit', () => {
+    const records = [rec(1, '2020-01-05'), rec(2, undefined), rec(3, '')]
+    expect(bulkPhaseMonths(records)).toEqual(new Set(['2020-01']))
+  })
+
+  it('Phase markiert Bücher als bulkImport, Tages-Schwelle gilt weiterhin danach', () => {
+    const records = [
+      // Phase: 2020-01 (alle ohne dateacquired, nur 3 Einträge — unter der Tagesschwelle)
+      rec(1, '2020-01-05'), rec(2, '2020-01-06'), rec(3, '2020-01-07'),
+      // Normalmonat beendet die Phase
+      rec(4, '2020-02-01', '2020-02-01'), rec(5, '2020-02-02', '2020-02-02'), rec(6, '2020-02-03', '2020-02-03'),
+      // Späterer Massenimport-Tag: 50 Einträge am selben Tag
+      ...Array.from({ length: 50 }, (_, i) => rec(100 + i, '2021-06-01')),
+      // Normaler Einzeleintrag danach
+      rec(999, '2021-07-01'),
+    ]
+    const { books } = normalize(records_to_raw(records))
+    const byId = (id) => books.find((b) => b.id === String(id))
+    expect(byId(1).bulkImport).toBe(true)   // Phase
+    expect(byId(4).bulkImport).toBe(false)  // Normalmonat
+    expect(byId(100).bulkImport).toBe(true) // Tages-Schwelle
+    expect(byId(999).bulkImport).toBe(false)
+  })
+})
+
 describe('feindliche Eingaben (öffentlicher Upload-Pfad)', () => {
   it('normTag greift nicht in die Prototype-Kette', () => {
     expect(normTag('constructor')).toBe('constructor')
@@ -310,5 +357,8 @@ describe.skipIf(!existsSync(EXPORT_PATH))('Goldene Kennzahlen am realen Export',
   })
   it('alle Einträge haben einen workCode', () => {
     expect(books.filter((b) => b.workCode !== null).length).toBe(4865)
+  })
+  it('Regel 1: 1016 Bulk-Einträge (Phase Aug 2006–Jan 2007 + Tages-Schwelle)', () => {
+    expect(books.filter((b) => b.bulkImport).length).toBe(1016)
   })
 })
