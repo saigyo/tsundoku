@@ -256,6 +256,35 @@ function mediaType(formats, collections) {
   return 'book'
 }
 
+/**
+ * Regel 1 (Erweiterung, Erstkatalogisierungsphase): Beim Anlegen des Kontos
+ * wird der vorhandene Bestand katalogisiert — das Katalogisierungsdatum ist
+ * dann kein Erwerbssignal. Die Phase verrät sich selbst: Monate, in denen
+ * mindestens 2/3 der Einträge KEIN dateacquired tragen. Sie beginnt mit dem
+ * ersten Eintragsmonat und endet vor dem ersten Monat, der die Bedingung
+ * verletzt (zusammenhängend — spätere Monate mit hohem Anteil sind normale
+ * Erfassung von Altbestand-Nachzüglern, keine Erstkatalogisierung).
+ * Bewusst datengetrieben statt Kalenderkonstante: der Browser-Upload-Pfad
+ * verarbeitet auch fremde Bibliotheken.
+ */
+function bulkPhaseMonths(records) {
+  const perMonth = new Map()
+  for (const r of records) {
+    const month = String(r.entrydate ?? '').slice(0, 7)
+    if (!/^\d{4}-\d{2}$/.test(month)) continue
+    const e = perMonth.get(month) ?? { n: 0, noAcq: 0 }
+    e.n += 1
+    if (!r.dateacquired) e.noAcq += 1
+    perMonth.set(month, e)
+  }
+  const phase = new Set()
+  for (const [month, e] of [...perMonth].sort()) {
+    if (e.noAcq / e.n < 2 / 3) break
+    phase.add(month)
+  }
+  return phase
+}
+
 // ---------------------------------------------------------------------------
 
 /**
@@ -287,6 +316,7 @@ function normalize(raw, source = null) {
   for (const r of records) perEntryDate.set(r.entrydate, (perEntryDate.get(r.entrydate) ?? 0) + 1)
   const BULK_THRESHOLD = 50
   const bulkDates = new Set([...perEntryDate].filter(([, n]) => n >= BULK_THRESHOLD).map(([d]) => d))
+  const phaseMonths = bulkPhaseMonths(records)
 
   // Regel 9: permutierte height/thickness/length (siehe fixPermutedDimensions).
   let dimsSorted = 0
@@ -368,7 +398,7 @@ function normalize(raw, source = null) {
       acquiredYear: acquired.year,
       entryDate: entry.date,
       entryYear: entry.year,
-      bulkImport: bulkDates.has(r.entrydate),
+      bulkImport: bulkDates.has(r.entrydate) || phaseMonths.has(String(r.entrydate ?? '').slice(0, 7)),
       startedDate: started.date,
       readDate: read.date,
       readYear: read.year,
@@ -455,5 +485,6 @@ export {
   decodeEntities,
   estimateMissingDimensions,
   inferOriginalLanguages,
+  bulkPhaseMonths,
   normalize,
 }

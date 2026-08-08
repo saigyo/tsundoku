@@ -62,6 +62,16 @@ Implementiert in `scripts/normalize.mjs`.
    Massenimport-Tagen. Regel: Tage mit ≥ 50 Einträgen werden als `bulkImport:
    true` markiert. Für Zeitreihen zum Erwerb `dateacquired` verwenden.
 
+   Zusätzlich gilt die **Erstkatalogisierungsphase** als Massenimport:
+   zusammenhängende Monate ab dem ersten Eintragsmonat des Kontos, in denen
+   mindestens ⅔ der Einträge kein `dateacquired` tragen (hier August 2006
+   bis Januar 2007; Anteile ohne Kaufdatum 98/100/99/98/82/93 %, Februar
+   2007 kippt auf 43 %). Damit sind auch die „Schultertage" der
+   Bestandserfassung unter der Tagesschwelle markiert (27.08.: 34,
+   28.10.: 37, 30.10.: 21). Insgesamt 1.016 Bulk-Einträge statt 763 mit
+   der Tagesschwelle allein; die Schwelle bleibt für spätere Sessions
+   nötig (13.03.2016: 65 Einträge).
+
 2. **`pages` ist semikolonsepariert.** Mehrbänder und römisch gezählter
    Vorspann stehen in einem Feld: `"500; 442; 258"`, `"xvi; 342"`. Regel:
    an `;` splitten, arabische Teile summieren, römische ignorieren, Ergebnisse
