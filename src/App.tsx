@@ -13,6 +13,7 @@ import type { Library, ViewId } from './lib/types'
 import { useFilterStore } from './store/filters'
 import { AcquisitionReading } from './views/AcquisitionReading'
 import { CanonCheck } from './views/CanonCheck'
+import { DataQuality } from './views/DataQuality'
 import { Genres } from './views/Genres'
 import { KnowledgeMap } from './views/KnowledgeMap'
 import { LanguageFlow } from './views/LanguageFlow'
@@ -34,12 +35,14 @@ export const VIEW_REGISTRY: Partial<Record<ViewId, ComponentType>> = {
   pace: ReadingPace,
   canon: CanonCheck,
   genres: Genres,
+  quality: DataQuality,
 }
 
 /** Navigationsreihenfolge nach Erkenntniswert (Spec „Kopfzeile mit
  *  Überlaufmenü"): die hinteren Views überlaufen zuerst ins Mehr-Menü. */
 export const VIEW_ORDER: ViewId[] = [
   'shelf', 'timeline', 'knowledge', 'genres', 'tagTrends', 'network', 'languages', 'canon', 'years', 'pace',
+  'quality',
 ]
 
 type LoadState =

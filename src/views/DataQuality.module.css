@@ -1,0 +1,130 @@
+.wrap {
+  max-width: 72rem;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-3) 0 var(--space-5);
+}
+
+.tile {
+  background: var(--paper);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+/* Schwellwert-Tönungen (Spec, Block 1): Hintergrund-Tönung über --paper,
+   Text bleibt --sumi — die Prozentzahl trägt die Aussage, nicht die Farbe. */
+.zoneGood { background: color-mix(in srgb, var(--rikyu) 16%, var(--paper)); }
+.zoneMid  { background: color-mix(in srgb, var(--kon) 12%, var(--paper)); }
+.zoneBad  { background: color-mix(in srgb, var(--enji) 14%, var(--paper)); }
+
+.tileValue {
+  font-family: var(--font-mono);
+  font-size: 28px;
+}
+
+.tileLabel {
+  font-weight: 600;
+  margin-top: var(--space-1);
+}
+
+.tileSub {
+  font-size: 13px;
+  color: var(--ink-70);
+  margin-top: var(--space-1);
+}
+
+.blockTitle {
+  margin: var(--space-5) 0 var(--space-2);
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.row,
+.staticRow {
+  display: grid;
+  grid-template-columns: minmax(12rem, 20rem) 1fr max-content;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+  font-size: 14px;
+}
+
+.row {
+  border: none;
+  background: none;
+}
+
+.row[aria-pressed='true'] {
+  outline: 1px solid var(--kon);
+  background: var(--paper);
+}
+
+/* Tönung nur auf den klickbaren Flag-Zeilen — sie signalisiert Klickbarkeit
+   (die Abdeckungszeilen darüber sind reine Anzeige und bleiben still). */
+.row:hover,
+.row:focus-visible {
+  background: var(--ink-08);
+}
+
+.listName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barTrack {
+  display: block;
+  height: 14px;
+}
+
+.barOwned {
+  display: block;
+  height: 100%;
+  background: var(--ink-15);
+}
+
+.counts {
+  font-family: var(--font-mono);
+  color: var(--ink-70);
+  white-space: nowrap;
+}
+
+.global {
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  max-width: 40rem;
+}
+
+.global > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--ink-15);
+  font-size: 14px;
+}
+
+.global dd {
+  margin: 0;
+  font-family: var(--font-mono);
+}
