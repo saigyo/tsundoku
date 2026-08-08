@@ -67,7 +67,7 @@ export function KnowledgeMap() {
     const counts = new Map<number, number>()
     const base = filterBooks(books, filters.filter((f) => f.kind !== 'ddcTop'))
     for (const b of base) {
-      if (b.ddc === null || b.acquiredYear === null) continue
+      if (b.ddc === null || b.acquiredYearEffective === null) continue
       counts.set(b.ddc.top, (counts.get(b.ddc.top) ?? 0) + 1)
     }
     return counts

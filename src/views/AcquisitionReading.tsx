@@ -81,11 +81,11 @@ export function AcquisitionReading() {
   const popupBooks = useMemo(() => {
     if (popup === null) return []
     const dateOf =
-      popup.anchor.dim === 'acquired' ? (b: Book) => b.acquiredDate : (b: Book) => b.readDate
+      popup.anchor.dim === 'acquired' ? (b: Book) => b.acquiredDateEffective : (b: Book) => b.readDate
     return sortBooksByDate(
       filtered.filter((b) =>
         popup.anchor.dim === 'acquired'
-          ? b.acquiredYear === popup.anchor.year
+          ? b.acquiredYearEffective === popup.anchor.year
           : b.readYearEffective === popup.anchor.year,
       ),
       dateOf,
@@ -363,7 +363,7 @@ export function AcquisitionReading() {
           }
           ariaContext={`${popup.anchor.year}: ${popupHeadline}`}
           books={popupBooks}
-          dateOf={(b) => (popup.anchor.dim === 'acquired' ? b.acquiredDate : b.readDate)}
+          dateOf={(b) => (popup.anchor.dim === 'acquired' ? b.acquiredDateEffective : b.readDate)}
           onSelect={(b) => {
             pin()
             setSelected(b)
