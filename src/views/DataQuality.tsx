@@ -80,8 +80,8 @@ export function DataQuality() {
       </div>
 
       <h3 className={styles.blockTitle}>{q.coverageTitle}</h3>
-      {/* Reine Anzeige: keine Klick-/Hover-Semantik — die Tönung ist in
-          dieser App das Signal für Klickbarkeit (Spec, Block 2). */}
+      {/* Reine Anzeige ohne Klick-Semantik; die Hover-Tönung gibt es trotzdem —
+          sie hält die Zeile bei kurzen Balken optisch zusammen (Spec-Nachtrag). */}
       <ol className={styles.rows}>
         {data.coverage.map((r) => (
           <li key={r.id} className={styles.staticRow}>

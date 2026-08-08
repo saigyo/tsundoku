@@ -78,10 +78,12 @@
   background: var(--paper);
 }
 
-/* Tönung nur auf den klickbaren Flag-Zeilen — sie signalisiert Klickbarkeit
-   (die Abdeckungszeilen darüber sind reine Anzeige und bleiben still). */
+/* Hover-Tönung auf allen Zeilen — sie stellt bei kurzen Balken den
+   optischen Zusammenhang der Zeile her (Nutzerbefund, Spec-Nachtrag);
+   klickbar bleiben nur die Flag-Zeilen (.row als button, aria-pressed). */
 .row:hover,
-.row:focus-visible {
+.row:focus-visible,
+.staticRow:hover {
   background: var(--ink-08);
 }
 
