@@ -61,6 +61,8 @@ export interface Book {
   readYearSource: 'dateread' | 'tag' | null
   readDays: number | null
   hasRead: boolean
+  /** Regel 14: angefangen, nicht abgeschlossen (startedDate ohne Abschluss oder Tag 'unfinished'; „Currently reading" ausgenommen). */
+  abandoned: boolean
   fromWhere: string | null
   price: { amount: number; currency: string } | null
   comment: string | null
@@ -88,6 +90,7 @@ export interface Stats {
   withReadYearEffective: number
   withRating: number
   bulkImported: number
+  abandoned: number
   /** Zähler der Bereinigungsregeln (docs/datenprofil.md, Regeln 9–12). */
   dimsSorted: number
   dimsDiscarded: number

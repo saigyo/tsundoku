@@ -8,8 +8,8 @@ import type { Library } from './types'
 
 /** Bei inkompatiblen Änderungen am normalisierten Format (Book/Stats) erhöhen —
  *  gespeicherte Daten älterer Versionen führen dann zum Neu-Upload-Hinweis.
- *  2: effektives Erwerbssignal (Regel 13). */
-export const SCHEMA_VERSION = 2
+ *  2: effektives Erwerbssignal (Regel 13). 3: abandoned-Flag (Regel 14). */
+export const SCHEMA_VERSION = 3
 
 /** Obergrenze für hochgeladene Bibliotheken. Die Views halten alles im
  *  Speicher und das Regal zeichnet jeden Rücken einzeln; bis ~4.900 Einträgen

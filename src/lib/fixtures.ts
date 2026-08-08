@@ -45,6 +45,7 @@ export function mkBook(over: Partial<Book> = {}): Book {
     readYearSource: null,
     readDays: null,
     hasRead: false,
+    abandoned: false,
     fromWhere: null,
     price: null,
     comment: null,
