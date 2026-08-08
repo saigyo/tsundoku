@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Messages } from '../i18n/messages'
 import { canonicalAward } from '../lib/awards'
+import { flagLabel, hasFlag } from '../lib/flags'
 import { genreLabel, genreMatches } from '../lib/genres'
 import { langLabel } from '../lib/languages'
 import { DEFAULT_VIEW, type Book, type Filter, type RangeKind, type ViewId } from '../lib/types'
@@ -25,6 +26,8 @@ function matches(b: Book, f: Filter): boolean {
       return b.awards.some((a) => canonicalAward(a) === f.value)
     case 'genre':
       return genreMatches(b, f.value)
+    case 'flag':
+      return hasFlag(b, f.value)
     case 'acquiredYear':
       return b.acquiredYearEffective !== null && b.acquiredYearEffective >= f.from && b.acquiredYearEffective <= f.to
     case 'readYear':
@@ -37,10 +40,11 @@ function matches(b: Book, f: Filter): boolean {
 }
 
 /** UND über Dimensionen (kind), ODER innerhalb einer Dimension.
- *  Ausnahme Tags und Genres: UND auch innerhalb der Dimension — ein Buch
- *  trägt viele Tags bzw. mehrere Genres, mehrere gewählte sollen die Menge
- *  verengen, nicht erweitern. Bei einwertigen Dimensionen (Sprache, Medium …)
- *  wäre UND fast immer leer. */
+ *  Ausnahme Tags, Genres und Qualitäts-Flags: UND auch innerhalb der
+ *  Dimension — ein Buch trägt viele Tags, mehrere Genres bzw. mehrere
+ *  Qualitäts-Flags gleichzeitig, mehrere gewählte sollen die Menge verengen,
+ *  nicht erweitern. Bei einwertigen Dimensionen (Sprache, Medium …) wäre UND
+ *  fast immer leer. */
 export function filterBooks(books: Book[], filters: Filter[]): Book[] {
   if (filters.length === 0) return books
   const groups = new Map<Filter['kind'], Filter[]>()
@@ -52,7 +56,9 @@ export function filterBooks(books: Book[], filters: Filter[]): Book[] {
   const groupList = [...groups.entries()]
   return books.filter((b) =>
     groupList.every(([kind, g]) =>
-      kind === 'tag' || kind === 'genre' ? g.every((f) => matches(b, f)) : g.some((f) => matches(b, f)),
+      kind === 'tag' || kind === 'genre' || kind === 'flag'
+        ? g.every((f) => matches(b, f))
+        : g.some((f) => matches(b, f)),
     ),
   )
 }
@@ -90,6 +96,8 @@ export function filterLabel(f: Filter, m: Messages): string {
       return m.filter.award(f.value)
     case 'genre':
       return m.filter.genre(genreLabel(f.value, m))
+    case 'flag':
+      return m.filter.flag(flagLabel(f.value, m))
     case 'acquiredYear':
       return m.filter.acquired(f.from, f.to)
     case 'readYear':

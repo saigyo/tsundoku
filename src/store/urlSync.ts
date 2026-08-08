@@ -1,3 +1,4 @@
+import { FLAG_IDS } from '../lib/flags'
 import { DEFAULT_VIEW, VIEW_IDS, type Filter, type MediaType, type ViewId } from '../lib/types'
 import { useFilterStore } from './filters'
 
@@ -11,6 +12,7 @@ const PARAMS: [param: string, kind: Filter['kind']][] = [
   ['author', 'author'],
   ['award', 'award'],
   ['genre', 'genre'],
+  ['flag', 'flag'],
   ['acq', 'acquiredYear'],
   ['read', 'readYear'],
   ['ed', 'editionYear'],
@@ -51,6 +53,8 @@ function parseOne(kind: Filter['kind'], raw: string): Filter | null {
       return (MEDIA as string[]).includes(raw) ? { kind, value: raw as MediaType } : null
     case 'readStatus':
       return raw === 'read' || raw === 'unread' ? { kind, value: raw } : null
+    case 'flag':
+      return (FLAG_IDS as readonly string[]).includes(raw) ? { kind, value: raw } : null
     default:
       return raw ? ({ kind, value: raw } as Filter) : null
   }
