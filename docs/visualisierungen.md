@@ -221,6 +221,27 @@ kleine Synonymtabelle zusammenführen.
 
 ---
 
+## 9 — Datenqualität
+
+**Frage:** Wie belastbar sind die Aussagen der übrigen Ansichten?
+
+**Daten:** Feldabdeckung und Qualitäts-Flags aus dem gefilterten Bestand;
+Import-Bereinigungszähler global aus `stats`.
+
+**Darstellung:** Fünf schwellwertgefärbte Kennzahlen-Kacheln
+(Erwerbssignal, Lesejahr, Massenimport invertiert, Maße, Rating), darunter
+Feldabdeckungs-Balken (reine Anzeige) und sechs klickbare Qualitäts-Flags,
+zuletzt die globale Import-Bereinigung als Liste.
+
+**Interaktion:** Flag-Klick togglet `{ kind: 'flag' }` (UND wie Tags);
+alles außer der globalen Liste reagiert auf Filter.
+
+**Fertig, wenn:** die Kacheln im ungefilterten Bestand
+79,6 / 97,0 / 20,9 / 78,8 / 25,1 % zeigen und kein Prozentwert ohne
+sichtbare absolute Zahlen erscheint.
+
+---
+
 ## Später, wenn Lust besteht
 
 - **Buchhandlungskarte:** `fromWhere` hat nur 258 Einträge, aber es sind
@@ -228,7 +249,3 @@ kleine Synonymtabelle zusammenführen.
   müssten einmalig von Hand ergänzt werden — kleine Datei, kein Geocoding-Dienst.
 - **Autorentiefe:** 3.180 Primärautoren, davon Urasawa mit 55 Bänden. Streuung
   zwischen „einmal gelesen" und „gesammelt" als Verteilung.
-- **Datenqualitätsansicht:** was der Normalizer verworfen hat, wie viele
-  Massenimport-Einträge es gibt, welche Felder wie dünn besetzt sind. Klingt
-  nach Beiwerk, ist aber die ehrlichste Ansicht der App und billig zu bauen,
-  weil die Zahlen ohnehin anfallen.
