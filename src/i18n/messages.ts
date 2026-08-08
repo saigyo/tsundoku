@@ -69,6 +69,8 @@ export interface Messages {
     entitiesDecodedValue: (nFmt: string) => string
     bulkImport: string
     bulkImportValue: (nFmt: string) => string
+    acquired: string
+    acquiredValue: (directFmt: string, proxyFmt: string, totalFmt: string) => string
     toLibrary: string
     otherFile: string
   }
@@ -138,6 +140,7 @@ export interface Messages {
     acquired: string
     read: string
     readTagged: (year: number) => string
+    acquiredProxy: (v: string) => string
     rating: string
     boughtAt: string
     series: string
