@@ -69,9 +69,11 @@ type Filter =
 ```
 
 Filter kombinieren sich als UND über Dimensionen, als ODER innerhalb einer
-Dimension — mit einer Ausnahme: Mehrere Tags verknüpfen sich als UND (ein
-Buch trägt viele Tags, mehrere gewählte sollen verengen, nicht erweitern; bei
-einwertigen Dimensionen wie Sprache oder Medium wäre UND fast immer leer).
+Dimension — mit einer Ausnahme: Mehrere Tags, Genres oder Qualitäts-Flags
+verknüpfen sich jeweils als UND (ein Buch trägt viele Tags, mehrere Genres
+bzw. mehrere Qualitäts-Flags gleichzeitig, mehrere gewählte sollen verengen,
+nicht erweitern; bei einwertigen Dimensionen wie Sprache oder Medium wäre UND
+fast immer leer).
 Aktive Filter stehen als Chips permanent sichtbar über allen Views,
 einzeln entfernbar. Der Filterzustand gehört in die URL (Query-String), damit
 ein Zustand teilbar und per Back-Button umkehrbar ist.

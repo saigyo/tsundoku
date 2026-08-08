@@ -142,6 +142,22 @@ describe('filterBooks: genre', () => {
   })
 })
 
+describe('filterBooks: flag', () => {
+  it('flag-Filter matcht über hasFlag', () => {
+    const b = mkBook({ abandoned: true })
+    expect(filterBooks([b, mkBook()], [{ kind: 'flag', value: 'abandoned' }])).toEqual([b])
+  })
+  it('mehrere Flags verengen als UND', () => {
+    const both = mkBook({ abandoned: true, bulkImport: true })
+    const one = mkBook({ abandoned: true })
+    const out = filterBooks(
+      [both, one],
+      [{ kind: 'flag', value: 'abandoned' }, { kind: 'flag', value: 'bulkImport' }],
+    )
+    expect(out).toEqual([both])
+  })
+})
+
 describe('sameFilter', () => {
   it('vergleicht kind+value bzw. kind+Bereich', () => {
     expect(sameFilter({ kind: 'tag', value: 'Japan' }, { kind: 'tag', value: 'Japan' })).toBe(true)

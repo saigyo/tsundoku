@@ -39,6 +39,16 @@ describe('Genre-Filter', () => {
   })
 })
 
+describe('Flag-Filter', () => {
+  it('flag-Filter überlebt den URL-Roundtrip', () => {
+    const filters: Filter[] = [{ kind: 'flag', value: 'abandoned' }]
+    expect(queryToState(stateToQuery(DEFAULT_VIEW, filters)).filters).toEqual(filters)
+  })
+  it('unbekannter flag-Wert wird verworfen', () => {
+    expect(queryToState('?flag=nonsense').filters).toEqual([])
+  })
+})
+
 describe('Defekte Query-Strings degradieren stumm', () => {
   it('unbekannte Parameter und kaputte Werte werden ignoriert', () => {
     const st = queryToState('?view=nope&bogus=1&ddc=zwölf&acq=abc&read=2020-1988&status=maybe&tag=Japan')
