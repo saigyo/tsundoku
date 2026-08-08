@@ -264,6 +264,9 @@ function mediaType(formats, collections) {
  * ersten Eintragsmonat und endet vor dem ersten Monat, der die Bedingung
  * verletzt (zusammenhängend — spätere Monate mit hohem Anteil sind normale
  * Erfassung von Altbestand-Nachzüglern, keine Erstkatalogisierung).
+ * Eintragsfreie Monate beenden die Phase nicht (pausierte Erstkatalogisierung).
+ * Kehrseite: pflegt eine Bibliothek dateacquired nie, gilt ihre gesamte
+ * Historie als Phase und der entrydate-Proxy entfällt komplett.
  * Bewusst datengetrieben statt Kalenderkonstante: der Browser-Upload-Pfad
  * verarbeitet auch fremde Bibliotheken.
  */
@@ -278,7 +281,7 @@ function bulkPhaseMonths(records) {
     perMonth.set(month, e)
   }
   const phase = new Set()
-  for (const [month, e] of [...perMonth].sort()) {
+  for (const [month, e] of [...perMonth].sort(([a], [b]) => (a < b ? -1 : 1))) {
     if (e.noAcq / e.n < 2 / 3) break
     phase.add(month)
   }
@@ -353,6 +356,8 @@ function normalize(raw, source = null) {
     // Erwerbsspur). Bulk-Einträge (Regel 1) sind vom Fallback ausgeschlossen:
     // Katalogisierungs-Sessions sind kein Erwerbsverhalten. acquiredDate/
     // acquiredYear bleiben daneben unverändert erhalten.
+    // dateacquired kann als reines Jahr vorliegen — dann bleibt
+    // acquiredDateEffective null, obwohl die Quelle 'dateacquired' ist.
     const acquiredEffective =
       acquired.year !== null
         ? { date: acquired.date, year: acquired.year, source: 'dateacquired' }

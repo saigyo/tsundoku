@@ -51,9 +51,9 @@ export function mkBook(over: Partial<Book> = {}): Book {
     isbn: null,
     ...over,
   }
-  // Tests setzen meist nur acquiredDate/acquiredYear — die effektiven Felder
-  // spiegeln das wie der Normalizer (Regel 13), solange sie nicht explizit
-  // übersteuert werden.
+  // Tests setzen meist nur acquiredDate/acquiredYear — wir spiegeln NUR den
+  // dateacquired-Zweig von Regel 13. Der entrydate-Fallback wird nicht
+  // simuliert: wer ihn braucht, setzt die effektiven Felder explizit.
   if (over.acquiredYearEffective === undefined && over.acquiredDateEffective === undefined && over.acquiredYearSource === undefined) {
     base.acquiredDateEffective = base.acquiredDate
     base.acquiredYearEffective = base.acquiredYear

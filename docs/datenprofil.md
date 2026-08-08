@@ -70,7 +70,9 @@ Implementiert in `scripts/normalize.mjs`.
    Bestandserfassung unter der Tagesschwelle markiert (27.08.: 34,
    28.10.: 37, 30.10.: 21). Insgesamt 1.016 Bulk-Einträge statt 763 mit
    der Tagesschwelle allein; die Schwelle bleibt für spätere Sessions
-   nötig (13.03.2016: 65 Einträge).
+   nötig (13.03.2016: 65 Einträge). Eintragsfreie Monate beenden die Phase
+   nicht; eine Bibliothek ganz ohne `dateacquired` fiele vollständig in die
+   Phase (kein Proxy).
 
 2. **`pages` ist semikolonsepariert.** Mehrbänder und römisch gezählter
    Vorspann stehen in einem Feld: `"500; 442; 258"`, `"xvi; 342"`. Regel:
@@ -181,7 +183,9 @@ Implementiert in `scripts/normalize.mjs`.
     Erwerbssignal ist. Felder: `acquiredDateEffective`,
     `acquiredYearEffective`, `acquiredYearSource`
     (`'dateacquired' | 'entrydate' | null`); die Rohfelder bleiben
-    unverändert daneben stehen. Ergebnis: 273 Proxys (2007–2026),
+    unverändert daneben stehen. `dateacquired` kann als reines Jahr vorliegen
+    (3 Fälle) — dann bleibt `acquiredDateEffective` leer, obwohl die Quelle
+    `'dateacquired'` ist. Ergebnis: 273 Proxys (2007–2026),
     zusammen 3.874 von 4.865 (79,6 %); 25 Bulk-Einträge mit echtem
     `dateacquired` zählen als direkt. Alle Erwerbs-Views und der
     Erwerbsjahr-Filter lesen ausschließlich die effektiven Felder.
