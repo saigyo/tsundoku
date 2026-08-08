@@ -14,7 +14,7 @@ export interface YearMatrixData {
 
 export function yearMatrix(books: Book[], opts?: { editionFloor?: number }): YearMatrixData {
   const floor = opts?.editionFloor ?? 1900
-  const both = books.filter((b) => b.editionYear !== null && b.acquiredYear !== null)
+  const both = books.filter((b) => b.editionYear !== null && b.acquiredYearEffective !== null)
   const inRange = both.filter((b) => (b.editionYear as number) >= floor)
   const underflow = both.length - inRange.length
 
@@ -23,7 +23,7 @@ export function yearMatrix(books: Book[], opts?: { editionFloor?: number }): Yea
   const acqMarginal = new Map<number, number>()
   for (const b of inRange) {
     const ed = b.editionYear as number
-    const acq = b.acquiredYear as number
+    const acq = b.acquiredYearEffective as number
     counts.set(`${ed}:${acq}`, (counts.get(`${ed}:${acq}`) ?? 0) + 1)
     edMarginal.set(ed, (edMarginal.get(ed) ?? 0) + 1)
     acqMarginal.set(acq, (acqMarginal.get(acq) ?? 0) + 1)

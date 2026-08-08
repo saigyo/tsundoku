@@ -18,10 +18,10 @@ export interface TimelineData {
 }
 
 export function timelineData(books: Book[]): TimelineData {
-  const acq = books.filter((b) => b.acquiredYear !== null)
+  const acq = books.filter((b) => b.acquiredYearEffective !== null)
   const read = books.filter((b) => b.readYearEffective !== null)
   const years = [
-    ...acq.map((b) => b.acquiredYear as number),
+    ...acq.map((b) => b.acquiredYearEffective as number),
     ...read.map((b) => b.readYearEffective as number),
   ]
   if (years.length === 0) {
@@ -35,7 +35,7 @@ export function timelineData(books: Book[]): TimelineData {
   let maxGap = -Infinity
   let maxGapYear: number | null = null
   for (let year = min; year <= max; year++) {
-    const acquired = acq.filter((b) => b.acquiredYear === year).length
+    const acquired = acq.filter((b) => b.acquiredYearEffective === year).length
     const readDated = read.filter(
       (b) => b.readYearEffective === year && b.readYearSource === 'dateread',
     ).length
@@ -47,7 +47,7 @@ export function timelineData(books: Book[]): TimelineData {
       year,
       count: acq.filter(
         (b) =>
-          (b.acquiredYear as number) <= year &&
+          (b.acquiredYearEffective as number) <= year &&
           (b.readYearEffective === null || b.readYearEffective > year),
       ).length,
     })

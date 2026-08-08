@@ -67,10 +67,10 @@ export function shelfLegend(
           ? [m.views.shelf.legendRead, 'var(--kon)', { kind: 'readStatus', value: 'read' }]
           : [m.views.shelf.legendUnread, 'var(--paper)', { kind: 'readStatus', value: 'unread' }]
       case 'acquiredYear': {
-        if (b.acquiredYear === null) return [m.views.shelf.noAcqYear, NEUTRAL, null]
+        if (b.acquiredYearEffective === null) return [m.views.shelf.noAcqYear, NEUTRAL, null]
         // Dekaden-Swatch am Dekaden-Mittelpunkt aus dem tatsächlichen
         // Jahresverlauf, sonst wäre die Legende ohne Farbwert nutzlos.
-        const decade = Math.floor(b.acquiredYear / 10) * 10
+        const decade = Math.floor(b.acquiredYearEffective / 10) * 10
         return [
           m.views.shelf.decade(decade),
           yearScale(decade + 5),

@@ -5,7 +5,7 @@ export type TrendAxis = 'acquired' | 'read'
 
 /** Jahr eines Buchs auf der gewählten Achse (Lektüre = readYearEffective). */
 export function axisYear(b: Book, axis: TrendAxis): number | null {
-  return axis === 'acquired' ? b.acquiredYear : b.readYearEffective
+  return axis === 'acquired' ? b.acquiredYearEffective : b.readYearEffective
 }
 
 export interface TagRow {

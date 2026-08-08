@@ -41,4 +41,14 @@ describe('timelineData', () => {
   it('leere Eingabe', () => {
     expect(timelineData([]).points).toEqual([])
   })
+  it('zählt Proxy-Bücher (nur acquiredYearEffective gesetzt) im Erwerbsbalken', () => {
+    const proxy = mkBook({
+      acquiredYearEffective: 2010,
+      acquiredDateEffective: '2010-04-01',
+      acquiredYearSource: 'entrydate',
+    })
+    const data = timelineData([proxy])
+    expect(data.acquiredKnown).toBe(1)
+    expect(data.points.find((p) => p.year === 2010)?.acquired).toBe(1)
+  })
 })
