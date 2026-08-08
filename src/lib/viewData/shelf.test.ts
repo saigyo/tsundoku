@@ -32,6 +32,21 @@ describe('shelfLayout', () => {
     const r = shelfLayout(books, { sort: 'acquired', rowWidth: 1000, pxPerMm: 1 })
     expect(r.placed.map((p) => p.book.title)).toEqual(['Alpha', 'Beta', 'Gamma'])
   })
+  it('acquired-Sortierung nutzt das effektive Datum (Proxy-Bücher reihen sich ein)', () => {
+    const early = mkBook({
+      acquiredYearEffective: 2005,
+      acquiredDateEffective: '2005-01-01',
+      acquiredYearSource: 'entrydate',
+      physical: { heightMm: 200, thicknessMm: 20, lengthMm: 130, weightG: null },
+    })
+    const late = mkBook({
+      acquiredDate: '2015-06-01',
+      acquiredYear: 2015,
+      physical: { heightMm: 200, thicknessMm: 20, lengthMm: 130, weightG: null },
+    })
+    const { placed } = shelfLayout([late, early], { sort: 'acquired', rowWidth: 600 })
+    expect(placed.map((p) => p.book)).toEqual([early, late])
+  })
   it('Sortierung height ordnet absteigend nach Höhe', () => {
     const r = shelfLayout(books, { sort: 'height', rowWidth: 1000, pxPerMm: 1 })
     expect(r.placed.map((p) => p.book.title)).toEqual(['Gamma', 'Beta', 'Alpha'])

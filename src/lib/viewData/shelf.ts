@@ -28,8 +28,8 @@ export interface ShelfLayoutResult {
 
 const cmp: Record<ShelfSort, (a: Book, b: Book) => number> = {
   acquired: (a, b) =>
-    (a.acquiredDate ?? String(a.acquiredYear ?? '9999')).localeCompare(
-      b.acquiredDate ?? String(b.acquiredYear ?? '9999'),
+    (a.acquiredDateEffective ?? String(a.acquiredYearEffective ?? '9999')).localeCompare(
+      b.acquiredDateEffective ?? String(b.acquiredYearEffective ?? '9999'),
     ) || a.title.localeCompare(b.title, 'de'),
   author: (a, b) =>
     (a.primaryAuthor ?? '￿').localeCompare(b.primaryAuthor ?? '￿', 'de') ||

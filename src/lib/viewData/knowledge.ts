@@ -11,21 +11,21 @@ export interface KnowledgeData {
 }
 
 export function ddcYearMatrix(books: Book[], opts: { smooth: boolean }): KnowledgeData {
-  const withAcq = books.filter((b) => b.acquiredYear !== null)
+  const withAcq = books.filter((b) => b.acquiredYearEffective !== null)
   const usable = withAcq.filter((b) => b.ddc !== null)
   if (usable.length === 0) {
     return { years: [], classes: [], rows: [], covered: 0, withAcquired: withAcq.length }
   }
   const years: number[] = []
-  const yMin = Math.min(...usable.map((b) => b.acquiredYear as number))
-  const yMax = Math.max(...usable.map((b) => b.acquiredYear as number))
+  const yMin = Math.min(...usable.map((b) => b.acquiredYearEffective as number))
+  const yMax = Math.max(...usable.map((b) => b.acquiredYearEffective as number))
   for (let y = yMin; y <= yMax; y++) years.push(y)
   const classes = [...new Set(usable.map((b) => (b.ddc as { top: number }).top))].sort((a, b) => a - b)
 
   const raw = years.map((year) => {
     const row: Record<number, number> = {}
     for (const c of classes) {
-      row[c] = usable.filter((b) => b.acquiredYear === year && b.ddc?.top === c).length
+      row[c] = usable.filter((b) => b.acquiredYearEffective === year && b.ddc?.top === c).length
     }
     return row
   })
