@@ -347,6 +347,19 @@ function normalize(raw, source = null) {
     // stimmen exakt mit dateread ueberein. Sie reichen bis 1988 zurueck.
     const yearTags = tags.filter((t) => YEAR_TAG.test(t)).map(Number).sort()
 
+    const bulkImport = bulkDates.has(r.entrydate) || phaseMonths.has(String(r.entrydate ?? '').slice(0, 7))
+    // Regel 13: effektives Erwerbssignal — dateacquired, sonst entrydate als
+    // Proxy (wer kurz nach dem Kauf katalogisiert, hinterlässt eine
+    // Erwerbsspur). Bulk-Einträge (Regel 1) sind vom Fallback ausgeschlossen:
+    // Katalogisierungs-Sessions sind kein Erwerbsverhalten. acquiredDate/
+    // acquiredYear bleiben daneben unverändert erhalten.
+    const acquiredEffective =
+      acquired.year !== null
+        ? { date: acquired.date, year: acquired.year, source: 'dateacquired' }
+        : !bulkImport && entry.date !== null
+          ? { date: entry.date, year: entry.year, source: 'entrydate' }
+          : { date: null, year: null, source: null }
+
     return {
       id: r.books_id,
       workCode: r.workcode ?? null,
@@ -398,7 +411,10 @@ function normalize(raw, source = null) {
       acquiredYear: acquired.year,
       entryDate: entry.date,
       entryYear: entry.year,
-      bulkImport: bulkDates.has(r.entrydate) || phaseMonths.has(String(r.entrydate ?? '').slice(0, 7)),
+      bulkImport,
+      acquiredDateEffective: acquiredEffective.date,
+      acquiredYearEffective: acquiredEffective.year,
+      acquiredYearSource: acquiredEffective.source,
       startedDate: started.date,
       readDate: read.date,
       readYear: read.year,
@@ -441,6 +457,7 @@ function normalize(raw, source = null) {
     byMediaType: count((b) => [b.mediaType]),
     read: books.filter((b) => b.hasRead).length,
     withAcquiredDate: books.filter((b) => b.acquiredYear).length,
+    withAcquiredEffective: books.filter((b) => b.acquiredYearEffective !== null).length,
     withReadDate: books.filter((b) => b.readYear).length,
     withReadYearEffective: books.filter((b) => b.readYearEffective).length,
     withRating: books.filter((b) => b.rating != null).length,

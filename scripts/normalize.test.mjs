@@ -264,6 +264,60 @@ describe('bulkPhaseMonths (Regel 1: Erstkatalogisierungsphase)', () => {
   })
 })
 
+describe('effektives Erwerbssignal (Regel 13: entrydate-Proxy mit Bulk-Sperre)', () => {
+  const rec = (id, entrydate, dateacquired) => ({ books_id: String(id), title: `B${id}`, entrydate, dateacquired })
+  // Phase unterdrücken: Monat mit dateacquired-Mehrheit vorweg
+  const normalMonth = [rec(90, '2019-01-01', '2019-01-01'), rec(91, '2019-01-02', '2019-01-02')]
+
+  it('direkt: dateacquired gewinnt immer', () => {
+    const { books } = normalize(records_to_raw([...normalMonth, rec(1, '2020-05-10', '2018-03-04')]))
+    const b = books.find((x) => x.id === '1')
+    expect(b.acquiredDateEffective).toBe('2018-03-04')
+    expect(b.acquiredYearEffective).toBe(2018)
+    expect(b.acquiredYearSource).toBe('dateacquired')
+  })
+
+  it('Fallback: entrydate als Proxy, volle Datumsgranularität', () => {
+    const { books } = normalize(records_to_raw([...normalMonth, rec(1, '2020-05-10')]))
+    const b = books.find((x) => x.id === '1')
+    expect(b.acquiredDateEffective).toBe('2020-05-10')
+    expect(b.acquiredYearEffective).toBe(2020)
+    expect(b.acquiredYearSource).toBe('entrydate')
+  })
+
+  it('Bulk sperrt den Fallback (Tages-Schwelle)', () => {
+    const bulkDay = Array.from({ length: 50 }, (_, i) => rec(100 + i, '2021-06-01'))
+    const { books } = normalize(records_to_raw([...normalMonth, ...bulkDay]))
+    const b = books.find((x) => x.id === '100')
+    expect(b.bulkImport).toBe(true)
+    expect(b.acquiredYearEffective).toBe(null)
+    expect(b.acquiredYearSource).toBe(null)
+  })
+
+  it('Bulk sperrt den Fallback (Phase), echtes dateacquired zählt trotzdem direkt', () => {
+    const phase = [rec(1, '2020-01-05'), rec(2, '2020-01-06'), rec(3, '2020-01-07', '2015-09-01')]
+    const after = [rec(4, '2020-02-01', '2020-02-01'), rec(5, '2020-02-02', '2020-02-02')]
+    const { books } = normalize(records_to_raw([...phase, ...after]))
+    expect(books.find((x) => x.id === '1').acquiredYearSource).toBe(null)
+    const withDate = books.find((x) => x.id === '3')
+    expect(withDate.bulkImport).toBe(true)
+    expect(withDate.acquiredYearSource).toBe('dateacquired')
+    expect(withDate.acquiredYearEffective).toBe(2015)
+  })
+
+  it('weder dateacquired noch entrydate -> null', () => {
+    const { books } = normalize(records_to_raw([...normalMonth, rec(1, undefined)]))
+    const b = books.find((x) => x.id === '1')
+    expect(b.acquiredDateEffective).toBe(null)
+    expect(b.acquiredYearSource).toBe(null)
+  })
+
+  it('stats.withAcquiredEffective zählt direkt + Proxy', () => {
+    const { stats } = normalize(records_to_raw([...normalMonth, rec(1, '2020-05-10')]))
+    expect(stats.withAcquiredEffective).toBe(3) // 2× direkt + 1× Proxy
+  })
+})
+
 describe('feindliche Eingaben (öffentlicher Upload-Pfad)', () => {
   it('normTag greift nicht in die Prototype-Kette', () => {
     expect(normTag('constructor')).toBe('constructor')
@@ -360,5 +414,13 @@ describe.skipIf(!existsSync(EXPORT_PATH))('Goldene Kennzahlen am realen Export',
   })
   it('Regel 1: 1016 Bulk-Einträge (Phase Aug 2006–Jan 2007 + Tages-Schwelle)', () => {
     expect(books.filter((b) => b.bulkImport).length).toBe(1016)
+  })
+  it('Regel 13: Erwerbssignal 3601 direkt + 273 Proxy = 3874, Proxy ab 2007', () => {
+    expect(books.filter((b) => b.acquiredYearSource === 'dateacquired').length).toBe(3601)
+    const proxy = books.filter((b) => b.acquiredYearSource === 'entrydate')
+    expect(proxy.length).toBe(273)
+    expect(Math.min(...proxy.map((b) => b.acquiredYearEffective))).toBe(2007)
+    expect(books.filter((b) => b.acquiredYearEffective !== null).length).toBe(3874)
+    expect(books.filter((b) => b.bulkImport && b.acquiredYearSource === 'dateacquired').length).toBe(25)
   })
 })

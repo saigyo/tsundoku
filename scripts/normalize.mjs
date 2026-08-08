@@ -39,6 +39,10 @@ function main() {
     `  Medien: ${JSON.stringify(stats.byMediaType)} | gelesen: ${stats.read} | Massenimport-Flag: ${stats.bulkImported}`,
   )
   console.log(
+    `  Erwerbssignal: ${stats.withAcquiredDate} direkt + ` +
+      `${stats.withAcquiredEffective - stats.withAcquiredDate} per Katalogisierungsdatum = ${stats.withAcquiredEffective} (Regel 13)`,
+  )
+  console.log(
     `  Maße permutiert: ${stats.dimsSorted} korrigiert (Tripel sortiert, Dicke = kleinster Wert), ` +
       `${stats.dimsDiscarded} verworfen (kleinster Wert keine plausible Dicke)`,
   )
