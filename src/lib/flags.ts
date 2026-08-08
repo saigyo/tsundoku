@@ -26,12 +26,14 @@ const PREDICATES: Record<FlagId, (b: Book) => boolean> = {
   abandoned: (b) => b.abandoned,
 }
 
-/** id ist string, nicht FlagId: URL-Parameter sind Nutzereingaben. */
+/** id ist string, nicht FlagId: URL-Parameter sind Nutzereingaben. Nur
+ *  eigene Schlüssel zählen — 'constructor' & Co. wären sonst Prototype-
+ *  Treffer statt Flags. */
 export function hasFlag(b: Book, id: string): boolean {
-  return (PREDICATES as Record<string, (b: Book) => boolean | undefined>)[id]?.(b) ?? false
+  return Object.hasOwn(PREDICATES, id) ? PREDICATES[id as FlagId](b) : false
 }
 
 /** Übersetzter Flag-Name; unbekannte Werte (URL) fallen auf die Id zurück. */
 export function flagLabel(value: string, m: Messages): string {
-  return (m.flagNames as Record<string, string>)[value] ?? value
+  return Object.hasOwn(m.flagNames, value) ? m.flagNames[value as FlagId] : value
 }

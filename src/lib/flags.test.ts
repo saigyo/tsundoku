@@ -16,5 +16,7 @@ describe('hasFlag', () => {
   })
   it('unbekannte Id -> false (URL-Eingaben)', () => {
     expect(hasFlag(mkBook(), 'nonsense')).toBe(false)
+    expect(hasFlag(mkBook(), 'constructor')).toBe(false)
+    expect(hasFlag(mkBook(), '__proto__')).toBe(false)
   })
 })
