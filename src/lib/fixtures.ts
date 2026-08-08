@@ -4,7 +4,7 @@ let seq = 0
 
 export function mkBook(over: Partial<Book> = {}): Book {
   seq += 1
-  return {
+  const base: Book = {
     id: String(seq),
     workCode: null,
     title: `Buch ${seq}`,
@@ -34,6 +34,9 @@ export function mkBook(over: Partial<Book> = {}): Book {
     entryDate: null,
     entryYear: null,
     bulkImport: false,
+    acquiredDateEffective: null,
+    acquiredYearEffective: null,
+    acquiredYearSource: null,
     startedDate: null,
     readDate: null,
     readYear: null,
@@ -48,4 +51,13 @@ export function mkBook(over: Partial<Book> = {}): Book {
     isbn: null,
     ...over,
   }
+  // Tests setzen meist nur acquiredDate/acquiredYear — die effektiven Felder
+  // spiegeln das wie der Normalizer (Regel 13), solange sie nicht explizit
+  // übersteuert werden.
+  if (over.acquiredYearEffective === undefined && over.acquiredDateEffective === undefined && over.acquiredYearSource === undefined) {
+    base.acquiredDateEffective = base.acquiredDate
+    base.acquiredYearEffective = base.acquiredYear
+    base.acquiredYearSource = base.acquiredYear !== null ? 'dateacquired' : null
+  }
+  return base
 }

@@ -26,7 +26,7 @@ function matches(b: Book, f: Filter): boolean {
     case 'genre':
       return genreMatches(b, f.value)
     case 'acquiredYear':
-      return b.acquiredYear !== null && b.acquiredYear >= f.from && b.acquiredYear <= f.to
+      return b.acquiredYearEffective !== null && b.acquiredYearEffective >= f.from && b.acquiredYearEffective <= f.to
     case 'readYear':
       return b.readYearEffective !== null && b.readYearEffective >= f.from && b.readYearEffective <= f.to
     case 'editionYear':

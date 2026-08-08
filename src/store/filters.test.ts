@@ -66,6 +66,16 @@ describe('filterBooks', () => {
   it('readYear nutzt readYearEffective', () => {
     expect(filterBooks(all, [{ kind: 'readYear', from: 2014, to: 2014 }])).toEqual([japan])
   })
+  it('acquiredYear-Filter trifft auch Proxy-Bücher (acquiredYearEffective)', () => {
+    const proxy = mkBook({
+      acquiredYearEffective: 2010,
+      acquiredDateEffective: '2010-04-01',
+      acquiredYearSource: 'entrydate',
+    })
+    const none = mkBook({})
+    const out = filterBooks([proxy, none], [{ kind: 'acquiredYear', from: 2010, to: 2010 }])
+    expect(out).toEqual([proxy])
+  })
   it('readStatus unread heißt hasRead === false', () => {
     expect(filterBooks(all, [{ kind: 'readStatus', value: 'unread' }])).toEqual([philo, roman])
   })
