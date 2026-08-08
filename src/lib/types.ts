@@ -49,6 +49,10 @@ export interface Book {
   entryDate: string | null
   entryYear: number | null
   bulkImport: boolean
+  /** Regel 13: dateacquired, sonst entrydate als Proxy (außer bulkImport). */
+  acquiredDateEffective: string | null
+  acquiredYearEffective: number | null
+  acquiredYearSource: 'dateacquired' | 'entrydate' | null
   startedDate: string | null
   readDate: string | null
   readYear: number | null
@@ -79,6 +83,7 @@ export interface Stats {
   byMediaType: Facet
   read: number
   withAcquiredDate: number
+  withAcquiredEffective: number
   withReadDate: number
   withReadYearEffective: number
   withRating: number
