@@ -130,7 +130,7 @@ export function TagTrends() {
             filtered.filter(
               (b) => axisYear(b, axis) === popup.anchor.year && b.tagsNorm.includes(popup.anchor.tag),
             ),
-            axis === 'acquired' ? (b) => b.acquiredDate : (b) => b.readDate,
+            axis === 'acquired' ? (b) => b.acquiredDateEffective : (b) => b.readDate,
           ),
     [popup, filtered, axis],
   )
@@ -496,7 +496,7 @@ export function TagTrends() {
                 header={headline}
                 ariaContext={headline}
                 books={popupBooks}
-                dateOf={axis === 'acquired' ? (b) => b.acquiredDate : (b) => b.readDate}
+                dateOf={axis === 'acquired' ? (b) => b.acquiredDateEffective : (b) => b.readDate}
                 onSelect={(b) => {
                   pin()
                   setSelected(b)

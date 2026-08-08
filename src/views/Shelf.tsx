@@ -34,7 +34,7 @@ export function Shelf() {
 
   const yearScale = useMemo(() => {
     const years = layout.placed
-      .map((p) => p.book.acquiredYear)
+      .map((p) => p.book.acquiredYearEffective)
       .filter((y): y is number => y !== null)
     // clamp: Dekaden aus der Ausschlussmenge können außerhalb der Domain
     // liegen — ohne Klemme extrapolierte Farben außerhalb der Palette.
@@ -73,7 +73,7 @@ export function Shelf() {
       case 'ddc': return b.ddc ? DDC_COLORS[b.ddc.top] : NEUTRAL
       case 'language': return LANG_COLORS[b.languages[0] ?? ''] ?? NEUTRAL
       case 'readStatus': return b.hasRead ? 'var(--kon)' : 'var(--paper)'
-      case 'acquiredYear': return b.acquiredYear !== null ? yearScale(b.acquiredYear) : NEUTRAL
+      case 'acquiredYear': return b.acquiredYearEffective !== null ? yearScale(b.acquiredYearEffective) : NEUTRAL
     }
   }
   // Farbe nie alleiniger Träger: ungelesen bekommt zusätzlich eine Kontur.

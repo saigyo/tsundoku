@@ -44,7 +44,7 @@ export function LanguageFlow() {
       return
     }
     const ys = filtered
-      .map((b) => (formDim === 'acquiredYear' ? b.acquiredYear : b.readYearEffective))
+      .map((b) => (formDim === 'acquiredYear' ? b.acquiredYearEffective : b.readYearEffective))
       .filter((y): y is number => y !== null)
     if (ys.length) {
       setFormFrom(Math.min(...ys))
