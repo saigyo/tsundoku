@@ -285,6 +285,17 @@ describe('effektives Erwerbssignal (Regel 13: entrydate-Proxy mit Bulk-Sperre)',
     expect(b.acquiredYearSource).toBe('entrydate')
   })
 
+  it('Jahres-only dateacquired (kein Volldatum) zählt trotzdem als direkt', () => {
+    // toDate() liefert hier { date: null, year: 1998 } — die Bedingung
+    // muss auf das Jahr prüfen, nicht auf das Volldatum, sonst rutscht der
+    // Eintrag fälschlich in den entrydate-Fallback (siehe task-2-report.md).
+    const { books } = normalize(records_to_raw([...normalMonth, rec(1, '2019-06-15', '1998')]))
+    const b = books.find((x) => x.id === '1')
+    expect(b.acquiredDateEffective).toBe(null)
+    expect(b.acquiredYearEffective).toBe(1998)
+    expect(b.acquiredYearSource).toBe('dateacquired')
+  })
+
   it('Bulk sperrt den Fallback (Tages-Schwelle)', () => {
     const bulkDay = Array.from({ length: 50 }, (_, i) => rec(100 + i, '2021-06-01'))
     const { books } = normalize(records_to_raw([...normalMonth, ...bulkDay]))
