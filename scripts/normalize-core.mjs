@@ -315,8 +315,15 @@ function normalize(raw, source = null) {
 
   // Massenimporte erkennen: Tage mit auffaellig vielen Eintraegen sind
   // Katalogisierungs-Sessions, kein Erwerbsverhalten.
+  // Upload-Pfad rechnet mit feindlichen Eingaben (vgl. bulkPhaseMonths-Regex):
+  // nur plausible ISO-Tagesdaten zaehlen, sonst bilden undefined/kaputte
+  // Strings gemeinsame Map-Keys und markieren Buecher faelschlich als Bulk.
   const perEntryDate = new Map()
-  for (const r of records) perEntryDate.set(r.entrydate, (perEntryDate.get(r.entrydate) ?? 0) + 1)
+  for (const r of records) {
+    const day = String(r.entrydate ?? '')
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) continue
+    perEntryDate.set(day, (perEntryDate.get(day) ?? 0) + 1)
+  }
   const BULK_THRESHOLD = 50
   const bulkDates = new Set([...perEntryDate].filter(([, n]) => n >= BULK_THRESHOLD).map(([d]) => d))
   const phaseMonths = bulkPhaseMonths(records)
@@ -461,10 +468,10 @@ function normalize(raw, source = null) {
     total: books.length,
     byMediaType: count((b) => [b.mediaType]),
     read: books.filter((b) => b.hasRead).length,
-    withAcquiredDate: books.filter((b) => b.acquiredYear).length,
+    withAcquiredDate: books.filter((b) => b.acquiredYear !== null).length,
     withAcquiredEffective: books.filter((b) => b.acquiredYearEffective !== null).length,
-    withReadDate: books.filter((b) => b.readYear).length,
-    withReadYearEffective: books.filter((b) => b.readYearEffective).length,
+    withReadDate: books.filter((b) => b.readYear !== null).length,
+    withReadYearEffective: books.filter((b) => b.readYearEffective !== null).length,
     withRating: books.filter((b) => b.rating != null).length,
     bulkImported: books.filter((b) => b.bulkImport).length,
     dimsSorted,

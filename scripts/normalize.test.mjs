@@ -360,6 +360,25 @@ describe('feindliche Eingaben (öffentlicher Upload-Pfad)', () => {
     const { books } = normalize(raw)
     expect(books.map((b) => b.hasRead)).toEqual([true, false])
   })
+  it('Bulk-Tageszählung ignoriert identisch kaputte entrydate-Werte', () => {
+    // >= 50 Records mit demselben kaputten entrydate dürfen keinen
+    // gemeinsamen Map-Key bilden und so fälschlich als Massenimport-Tag
+    // zählen (Copilot-Finding PR #24).
+    const garbage = Array.from({ length: 50 }, (_, i) => ({
+      books_id: String(1000 + i),
+      title: `G${i}`,
+      entrydate: 'garbage',
+    }))
+    // Ein paar normale Records mit gültigem entrydate + dateacquired, damit
+    // kein Monat in die Erstkatalogisierungsphase (Regel 1) rutscht — die
+    // Phase wird ohnehin nur aus gültigen ISO-Monaten gebildet.
+    const normal = [
+      { books_id: '1', title: 'A', entrydate: '2019-01-01', dateacquired: '2019-01-01' },
+      { books_id: '2', title: 'B', entrydate: '2019-01-02', dateacquired: '2019-01-02' },
+    ]
+    const { books } = normalize(records_to_raw([...garbage, ...normal]))
+    expect(books.filter((b) => b.bulkImport).length).toBe(0)
+  })
 })
 
 describe('normalize-core bleibt browserfähig', () => {
