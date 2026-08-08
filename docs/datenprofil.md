@@ -175,6 +175,17 @@ Implementiert in `scripts/normalize.mjs`.
     Titel ganz ohne Sprachangabe. Implementiert als
     `inferOriginalLanguages()` in `scripts/normalize.mjs`, mit Unit-Tests.
 
+13. **Effektives Erwerbssignal.** `dateacquired` ist die sicherste Quelle
+    (3.601 Einträge); fehlt es, dient `entrydate` als Proxy — außer bei
+    Massenimport-Einträgen (Regel 1), deren Katalogisierungsdatum kein
+    Erwerbssignal ist. Felder: `acquiredDateEffective`,
+    `acquiredYearEffective`, `acquiredYearSource`
+    (`'dateacquired' | 'entrydate' | null`); die Rohfelder bleiben
+    unverändert daneben stehen. Ergebnis: 273 Proxys (2007–2026),
+    zusammen 3.874 von 4.865 (79,6 %); 25 Bulk-Einträge mit echtem
+    `dateacquired` zählen als direkt. Alle Erwerbs-Views und der
+    Erwerbsjahr-Filter lesen ausschließlich die effektiven Felder.
+
 ## Ausgabeformat
 
 `public/data/library.json`:
