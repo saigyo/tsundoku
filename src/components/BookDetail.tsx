@@ -54,7 +54,16 @@ export function BookDetail({ book, onClose }: { book: Book | null; onClose: () =
     ],
     [m.detail.pages, book.pages === null ? null : fmtNum(book.pages)],
     [m.detail.ddc, book.ddc ? chip({ kind: 'ddcTop', value: book.ddc.top }, m.ddc.labels[book.ddc.top]) : null],
-    [m.detail.acquired, book.acquiredDate ?? (book.acquiredYear !== null ? String(book.acquiredYear) : null)],
+    [
+      m.detail.acquired,
+      (() => {
+        const v = book.acquiredDateEffective ?? (book.acquiredYearEffective !== null ? String(book.acquiredYearEffective) : null)
+        if (v === null) return null
+        // Regel 13: Proxy-Herkunft sichtbar machen — die Zahl soll nicht mehr
+        // Gewissheit vortäuschen, als die Daten hergeben.
+        return book.acquiredYearSource === 'entrydate' ? m.detail.acquiredProxy(v) : v
+      })(),
+    ],
     [m.detail.read, book.readDate ?? (book.readYearEffective !== null ? m.detail.readTagged(book.readYearEffective) : null)],
     [m.detail.rating, book.rating !== null ? `★ ${fmtNum(book.rating)}` : null],
     [m.detail.boughtAt, book.fromWhere],

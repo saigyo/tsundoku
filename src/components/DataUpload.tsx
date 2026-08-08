@@ -110,6 +110,11 @@ export function DataUpload({
       [m.report.origLangInferred, m.report.origLangInferredValue(fmtNum(stats.origLangInferred))],
       [m.report.entitiesDecoded, m.report.entitiesDecodedValue(fmtNum(stats.entitiesDecoded))],
       [m.report.bulkImport, m.report.bulkImportValue(fmtNum(stats.bulkImported))],
+      [m.report.acquired, m.report.acquiredValue(
+        fmtNum(stats.withAcquiredDate),
+        fmtNum(stats.withAcquiredEffective - stats.withAcquiredDate),
+        fmtNum(stats.withAcquiredEffective),
+      )],
     ]
     return (
       <div className={styles.box}>
