@@ -329,6 +329,44 @@ describe('effektives Erwerbssignal (Regel 13: entrydate-Proxy mit Bulk-Sperre)',
   })
 })
 
+describe('abandoned (Regel 14: angefangen, nicht abgeschlossen)', () => {
+  it('startedDate ohne Abschluss -> abandoned (dateread-Modus)', () => {
+    const raw = records_to_raw([{ books_id: '1', title: 'B1', datestarted: '2020-01-01' }])
+    expect(normalize(raw).books[0].abandoned).toBe(true)
+  })
+  it('startedDate mit Abschluss -> kein Flag', () => {
+    const raw = records_to_raw([
+      { books_id: '1', title: 'B1', datestarted: '2020-01-01', dateread: '2020-02-01' },
+    ])
+    const b = normalize(raw).books[0]
+    expect(b.hasRead).toBe(true)
+    expect(b.abandoned).toBe(false)
+  })
+  it('unfinished-Tag flaggt auch Bücher in „Have read" — hasRead bleibt true', () => {
+    const raw = records_to_raw([
+      { books_id: '1', title: 'B1', collections: ['Have read'], tags: ['unfinished'] },
+      { books_id: '2', title: 'B2', collections: ['Your library'] },
+    ])
+    const b = normalize(raw).books.find((x) => x.id === '1')
+    expect(b.hasRead).toBe(true)
+    expect(b.abandoned).toBe(true)
+  })
+  it('Currently reading schützt vor beiden Zweigen', () => {
+    const raw = records_to_raw([
+      { books_id: '1', title: 'B1', datestarted: '2020-01-01', collections: ['Currently reading'] },
+      { books_id: '2', title: 'B2', tags: ['unfinished'], collections: ['Currently reading'] },
+    ])
+    for (const b of normalize(raw).books) expect(b.abandoned).toBe(false)
+  })
+  it('stats.abandoned zählt die Treffer', () => {
+    const raw = records_to_raw([
+      { books_id: '1', title: 'B1', datestarted: '2020-01-01' },
+      { books_id: '2', title: 'B2' },
+    ])
+    expect(normalize(raw).stats.abandoned).toBe(1)
+  })
+})
+
 describe('feindliche Eingaben (öffentlicher Upload-Pfad)', () => {
   it('normTag greift nicht in die Prototype-Kette', () => {
     expect(normTag('constructor')).toBe('constructor')
@@ -452,5 +490,8 @@ describe.skipIf(!existsSync(EXPORT_PATH))('Goldene Kennzahlen am realen Export',
     expect(Math.min(...proxy.map((b) => b.acquiredYearEffective))).toBe(2007)
     expect(books.filter((b) => b.acquiredYearEffective !== null).length).toBe(3874)
     expect(books.filter((b) => b.bulkImport && b.acquiredYearSource === 'dateacquired').length).toBe(25)
+  })
+  it('Regel 14: 419 angefangen ohne Abschluss', () => {
+    expect(books.filter((b) => b.abandoned).length).toBe(419)
   })
 })

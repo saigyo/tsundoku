@@ -190,6 +190,14 @@ Implementiert in `scripts/normalize.mjs`.
     `dateacquired` zählen als direkt. Alle Erwerbs-Views und der
     Erwerbsjahr-Filter lesen ausschließlich die effektiven Felder.
 
+14. **Angefangen, nicht abgeschlossen (`abandoned`).** `datestarted` ohne
+    Abschluss (kein `dateread`, kein Jahres-Tag, nicht in „Have read")
+    kann „abgebrochen" oder „Abschluss nie eingetragen" bedeuten — die
+    Daten unterscheiden das nicht (396 Fälle). Der Tag `unfinished`
+    markiert zusätzlich 35 Abbrüche, die trotzdem in „Have read" liegen
+    (Schnittmenge leer). Bücher in „Currently reading" sind ausgenommen
+    (12 laufende Lektüren). `hasRead` bleibt unverändert; zusammen 419.
+
 ## Ausgabeformat
 
 `public/data/library.json`:

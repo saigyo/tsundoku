@@ -372,6 +372,19 @@ function normalize(raw, source = null) {
           ? { date: entry.date, year: entry.year, source: 'entrydate' }
           : { date: null, year: null, source: null }
 
+    const tagsNorm = [...new Set(tags.map(normTag))]
+    const hasRead = usesReadCollections
+      ? collections.includes('Have read') || collections.includes('Read but unowned')
+      : read.year !== null || yearTags.length > 0
+    // Regel 14: angefangen, nicht abgeschlossen — datestarted ohne Abschluss
+    // (abgebrochen ODER Abschluss nie eingetragen; die Daten unterscheiden
+    // das nicht) sowie der Tag 'unfinished' (35 Abbrüche liegen trotzdem in
+    // „Have read"). Laufende Lektüren („Currently reading") sind ausgenommen.
+    // hasRead bleibt unangetastet — keine stille Korrektur.
+    const abandoned =
+      ((started.date !== null && !hasRead) || tagsNorm.includes('unfinished')) &&
+      !collections.includes('Currently reading')
+
     return {
       id: r.books_id,
       workCode: r.workcode ?? null,
@@ -384,7 +397,7 @@ function normalize(raw, source = null) {
         role: decode(a.role ?? null),
       })),
       tags,
-      tagsNorm: [...new Set(tags.map(normTag))],
+      tagsNorm,
       collections,
       genres: r.genre ?? [],
       series: r.series ?? [],
@@ -435,9 +448,8 @@ function normalize(raw, source = null) {
       readYearEffective: read.year ?? yearTags[0] ?? null,
       readYearSource: read.year ? 'dateread' : yearTags.length ? 'tag' : null,
       readDays: daysBetween(started.date, read.date),
-      hasRead: usesReadCollections
-        ? collections.includes('Have read') || collections.includes('Read but unowned')
-        : read.year !== null || yearTags.length > 0,
+      hasRead,
+      abandoned,
       fromWhere: r.fromwhere ?? null,
       price: toPrice(r.price),
       comment: r.comment ?? null,
@@ -474,6 +486,7 @@ function normalize(raw, source = null) {
     withReadYearEffective: books.filter((b) => b.readYearEffective !== null).length,
     withRating: books.filter((b) => b.rating != null).length,
     bulkImported: books.filter((b) => b.bulkImport).length,
+    abandoned: books.filter((b) => b.abandoned).length,
     dimsSorted,
     dimsDiscarded,
     dimsEstimated: dimsEstimate.estimated,
