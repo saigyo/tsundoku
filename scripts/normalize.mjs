@@ -42,6 +42,7 @@ function main() {
     `  Erwerbssignal: ${stats.withAcquiredDate} direkt + ` +
       `${stats.withAcquiredEffective - stats.withAcquiredDate} per Katalogisierungsdatum = ${stats.withAcquiredEffective} (Regel 13)`,
   )
+  console.log(`  Angefangen, nicht abgeschlossen: ${stats.abandoned} Bücher (abandoned-Flag, Regel 14)`)
   console.log(
     `  Maße permutiert: ${stats.dimsSorted} korrigiert (Tripel sortiert, Dicke = kleinster Wert), ` +
       `${stats.dimsDiscarded} verworfen (kleinster Wert keine plausible Dicke)`,

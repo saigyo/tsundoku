@@ -142,6 +142,7 @@ Erwartete Ausgabe beim aktuellen Export:
 4865 Einträge
 Medien: book 4527, ebook 179, film 87, vinyl 72 | gelesen: 1334
 Erwerbssignal: 3601 direkt + 273 per Katalogisierungsdatum = 3874 | Massenimport: 1016
+Angefangen, nicht abgeschlossen: 419
 Seiten gesamt: 1.359.074 | Lesedauer Median/p90/max: 4/20/209 Tage
 Tags: 3702 normalisiert (roh: 3762)
 Lesejahr bekannt: 1334 (davon 935 per dateread, Rest aus Jahres-Tags), ab 1988
