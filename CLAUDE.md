@@ -59,12 +59,17 @@ filtert selbst und keine View kennt eine andere.
 type Filter =
   | { kind: 'tag'; value: string }
   | { kind: 'language'; value: string }
+  | { kind: 'originalLanguage'; value: string }
   | { kind: 'ddcTop'; value: number }
   | { kind: 'mediaType'; value: MediaType }
   | { kind: 'collection'; value: string }
   | { kind: 'author'; value: string }
+  | { kind: 'award'; value: string }
+  | { kind: 'genre'; value: string }
+  | { kind: 'flag'; value: string }
   | { kind: 'acquiredYear'; from: number; to: number }
   | { kind: 'readYear'; from: number; to: number }
+  | { kind: 'editionYear'; from: number; to: number }
   | { kind: 'readStatus'; value: 'read' | 'unread' }
 ```
 
