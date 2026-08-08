@@ -37,9 +37,14 @@ Qualitäts-Flags.
 ## Normalizer (Regel 14: `abandoned`)
 
 ```
-abandoned = (startedDate vorhanden UND nicht hasRead)
-            ODER tagsNorm enthält 'unfinished'
+abandoned = [ (startedDate vorhanden UND nicht hasRead)
+              ODER tagsNorm enthält 'unfinished' ]
+            UND nicht in Collection 'Currently reading'
 ```
+
+Die Ausnahme schützt laufende Lektüren: alle 12 Bücher in „Currently
+reading" haben ein `startedDate` ohne Abschluss und würden sonst als
+abgebrochen zählen, obwohl sie schlicht noch offen sind.
 
 Begründung im Datenprofil: `datestarted` ohne Abschluss kann „abgebrochen"
 oder „Abschluss nie eingetragen" bedeuten — die Daten unterscheiden das
@@ -48,7 +53,8 @@ in „Have read" liegen (Schnittmenge mit der startedDate-Regel: leer).
 `hasRead` wird nicht verändert: die 35 bleiben „gelesen" **und** sind als
 abgebrochen markiert — die Filterkombination zeigt genau diese Spannung.
 
-**Stats:** neuer Zähler `abandoned` (erwartet: 431 = 396 + 35).
+**Stats:** neuer Zähler `abandoned` (erwartet: 419 = 384 per
+startedDate-Regel + 35 per unfinished-Tag).
 Konsolenzeile von `normalize.mjs`, CLAUDE.md-Erwartungsblock und
 Datenprofil nachführen.
 
@@ -61,7 +67,7 @@ export const FLAG_IDS = [
   'origLangInferred',  // b.originalLanguagesInferred           — 1.016
   'readYearTag',       // b.readYearSource === 'tag'            — 399
   'acquiredEntry',     // b.acquiredYearSource === 'entrydate'  — 273
-  'abandoned',         // b.abandoned                           — 431
+  'abandoned',         // b.abandoned                           — 419
 ] as const
 export type FlagId = (typeof FLAG_IDS)[number]
 export function hasFlag(b: Book, id: FlagId): boolean
@@ -143,7 +149,7 @@ Balkenzeilen wie Block 2, aber klickbar wie Genre-Zeilen: Klick togglet
 `{ kind: 'flag', value }`, `aria-pressed` bei aktivem Filter, Hover-Tönung
 `--ink-08` auf ganzer Zeile. Reihenfolge absteigend nach Trefferzahl
 (ungefiltert: bulkImport 1.016 · origLangInferred 1.016 ·
-physicalEstimated 563 · abandoned 431 · readYearTag 399 ·
+physicalEstimated 563 · abandoned 419 · readYearTag 399 ·
 acquiredEntry 273; bei Gleichstand entscheidet die FLAG_IDS-Reihenfolge). Flag-Namen
 fünfsprachig (`m.flagNames`), z. B. de:
 
@@ -194,7 +200,7 @@ betrifft diese View nicht (keine Animationen).
 
 - `scripts/normalize.test.mjs`: Regel 14 — startedDate ohne Abschluss,
   unfinished-Tag trotz hasRead, gelesen mit startedDate (kein Flag),
-  Zähler.
+  „Currently reading" schützt vor beiden Zweigen (kein Flag), Zähler.
 - `src/lib/flags.test.ts`: `hasFlag` für alle sechs Ids.
 - `src/store/`-Tests: flag-Filter matcht/verengt als UND; urlSync
   round-trip inkl. Verwerfen unbekannter Werte.
@@ -210,7 +216,8 @@ betrifft diese View nicht (keine Animationen).
    dokumentierten Untersätzen; Abweichungen werden geklärt und im Spec
    nachgetragen, nicht weggecastet.
 2. Flag-Klick „Angefangen, nicht abgeschlossen" → Chip erscheint, Regal
-   zeigt 431 Bücher; zweites Flag verengt (UND).
+   zeigt 419 Bücher (kein „Currently reading"-Titel darunter); zweites
+   Flag verengt (UND).
 3. Filter aus anderer View (z. B. Genre) verändert Kacheln und Balken;
    Block 4 bleibt unverändert global.
 4. URL mit `?flag=abandoned` stellt den Zustand her; unbekannter Wert wird
