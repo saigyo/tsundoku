@@ -1,4 +1,5 @@
 import type { Book } from './types'
+import type { Messages } from '../i18n/messages'
 
 /**
  * Qualitäts-Flags der Datenqualitäts-View (Spec „Datenqualitäts-View"):
@@ -28,4 +29,9 @@ const PREDICATES: Record<FlagId, (b: Book) => boolean> = {
 /** id ist string, nicht FlagId: URL-Parameter sind Nutzereingaben. */
 export function hasFlag(b: Book, id: string): boolean {
   return (PREDICATES as Record<string, (b: Book) => boolean | undefined>)[id]?.(b) ?? false
+}
+
+/** Übersetzter Flag-Name; unbekannte Werte (URL) fallen auf die Id zurück. */
+export function flagLabel(value: string, m: Messages): string {
+  return (m.flagNames as Record<string, string>)[value] ?? value
 }

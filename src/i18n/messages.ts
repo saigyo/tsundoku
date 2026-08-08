@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import type { MediaType, ViewId } from '../lib/types'
 import type { GenreKey } from '../lib/genres'
+import type { FlagId } from '../lib/flags'
+import type { QualityFieldId } from '../lib/viewData/quality'
 
 export const SUPPORTED_LOCALES = ['de', 'en', 'fr', 'es', 'ja'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
@@ -93,6 +95,7 @@ export interface Messages {
     author: (v: string) => string
     award: (v: string) => string
     genre: (label: string) => string
+    flag: (label: string) => string
     acquired: (from: number, to: number) => string
     read: (from: number, to: number) => string
     edition: (from: number, to: number) => string
@@ -322,8 +325,40 @@ export interface Messages {
       sortByOwned: string
       sortByRate: string
     }
+    quality: {
+      title: string
+      tiles: {
+        acquired: string
+        acquiredParts: (directFmt: string, proxyFmt: string, missingFmt: string) => string
+        readYear: string
+        readYearParts: (tagOnlyFmt: string) => string
+        bulk: string
+        bulkNote: string
+        dims: string
+        dimsParts: (estimatedFmt: string, missingFmt: string) => string
+        rating: string
+        ratingParts: (nFmt: string) => string
+      }
+      /** Prozentdarstellung der Kacheln und Zeilen (fr: schmales Leerzeichen). */
+      pct: (pFmt: string) => string
+      rowCounts: (nFmt: string, totalFmt: string, pctFmt: string) => string
+      coverageTitle: string
+      flagsTitle: string
+      globalTitle: string
+      fields: Record<QualityFieldId, string>
+      global: {
+        entities: string
+        dimsSorted: string
+        dimsDiscarded: string
+        dimsEstimated: string
+        origLang: string
+        tags: string
+        tagsValue: (rawFmt: string, normFmt: string) => string
+      }
+    }
   }
   genreNames: Record<GenreKey, string>
+  flagNames: Record<FlagId, string>
   footer: {
     license: string
     embedded: string
