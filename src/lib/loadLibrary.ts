@@ -7,7 +7,10 @@ export class LibraryMissingError extends Error {
   }
 }
 
-export async function loadLibrary(): Promise<Library> {
+export async function loadLibrary(serverLibrary = __SERVER_LIBRARY__): Promise<Library> {
+  // Build ohne library.json (GitHub-Page): gar nicht erst anfragen, das
+  // fehlgeschlagene Laden erschiene sonst als Fehler in der Browser-Konsole.
+  if (!serverLibrary) throw new LibraryMissingError()
   const res = await fetch(`${import.meta.env.BASE_URL}data/library.json`)
   if (res.status === 404) throw new LibraryMissingError()
   if (!res.ok) throw new Error(`Laden fehlgeschlagen: HTTP ${res.status}`)
