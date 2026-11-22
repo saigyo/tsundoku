@@ -25,6 +25,13 @@ describe('loadLibrary', () => {
     await expect(loadLibrary()).rejects.toBeInstanceOf(LibraryMissingError)
   })
 
+  it('fragt ohne ausgelieferte library.json gar nicht erst an', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(loadLibrary(false)).rejects.toBeInstanceOf(LibraryMissingError)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('wirft bei anderen HTTP-Fehlern mit Statuscode', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 500 })))
     await expect(loadLibrary()).rejects.toThrow('500')
