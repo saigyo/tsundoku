@@ -29,7 +29,7 @@ export const en: Messages = {
     intro: (
       <>
         <em>Tsundoku</em> (積ん読)—buying books and letting them pile up, unread. This app explores
-        a LibraryThing library interactively: eight linked views, from a bookshelf drawn to scale
+        a LibraryThing library interactively: eleven linked views, from a bookshelf drawn to scale
         through timelines and a tag network to the flow of languages—and every view doubles as a
         filter for all the others. The question at its heart: what does the gap between what you{' '}
         <em>acquire</em> and what you <em>read</em> reveal about you?

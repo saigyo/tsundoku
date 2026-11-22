@@ -29,7 +29,7 @@ export const de: Messages = {
     intro: (
       <>
         <em>Tsundoku</em> (積ん読) — Bücher kaufen und stapeln, ohne sie zu lesen. Diese Anwendung
-        erkundet eine LibraryThing-Bibliothek interaktiv: acht verknüpfte Ansichten, vom
+        erkundet eine LibraryThing-Bibliothek interaktiv: elf verknüpfte Ansichten, vom
         maßstabsgetreu gezeichneten Regal über Zeitleisten und Tag-Netzwerk bis zum Sprachfluss —
         und jede Ansicht ist zugleich Filter für alle anderen. Die zentrale Frage dabei: Was
         verrät die Differenz zwischen dem, was man <em>erwirbt</em>, und dem, was man{' '}

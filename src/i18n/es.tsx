@@ -29,7 +29,7 @@ export const es: Messages = {
     intro: (
       <>
         <em>Tsundoku</em> (積ん読) — comprar libros y dejarlos apilarse sin leerlos. Esta
-        aplicación explora una biblioteca de LibraryThing de forma interactiva: ocho vistas
+        aplicación explora una biblioteca de LibraryThing de forma interactiva: once vistas
         enlazadas, desde la estantería dibujada a escala hasta el flujo de idiomas, pasando por
         las cronologías y la red de etiquetas — y cada vista es a la vez filtro para todas las
         demás. La pregunta central: ¿qué revela la diferencia entre lo que uno <em>adquiere</em>{' '}
