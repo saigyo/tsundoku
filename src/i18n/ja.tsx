@@ -128,6 +128,7 @@ export const ja: Messages = {
   lang: {
     other: 'その他',
     unknown: '不明',
+    names: { grc: '古代ギリシャ語' },
   },
   filter: {
     tag: (v) => `タグ：${v}`,

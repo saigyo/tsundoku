@@ -130,6 +130,7 @@ export const en: Messages = {
   lang: {
     other: 'other',
     unknown: 'unknown',
+    names: { grc: 'Ancient Greek' },
   },
   filter: {
     tag: (v) => `Tag: ${v}`,

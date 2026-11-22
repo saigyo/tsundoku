@@ -134,6 +134,7 @@ export const es: Messages = {
   lang: {
     other: 'otro',
     unknown: 'desconocido',
+    names: { grc: 'griego antiguo' },
   },
   filter: {
     tag: (v) => `Etiqueta: ${v}`,

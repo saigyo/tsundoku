@@ -84,6 +84,9 @@ export interface Messages {
   lang: {
     other: string
     unknown: string
+    /** Sprachnamen nach ISO-Code, die nicht jeder Browser per
+     *  Intl.DisplayNames kennt (Chromium liefert für `grc` nur den Code). */
+    names: Record<string, string>
   }
   filter: {
     tag: (v: string) => string
