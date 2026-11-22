@@ -42,6 +42,10 @@ export function langLabel(code: string, m: Messages): string {
   if (code === UNKNOWN_LANG) return m.lang.unknown
   const iso = LANG_ISO[code]
   if (!iso) return code
+  // Bundle-Namen zuerst: Die ICU-Daten der Browser unterscheiden sich, ein
+  // fehlender Eintrag würde sonst den englischen LibraryThing-Namen zeigen.
+  const bundled = m.lang.names[iso]
+  if (bundled) return bundled
   let dn = displayNames.get(m.locale)
   if (!dn) {
     dn = new Intl.DisplayNames([m.locale], { type: 'language' })

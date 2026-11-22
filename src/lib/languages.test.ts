@@ -13,6 +13,11 @@ describe('langLabel', () => {
     expect(langLabel('German', jaLike)).toBe('ドイツ語')
     expect(langLabel('Greek (Ancient)', de)).toBe('Altgriechisch')
   })
+  it('bevorzugt Namen aus dem Bundle vor Intl.DisplayNames', () => {
+    // Chromium kennt `grc` nicht; das Bundle muss unabhängig davon greifen.
+    const withName = { ...de, lang: { ...de.lang, names: { grc: 'Bundle-Griechisch' } } }
+    expect(langLabel('Greek (Ancient)', withName)).toBe('Bundle-Griechisch')
+  })
   it('nutzt Message-Schlüssel für die Sentinel-Werte', () => {
     expect(langLabel('andere', de)).toBe(de.lang.other)
     expect(langLabel('unbekannt', de)).toBe(de.lang.unknown)
